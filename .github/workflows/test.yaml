@@ -11,5 +11,5 @@ jobs:
       with:
         pr: 227
         repo: 'grunwaldlab/poppr'
-    - run: echo valid: ${{ steps.invalid-pr.outputs.VALID }}
+    - run: echo ${{ steps.invalid-pr.outputs.VALID }}
       shell: bash
