@@ -1,0 +1,21 @@
+name: 'Check Valid Pull Request'
+description: 'Checks that a Pull request exists and that it does not contain any .github files'
+inputs:
+  pr:  # id of input
+    description: 'pull request number'
+    required: true
+  repository:
+    description: 'github repository'
+    required: true
+    default: ${{ github.repository }}
+outputs:
+  VALID: 
+    description: "flag indicating if the PR is valid"
+    value: ${{ steps.valid-pr.outputs.VALID }}
+runs:
+  using: "composite"
+  steps: 
+    - id: valid-pr
+      run: ${{ github.action_path }}/check-pr.sh ${{ inputs.pr }} ${{ inputs.repository }}
+      shell: bash
+

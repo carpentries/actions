@@ -1,0 +1,15 @@
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Testing a PR that's closed
+    steps:
+    - uses: actions/checkout@v2
+    - id: invalid-pr
+      uses: zkamvar/check-valid-pr@main
+      with:
+        who-to-greet: 'Zhian?'
+        push: true
+    - run: echo "valid: ${{ steps.invalid-pr.outputs.VALID }}"
+      shell: bash
