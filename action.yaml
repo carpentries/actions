@@ -4,7 +4,7 @@ inputs:
   pr:  # id of input
     description: 'pull request number'
     required: true
-  repository:
+  repo:
     description: 'github repository'
     required: true
     default: ${{ github.repository }}
@@ -16,6 +16,6 @@ runs:
   using: "composite"
   steps: 
     - id: valid-pr
-      run: ${{ github.action_path }}/check-pr.sh ${{ inputs.pr }} ${{ inputs.repository }}
+      run: ${{ github.action_path }}/check-pr.sh ${{ inputs.pr }} ${{ inputs.repo }}
       shell: bash
 

@@ -10,6 +10,6 @@ jobs:
       uses: zkamvar/check-valid-pr@main
       with:
         pr: 227
-        repository: 'grunwaldlab/poppr'
+        repo: 'grunwaldlab/poppr'
     - run: echo ${{ steps.invalid-pr.outputs.VALID }}
       shell: bash
