@@ -9,7 +9,7 @@ jobs:
     - id: invalid-pr
       uses: zkamvar/check-valid-pr@main
       with:
-        who-to-greet: 'Zhian?'
-        push: true
+        pr: 227
+        repo: 'grunwaldlab/poppr'
     - run: echo "valid: ${{ steps.invalid-pr.outputs.VALID }}"
       shell: bash
