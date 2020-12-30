@@ -1,5 +1,3 @@
-#!/bin/env bash
-
 set -xeuo pipefail
 
 NR=${1:?"Pull request number required"}
