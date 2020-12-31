@@ -39,7 +39,7 @@ async function run() {
 
   console.log(`Has Merged: ${pullRequestMerged}`);
   console.log(`Files: ${pullRequestFiles.map(getFilename)}`);
-  console.log(`Any GitHub: ${pullRequestFiles.map(getFilename).reduce(isTRUE, true)}`);
+  console.log(`Any GitHub: ${pullRequestFiles.map(getFilename).reduce(notAction, true)}`);
 }
 
 
