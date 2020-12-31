@@ -36,10 +36,10 @@ async function run() {
     pull_number: Number(PR),
   });
   
-  const files = pullRequestFiles.map(getFilename).catch(error) { console.log('oops') };
-  const valid = files.reduce(notAction, true).catch(error) { console.log('oops') };
+  const files = pullRequestFiles.map(getFilename);
+  const valid = files.reduce(notAction, true);
 
-  console.log(`Has Merged: ${pullRequestMerged}`);
+  console.log(`Has Merged: ${JSON.stringify(pullRequestMerged)}`);
   console.log(`Files: ${files}`);
   console.log(`Any GitHub: ${valid}`);
   core.setOutput("VALID", valid);
