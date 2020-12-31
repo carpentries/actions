@@ -24,21 +24,19 @@ async function run() {
     return truth && !l.startsWith('.github/');
   }
 
-  const { status: pullRequestMerged } = await octokit.pulls.checkIfMerged({
+  const pullRequestMerged  = await octokit.pulls.checkIfMerged({
     owner: repository[0],
     repo: repository[1],
     pull_number: Number(PR),
   }).catch(err => {
-    res;
+    pullRequestMerged.status;
   });
 
   const { data: pullRequestFiles } = await octokit.pulls.listFiles({
     owner: repository[0],
     repo: repository[1],
     pull_number: Number(PR),
-  }).catch(err => {
-    res;
-  });
+  }).catch(err);
   
   const files = pullRequestFiles.map(getFilename);
   const valid = files.reduce(notAction, true);
