@@ -33,7 +33,7 @@ async function run() {
   });
 
   console.log(`Has Merged: ${pullRequestMerged}`);
-  console.log(`Files: ${JSON.stringify(pullRequestFiles.map(checkGithub))}`);
+  console.log(`Files: ${pullRequestFiles.map(checkGithub)}`);
 }
 
 
