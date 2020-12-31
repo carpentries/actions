@@ -11,11 +11,13 @@ inputs:
 outputs:
   VALID: 
     description: "flag indicating if the PR is valid"
-    value: ${{ steps.valid-pr.outputs.VALID }}
+    # value: ${{ steps.valid-pr.outputs.VALID }}
 runs:
-  using: "composite"
-  steps: 
-    - id: valid-pr
-      run: ${{ github.action_path }}/check-pr.sh ${{ inputs.pr }} ${{ inputs.repo }}
-      shell: bash
+  using: 'node12'
+  main: 'index.js'
+  # using: "composite"
+  # steps: 
+  #   - id: valid-pr
+  #     run: ${{ github.action_path }}/check-pr.sh ${{ inputs.pr }} ${{ inputs.repo }}
+  #     shell: bash
 
