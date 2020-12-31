@@ -28,6 +28,10 @@ async function run() {
 
 try {
   run();
+} catch(error) {
+  core.setFailed(error.message);
+}
+try {
   // `who-to-greet` input defined in action metadata file
   const pullRequest = core.getInput('pr');
   const repository  = core.getInput('repo');
