@@ -24,17 +24,21 @@ async function run() {
     return truth && !l.startsWith('.github/');
   }
 
-  const { status: pullRequestMerged }= await octokit.pulls.checkIfMerged({
+  const { status: pullRequestMerged } = await octokit.pulls.checkIfMerged({
     owner: repository[0],
     repo: repository[1],
     pull_number: Number(PR),
-  });
+  }).catch(err => {
+    res;
+  };
 
   const { data: pullRequestFiles } = await octokit.pulls.listFiles({
     owner: repository[0],
     repo: repository[1],
     pull_number: Number(PR),
-  });
+  }).catch(err => {
+    res;
+  };
   
   const files = pullRequestFiles.map(getFilename);
   const valid = files.reduce(notAction, true);
@@ -42,7 +46,7 @@ async function run() {
   console.log(`Has Merged: ${JSON.stringify(pullRequestMerged)}`);
   console.log(`Files: ${files}`);
   console.log(`Any GitHub: ${valid}`);
-  core.setOutput("VALID", valid);
+  core.setOutput("VALID", valid && pullRequestMerged != 204);
 }
 
 
