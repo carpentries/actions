@@ -14,3 +14,11 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
     - run: echo ${{ steps.invalid-pr.outputs.VALID }}
       shell: bash
+    - id: valid-pr
+      uses: zkamvar/check-valid-pr@use-js
+      with:
+        pr: 228
+        repo: 'grunwaldlab/poppr'
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - run: echo ${{ steps.valid-pr.outputs.VALID }}
+      shell: bash
