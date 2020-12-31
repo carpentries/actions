@@ -36,11 +36,10 @@ async function run() {
     pull_number: Number(PR),
   });
   
-  const filenames = pullRequestFiles.map(getFilename);
 
   console.log(`Has Merged: ${pullRequestMerged}`);
-  console.log(`Files: ${filenames}`);
-  console.log(`Any GitHub: ${filenames.reduce(isTRUE, true)}`);
+  console.log(`Files: ${pullRequestFiles.map(getFilename)}`);
+  console.log(`Any GitHub: ${pullRequestFiles.map(getFilename).reduce(isTRUE, true)}`);
 }
 
 
