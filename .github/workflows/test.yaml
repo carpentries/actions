@@ -7,7 +7,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - id: invalid-pr
-      uses: zkamvar/check-valid-pr@main
+      uses: zkamvar/check-valid-pr@use-js
       with:
         pr: 227
         repo: 'grunwaldlab/poppr'
