@@ -17,7 +17,11 @@ async function run() {
   // const octokit = github.getOctokit(myToken, {userAgent: "MyActionVersion1"});
 
   function checkGithub(f) {
-    return f.filename.startsWith('.github/');
+    return !f.filename.startsWith('.github/');
+  }
+
+  function isTRUE(truth, l) {
+    return truth && l;
   }
 
   const { data: pullRequestMerged } = await octokit.pulls.checkIfMerged({
@@ -33,7 +37,7 @@ async function run() {
   });
 
   console.log(`Has Merged: ${pullRequestMerged}`);
-  console.log(`Files: ${pullRequestFiles.map(checkGithub)}`);
+  console.log(`Files: ${pullRequestFiles.map(checkGithub).reduce(isTRUE, true)}`);
 }
 
 
