@@ -16,6 +16,10 @@ async function run() {
   // You can also pass in additional options as a second parameter to getOctokit
   // const octokit = github.getOctokit(myToken, {userAgent: "MyActionVersion1"});
 
+  function checkGithub(f) {
+    f.filename.startsWith(".github/")
+  }
+
   const { data: pullRequestMerged } = await octokit.pulls.checkIfMerged({
     owner: repository[0],
     repo: repository[1],
@@ -29,7 +33,7 @@ async function run() {
   });
 
   console.log(`Has Merged: ${pullRequestMerged}`);
-  console.log(`Files: ${JSON.stringify(pullRequestFiles)}`);
+  console.log(`Files: ${map(pullRequestFiles, checkGithub))}`);
 }
 
 
