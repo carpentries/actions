@@ -11,5 +11,6 @@ jobs:
       with:
         pr: 227
         repo: 'grunwaldlab/poppr'
+        token: ${{ secrets.GITHUB_TOKEN }}
     - run: echo ${{ steps.invalid-pr.outputs.VALID }}
       shell: bash

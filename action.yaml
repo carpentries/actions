@@ -8,6 +8,9 @@ inputs:
     description: 'github repository'
     required: true
     default: ${{ github.repository }}
+  token:
+    description: 'github token'
+    required: true
 outputs:
   VALID: 
     description: "flag indicating if the PR is valid"
