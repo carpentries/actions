@@ -11,6 +11,7 @@ async function run() {
   const repository = core.getInput('repo').split('/');
 
   const octokit = github.getOctokit(myToken)
+  console.log(repository);
 
   // You can also pass in additional options as a second parameter to getOctokit
   // const octokit = github.getOctokit(myToken, {userAgent: "MyActionVersion1"});
