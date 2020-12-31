@@ -19,7 +19,7 @@ async function run() {
   const { data: pullRequest } = await octokit.pulls.get({
     owner: repository[0],
     repo: repository[1],
-    pull_number: Int(PR),
+    pull_number: Number(PR),
   });
 
   console.log(pullRequest);
@@ -41,7 +41,7 @@ try {
   core.setOutput("VALID", valid);
   // Get the JSON webhook payload for the event that triggered the workflow
   const payload = JSON.stringify(github.context.payload, undefined, 2)
-  console.log(`The event payload: ${payload}`);
+  // console.log(`The event payload: ${payload}`);
 } catch (error) {
   core.setFailed(error.message);
 }
