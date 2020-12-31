@@ -26,7 +26,7 @@ async function run() {
 
 
 try {
-  run()
+  run();
   // `who-to-greet` input defined in action metadata file
   const pullRequest = core.getInput('pr');
   const repository  = core.getInput('repo');
