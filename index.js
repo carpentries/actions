@@ -28,9 +28,7 @@ async function run() {
     owner: repository[0],
     repo: repository[1],
     pull_number: Number(PR),
-  }).catch(err => {
-    pullRequestMerged.status;
-  });
+  }).catch(err);
 
   const { data: pullRequestFiles } = await octokit.pulls.listFiles({
     owner: repository[0],
