@@ -29,7 +29,7 @@ async function run() {
   });
 
   console.log(`Has Merged: ${pullRequestMerged}`);
-  console.log(`Files: ${pullRequestFiles}`);
+  console.log(`Files: ${JSON.stringify(pullRequestFiles)}`);
 }
 
 
