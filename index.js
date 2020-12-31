@@ -17,7 +17,7 @@ async function run() {
   // const octokit = github.getOctokit(myToken, {userAgent: "MyActionVersion1"});
 
   function checkGithub(f) {
-    return f.filename;
+    return f.filename.startsWith('.github/');
   }
 
   const { data: pullRequestMerged } = await octokit.pulls.checkIfMerged({
