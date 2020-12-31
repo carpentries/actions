@@ -6,6 +6,7 @@ try {
   const pullRequest = core.getInput('pr');
   const repository  = core.getInput('repo');
   console.log(`Hello ${repository}/${pullRequest}!`);
+  console.log(`Hello ${github.repository}?`)
   const valid = github.repository == repository;
   core.setOutput("VALID", valid);
   // Get the JSON webhook payload for the event that triggered the workflow
