@@ -28,13 +28,13 @@ async function run() {
     owner: repository[0],
     repo: repository[1],
     pull_number: Number(PR),
-  }).catch(err => { console.log(err) });
+  }).catch(err => { console.log(err); 404 });
 
   const { data: pullRequestFiles } = await octokit.pulls.listFiles({
     owner: repository[0],
     repo: repository[1],
     pull_number: Number(PR),
-  }).catch(err => { console.log(err) } );
+  }).catch(err => { console.log(err); null } );
   
   const files = pullRequestFiles.map(getFilename);
   const valid = files.reduce(notAction, true);
