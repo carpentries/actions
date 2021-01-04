@@ -38,9 +38,18 @@ async function run() {
     pull_number: Number(PR),
   }).catch(err => { console.log(err); return err; } );
   
-  const files = pullRequestFiles.map(getFilename);
-  const valid = files.reduce(notAction, true);
+  if (!pullRequestMerged in [404, 204]) {
+    throw `There was a problem with the request (Status ${pullRequestMerged}). See log.`;
+  }
 
+  if (pullRequestFiles) {
+    const files = pullRequestFiles.map(getFilename);
+    const valid = files.reduce(notAction, true);
+  } else if (pullRequestFiles.header) {
+    throw `Request for files threw an error (Status ${pullRequestFiles.header.status})`;
+  } else {
+    throw `No files associated with the pull request.`;
+  }
   console.log(`Has Merged: ${JSON.stringify(pullRequestMerged)}`);
   console.log(`Files: ${files}`);
   console.log(`Any GitHub: ${valid}`);
