@@ -54,7 +54,7 @@ async function run() {
     console.log(`Pull Request ${PR} was previously merged`)
   }
   console.log(`Is valid?: ${valid}`);
-  core.setOutput("VALID", valid);
+  core.setOutput("VALID", valid ? "true" : null);
 }
 
 
