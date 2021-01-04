@@ -37,7 +37,7 @@ async function run() {
     core.setFailed(`There was a problem with the request (Status ${pullRequestMerged}). See log.`);
   }
 
-  const valid = pullRequestMerged == 404;
+  let valid = pullRequestMerged == 404;
 
   if (valid) {
     // What files are associated? ------------------------------------------------
