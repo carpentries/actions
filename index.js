@@ -33,7 +33,7 @@ async function run() {
     return err; 
   });
 
-  console.log(`pull request: ${JSON.stringify(pullRequest)}`);
+  // console.log(`pull request: ${JSON.stringify(pullRequest)}`);
 
   // Default: be cautious
   let valid = false;
