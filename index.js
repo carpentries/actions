@@ -24,39 +24,45 @@ async function run() {
     return truth && !l.startsWith('.github/');
   }
 
-  // Check if the PR has merged
-  // 
+  // Has the PR merged? --------------------------------------------------------
+  // 404 == unmerged OR just doesn't exist ಠ_ಠ 
+  // 204 == merged
   const { status: pullRequestMerged } = await octokit.pulls.checkIfMerged({
     owner: repository[0],
     repo: repository[1],
     pull_number: Number(PR),
   }).catch(err => { console.log(err); return err; });
 
-  const { data: pullRequestFiles } = await octokit.pulls.listFiles({
-    owner: repository[0],
-    repo: repository[1],
-    pull_number: Number(PR),
-  }).catch(err => { console.log(err); return err; } );
-  
   if (!pullRequestMerged in [404, 204]) {
-    try {
-     throw `There was a problem with the request (Status ${pullRequestMerged}). See log.`;
-    } catch (e) {
-      // statements to handle any exceptions
-      core.setFailed(e); // pass exception object to error handler
-    }
+    core.setFailed(`There was a problem with the request (Status ${pullRequestMerged}). See log.`);
   }
 
-  if (pullRequestFiles) {
-    const files = pullRequestFiles.map(getFilename);
-    const valid = files.reduce(notAction, true);
+  const valid = pullRequestMerged == 404;
+
+  if (valid) {
+    // What files are associated? ------------------------------------------------
+    const { data: pullRequestFiles } = await octokit.pulls.listFiles({
+      owner: repository[0],
+      repo: repository[1],
+      pull_number: Number(PR),
+    }).catch(err => { console.log(err); return err; } );
+    
+    if (pullRequestFiles) {
+      const files = pullRequestFiles.map(getFilename);
+      valid = valid && files.reduce(notAction, true);
+      console.log(`Files: ${files}`);
+    } else {
+      core.setFailed(`No files associated with the pull request.`);
+      valid = false;
+    }
   } else {
-    core.setFailed(`No files associated with the pull request.`);
+    console.log(`Pull Request ${PR} was previously merged`)
   }
-  console.log(`Has Merged: ${JSON.stringify(pullRequestMerged)}`);
-  console.log(`Files: ${files}`);
-  console.log(`Any GitHub: ${valid}`);
-  core.setOutput("VALID", valid && pullRequestMerged != 204);
+
+  console.log(`Has Merged?: ${valid}`);
+  console.log(`is valid: ${valid}`);
+  core.setOutput("VALID", valid);
+
 }
 
 
