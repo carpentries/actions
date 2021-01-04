@@ -51,12 +51,7 @@ async function run() {
     const files = pullRequestFiles.map(getFilename);
     const valid = files.reduce(notAction, true);
   } else {
-    try {
-      throw `No files associated with the pull request.`;
-    } catch (e) {
-      // statements to handle any exceptions
-      core.setFailed(e); // pass exception object to error handler
-    }
+    core.setFailed(`No files associated with the pull request.`);
   }
   console.log(`Has Merged: ${JSON.stringify(pullRequestMerged)}`);
   console.log(`Files: ${files}`);
