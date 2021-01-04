@@ -24,6 +24,14 @@ async function run() {
     return truth && !l.startsWith('.github/');
   }
 
+  const pullRequest = await octokit.pulls.get({
+    owner: repository[0],
+    repo: repository[1],
+    pull_number: Number(PR),
+  }).catch(err => { console.log(err); return(err) });
+
+  console.log(`pull request: ${pullRequest}`);
+
   // Has the PR merged? --------------------------------------------------------
   // 404 == unmerged OR just doesn't exist ಠ_ಠ 
   // 204 == merged
