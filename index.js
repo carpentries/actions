@@ -30,7 +30,7 @@ async function run() {
     pull_number: Number(PR),
   }).catch(err => { console.log(err); return(err) });
 
-  console.log(`pull request: ${pullRequest}`);
+  console.log(`pull request: ${JSON.stringify(pullRequest)}`);
 
   // Has the PR merged? --------------------------------------------------------
   // 404 == unmerged OR just doesn't exist ಠ_ಠ 
