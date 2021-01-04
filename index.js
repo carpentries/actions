@@ -30,7 +30,7 @@ async function run() {
     pull_number: Number(PR),
   }).catch(err => { 
     console.log(err);
-    core.setFailed(`There was a problem with the request (Status ${pullRequest.status}). See log.`);
+    core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
     process.exit(1);
   });
 
