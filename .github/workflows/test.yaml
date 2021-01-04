@@ -8,28 +8,28 @@ jobs:
     - uses: actions/checkout@v2
     - id: invalid-pr-closed
       name: "Invalid PR (status)"
-      uses: zkamvar/check-valid-pr@invalid-as-null
+      uses: zkamvar/check-valid-pr@main
       with:
         pr: 227
         repo: 'grunwaldlab/poppr'
         token: ${{ secrets.GITHUB_TOKEN }}
     - id: invalid-pr-files
       name: "Invalid PR (files)"
-      uses: zkamvar/check-valid-pr@invalid-as-null
+      uses: zkamvar/check-valid-pr@main
       with:
         pr: 228
         repo: 'grunwaldlab/poppr'
         token: ${{ secrets.GITHUB_TOKEN }}
     - id: closed
       name: "Closed PR"
-      uses: zkamvar/check-valid-pr@invalid-as-null
+      uses: zkamvar/check-valid-pr@main
       with:
         pr: 21
         repo: 'zkamvar/testme'
         token: ${{ secrets.GITHUB_TOKEN }}
     - id: closed-and-opened
       name: "Closed and Opened PR"
-      uses: zkamvar/check-valid-pr@invalid-as-null
+      uses: zkamvar/check-valid-pr@main
       with:
         pr: 23
         repo: 'zkamvar/testme'
@@ -42,7 +42,7 @@ jobs:
         echo ${{ steps.closed-and-opened.outputs.VALID }}
     # - id: non-existant-pr
     #   name: "Non-existant PR"
-    #   uses: zkamvar/check-valid-pr@invalid-as-null
+    #   uses: zkamvar/check-valid-pr@main
     #   with:
     #     pr: 20210104
     #     repo: 'grunwaldlab/poppr'
