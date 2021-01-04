@@ -13,7 +13,6 @@ jobs:
         pr: 227
         repo: 'grunwaldlab/poppr'
         token: ${{ secrets.GITHUB_TOKEN }}
-      shell: bash
     - id: invalid-pr-files
       name: "Invalid PR (files)"
       uses: zkamvar/check-valid-pr@use-js
