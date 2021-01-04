@@ -12,6 +12,10 @@ This action prints "Hello World" or "Hello" + the name of a person to greet to t
 
 **Required** The value of the repository. Defaults to `github.repository`
 
+### `token`
+
+**Required** The default GITHUB TOKEN 
+
 ## Outputs
 
 ### `VALID`
@@ -25,4 +29,5 @@ uses: zkamvar/check-pr@main
 with:
   pr: 227
   repo: grunwaldlab/poppr
+  token: ${{ secrets.GITHUB_TOKEN }}
 ```
