@@ -31,7 +31,12 @@ async function run() {
     owner: repository[0],
     repo: repository[1],
     pull_number: Number(PR),
-  }).catch(err => { console.log(err); return err; });
+  }).catch(err => { 
+    if (!err.status in [404, 204]) {
+      console.log(err);
+    }
+    return err; 
+  });
 
   if (!pullRequestMerged in [404, 204]) {
     core.setFailed(`There was a problem with the request (Status ${pullRequestMerged}). See log.`);
@@ -50,9 +55,9 @@ async function run() {
     if (pullRequestFiles) {
       const files = pullRequestFiles.map(getFilename);
       valid = valid && files.reduce(notAction, true);
-      console.log(`Files: ${files}`);
+      console.log(`Files in PR: ${files}`);
     } else {
-      core.setFailed(`No files associated with the pull request.`);
+      core.setFailed(`No files found.`);
       valid = false;
     }
   } else {
@@ -60,7 +65,7 @@ async function run() {
   }
 
   console.log(`Has Merged?: ${valid}`);
-  console.log(`is valid: ${valid}`);
+  console.log(`Is valid?: ${valid}`);
   core.setOutput("VALID", valid);
 
 }
