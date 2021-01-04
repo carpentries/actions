@@ -35,10 +35,10 @@ jobs:
         pr: 23
         repo: 'zkamvar/testme'
         token: ${{ secrets.GITHUB_TOKEN }}
-    - id: non-existant-pr
-      name: "Non-existant PR"
-      uses: zkamvar/check-valid-pr@use-js
-      with:
-        pr: 20210104
-        repo: 'grunwaldlab/poppr'
-        token: ${{ secrets.GITHUB_TOKEN }}
+    # - id: non-existant-pr
+    #   name: "Non-existant PR"
+    #   uses: zkamvar/check-valid-pr@use-js
+    #   with:
+    #     pr: 20210104
+    #     repo: 'grunwaldlab/poppr'
+    #     token: ${{ secrets.GITHUB_TOKEN }}
