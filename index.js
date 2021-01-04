@@ -44,7 +44,7 @@ async function run() {
     core.setFailed(`There was a problem with the request (Status ${pullRequest.status}). See log.`);
     process.exit(1);
   } else {
-    valid = pullRequest.state == 'open';
+    valid = pullRequest.data.state == 'open';
   }
 
   if (valid) {
