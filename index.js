@@ -30,22 +30,12 @@ async function run() {
     pull_number: Number(PR),
   }).catch(err => { 
     console.log(err);
-    return err; 
-  });
-
-  // console.log(`pull request: ${JSON.stringify(pullRequest)}`);
-
-  // Default: be cautious
-  let valid = false;
-
-  // Is the PR open? -----------------------------------------------------------
-  if (!pullRequest.status > 400) {
-    // Fail immediately if the PR doesn't exist or there's a server issue
     core.setFailed(`There was a problem with the request (Status ${pullRequest.status}). See log.`);
     process.exit(1);
-  } else {
-    valid = pullRequest.data.state == 'open';
-  }
+  });
+
+  // Default: be cautious
+  let valid = pullRequest.data.state == 'open';
 
   if (valid) {
     // What files are associated? ------------------------------------------------
