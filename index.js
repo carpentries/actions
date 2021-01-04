@@ -28,29 +28,24 @@ async function run() {
     owner: repository[0],
     repo: repository[1],
     pull_number: Number(PR),
-  }).catch(err => { console.log(err); return(err) });
-
-  console.log(`pull request: ${JSON.stringify(pullRequest)}`);
-
-  // Has the PR merged? --------------------------------------------------------
-  // 404 == unmerged OR just doesn't exist ಠ_ಠ 
-  // 204 == merged
-  const { status: pullRequestMerged } = await octokit.pulls.checkIfMerged({
-    owner: repository[0],
-    repo: repository[1],
-    pull_number: Number(PR),
   }).catch(err => { 
-    if (!err.status in [404, 204]) {
-      console.log(err);
-    }
+    console.log(err);
     return err; 
   });
 
-  if (!pullRequestMerged in [404, 204]) {
-    core.setFailed(`There was a problem with the request (Status ${pullRequestMerged}). See log.`);
-  }
+  console.log(`pull request: ${JSON.stringify(pullRequest)}`);
 
-  let valid = pullRequestMerged == 404;
+  // Default: be cautious
+  let valid = false;
+
+  // Is the PR open? -----------------------------------------------------------
+  if (!pullRequest.status > 400) {
+    // Fail immediately if the PR doesn't exist or there's a server issue
+    core.setFailed(`There was a problem with the request (Status ${pullRequest.status}). See log.`);
+    process.exit(1);
+  } else {
+    valid = pullRequest.state == 'open';
+  }
 
   if (valid) {
     // What files are associated? ------------------------------------------------
@@ -65,7 +60,7 @@ async function run() {
       valid = valid && files.reduce(notAction, true);
       console.log(`Files in PR: ${files}`);
     } else {
-      core.setFailed(`No files found.`);
+      console.log(`No files found.`);
       valid = false;
     }
   } else {
