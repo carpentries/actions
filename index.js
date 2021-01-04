@@ -43,7 +43,7 @@ async function run() {
      throw `There was a problem with the request (Status ${pullRequestMerged}). See log.`;
     } catch (e) {
       // statements to handle any exceptions
-      logMyErrors(e); // pass exception object to error handler
+      core.setFailed(e); // pass exception object to error handler
     }
   }
 
@@ -55,7 +55,7 @@ async function run() {
       throw `No files associated with the pull request.`;
     } catch (e) {
       // statements to handle any exceptions
-      logMyErrors(e); // pass exception object to error handler
+      core.setFailed(e); // pass exception object to error handler
     }
   }
   console.log(`Has Merged: ${JSON.stringify(pullRequestMerged)}`);
