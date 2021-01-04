@@ -45,8 +45,6 @@ async function run() {
   if (pullRequestFiles) {
     const files = pullRequestFiles.map(getFilename);
     const valid = files.reduce(notAction, true);
-  } else if (pullRequestFiles.header) {
-    throw `Request for files threw an error (Status ${pullRequestFiles.header.status})`;
   } else {
     throw `No files associated with the pull request.`;
   }
