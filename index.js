@@ -9,12 +9,7 @@ async function run() {
   const myToken    = core.getInput('token');
   const PR         = core.getInput('pr');
   const repository = core.getInput('repo').split('/');
-
   const octokit = github.getOctokit(myToken)
-  console.log(repository);
-
-  // You can also pass in additional options as a second parameter to getOctokit
-  // const octokit = github.getOctokit(myToken, {userAgent: "MyActionVersion1"});
 
   function getFilename(f) {
     return f.filename;
@@ -24,21 +19,23 @@ async function run() {
     return truth && !l.startsWith('.github/');
   }
 
+  // Access Pull Request -------------------------------------------------------
   const pullRequest = await octokit.pulls.get({
     owner: repository[0],
     repo: repository[1],
     pull_number: Number(PR),
   }).catch(err => { 
+    // HTTP errors turn into a failed run --------------------------------------
     console.log(err);
     core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
     process.exit(1);
   });
 
-  // Default: be cautious
+  // VALIDITY: pull request is still open
   let valid = pullRequest.data.state == 'open';
 
   if (valid) {
-    // What files are associated? ------------------------------------------------
+    // What files are associated? ----------------------------------------------
     const { data: pullRequestFiles } = await octokit.pulls.listFiles({
       owner: repository[0],
       repo: repository[1],
@@ -56,10 +53,8 @@ async function run() {
   } else {
     console.log(`Pull Request ${PR} was previously merged`)
   }
-
   console.log(`Is valid?: ${valid}`);
   core.setOutput("VALID", valid);
-
 }
 
 

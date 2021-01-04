@@ -3,7 +3,7 @@ on: [push]
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: Testing a PR that's closed
+    name: Testing PR states
     steps:
     - uses: actions/checkout@v2
     - id: invalid-pr-closed
@@ -13,7 +13,6 @@ jobs:
         pr: 227
         repo: 'grunwaldlab/poppr'
         token: ${{ secrets.GITHUB_TOKEN }}
-    - run: echo ${{ steps.invalid-pr.outputs.VALID }}
       shell: bash
     - id: invalid-pr-files
       name: "Invalid PR (files)"
@@ -43,5 +42,3 @@ jobs:
         pr: 20210104
         repo: 'grunwaldlab/poppr'
         token: ${{ secrets.GITHUB_TOKEN }}
-    - run: echo ${{ steps.valid-pr.outputs.VALID }}
-      shell: bash

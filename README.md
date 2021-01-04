@@ -20,7 +20,9 @@ Tells you if the Pull Request is valid (e.g. it exists and does not modify any a
 
 ## Example usage
 
-uses: zkamvar/check-pr@use-js
+```yaml
+uses: zkamvar/check-pr@main
 with:
   pr: 227
   repo: grunwaldlab/poppr
+```
