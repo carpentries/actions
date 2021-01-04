@@ -36,7 +36,7 @@ async function run() {
     owner: repository[0],
     repo: repository[1],
     pull_number: Number(PR),
-  }).catch(err => { console.log(err); return null; } );
+  }).catch(err => { console.log(err); return err; } );
   
   const files = pullRequestFiles.map(getFilename);
   const valid = files.reduce(notAction, true);

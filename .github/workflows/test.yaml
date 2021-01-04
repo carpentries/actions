@@ -20,5 +20,11 @@ jobs:
         pr: 228
         repo: 'grunwaldlab/poppr'
         token: ${{ secrets.GITHUB_TOKEN }}
+    - id: non-existant-pr
+      uses: zkamvar/check-valid-pr@use-js
+      with:
+        pr: 20210104
+        repo: 'grunwaldlab/poppr'
+        token: ${{ secrets.GITHUB_TOKEN }}
     - run: echo ${{ steps.valid-pr.outputs.VALID }}
       shell: bash
