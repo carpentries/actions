@@ -3,13 +3,41 @@ on: [push]
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: Testing a PR that's closed
+    name: Testing PR states
     steps:
     - uses: actions/checkout@v2
-    - id: invalid-pr
-      uses: zkamvar/check-valid-pr@main
+    - id: invalid-pr-closed
+      name: "Invalid PR (status)"
+      uses: zkamvar/check-valid-pr@use-js
       with:
         pr: 227
         repo: 'grunwaldlab/poppr'
-    - run: echo ${{ steps.invalid-pr.outputs.VALID }}
-      shell: bash
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - id: invalid-pr-files
+      name: "Invalid PR (files)"
+      uses: zkamvar/check-valid-pr@use-js
+      with:
+        pr: 228
+        repo: 'grunwaldlab/poppr'
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - id: closed
+      name: "Closed PR"
+      uses: zkamvar/check-valid-pr@use-js
+      with:
+        pr: 21
+        repo: 'zkamvar/testme'
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - id: closed-and-opened
+      name: "Closed and Opened PR"
+      uses: zkamvar/check-valid-pr@use-js
+      with:
+        pr: 23
+        repo: 'zkamvar/testme'
+        token: ${{ secrets.GITHUB_TOKEN }}
+    # - id: non-existant-pr
+    #   name: "Non-existant PR"
+    #   uses: zkamvar/check-valid-pr@use-js
+    #   with:
+    #     pr: 20210104
+    #     repo: 'grunwaldlab/poppr'
+    #     token: ${{ secrets.GITHUB_TOKEN }}
