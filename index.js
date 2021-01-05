@@ -8,6 +8,7 @@ async function run() {
   // https://help.github.com/en/actions/automating-your-workflow-with-github-actions/authenticating-with-the-github_token#about-the-github_token-secret
   const myToken    = core.getInput('token');
   const PR         = core.getInput('pr');
+  const sha        = core.getInput('sha');
   const repository = core.getInput('repo').split('/');
   const octokit = github.getOctokit(myToken)
 
@@ -33,6 +34,13 @@ async function run() {
 
   // VALIDITY: pull request is still open
   let valid = pullRequest.data.state == 'open';
+  let msg = `Pull Request ${PR} was previously merged`;
+  if (sha) {
+    // VALIDITY: pull request is IDENTICAL to the provided sha
+    valid = valid && pullRequest.data.head.sha == sha;
+    msg = `PR #${PR} sha (${pullRequest.data.head.sha}) does not equal the expected sha (${sha})`;
+  }
+  
 
   if (valid) {
     // What files are associated? ----------------------------------------------
@@ -51,7 +59,7 @@ async function run() {
       valid = false;
     }
   } else {
-    console.log(`Pull Request ${PR} was previously merged`)
+    console.log(msg);
   }
   console.log(`Is valid?: ${valid}`);
   core.setOutput("VALID", valid ? "true" : null);

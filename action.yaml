@@ -8,6 +8,10 @@ inputs:
     description: 'github repository'
     required: true
     default: ${{ github.repository }}
+  sha:
+    description: 'sha of the latest head'
+    required: false
+    default: null
   token:
     description: 'github token'
     required: true
