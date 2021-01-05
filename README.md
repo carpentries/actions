@@ -12,6 +12,11 @@ This action prints "Hello World" or "Hello" + the name of a person to greet to t
 
 **Required** The value of the repository. Defaults to `github.repository`
 
+### `sha`
+
+The expected sha for the head commit of the pull request. This is optional, but
+is very useful in runs that are triggered from pull request workflow runs.
+
 ### `token`
 
 **Required** The default GITHUB TOKEN 
