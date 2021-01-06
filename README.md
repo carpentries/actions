@@ -71,10 +71,15 @@ jobs:
           cho "::set-output name=NR::$(cat ./NR)"
       
       - name: "Check PR"
+        id: check-pr
         uses: zkamvar/check-pr@main
         with:
           pr: ${{ steps.get-pr.outputs.NR }}
           repo: ${{ github.repository }}
           sha: ${{ github.events.workflow_run.head_commit.sha }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: "Run if valid"
+        if: ${{ steps.check-pr.outputs.VALID }}
+        run: echo "It's valid!"
 ```
