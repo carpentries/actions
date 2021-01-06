@@ -1,6 +1,6 @@
-# Hello world javascript action
+# Check Valid PR action
 
-This action prints "Hello World" or "Hello" + the name of a person to greet to the log.
+This action checks that a pull request number is not closed, does not contain modification to workflow files, and is identical to a sha of the PR that launched the workflow.
 
 ## Inputs
 
