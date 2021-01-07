@@ -41,34 +41,27 @@ async function run() {
       core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
       process.exit(1);
     });
-    console.log(issue_comments);
-    console.log(bots);
-    console.log(myBot);
     page++;
   }
   while(id < 0 || issue_comments.length > 0);
 
-  console.log("finished");
-  console.log(id);
-  console.log(issue_comments);
-  console.log(bots);
 
 
-  // if (myBot > 0) {
-  //   var id = await octokit.issues.updateComment({
-  //     owner: repository[0],
-  //     repo: repository[1],
-  //     comment_id: id,
-  //     body: body 
-  //   });
-  // } else {
-  //   var id = await octokit.issues.createComment({
-  //     owner: repository[0],
-  //     repo: repository[1],
-  //     issue_number: Number(PR),
-  //     body: body 
-  //   });
-  // }
+  if (id >= 0) {
+    var id = await octokit.issues.updateComment({
+      owner: repository[0],
+      repo: repository[1],
+      comment_id: id,
+      body: body 
+    });
+  } else {
+    var id = await octokit.issues.createComment({
+      owner: repository[0],
+      repo: repository[1],
+      issue_number: Number(PR),
+      body: body 
+    });
+  }
 
 }
 
