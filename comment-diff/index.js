@@ -42,7 +42,7 @@ async function run() {
     console.log(myBot);
     page++;
   }
-  while(myBot <= 0 && issue_comments.length > 0);
+  while(myBot <= 0 || issue_comments.length > 0);
 
   console.log(issue_comments);
   console.log(myBot);
