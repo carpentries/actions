@@ -1,6 +1,6 @@
-# Hello world javascript action
+# Check Valid PR action
 
-This action prints "Hello World" or "Hello" + the name of a person to greet to the log.
+This action checks that a pull request number is not closed, does not contain modification to workflow files, and is identical to a sha of the PR that launched the workflow.
 
 ## Inputs
 
@@ -29,10 +29,57 @@ Tells you if the Pull Request is valid (e.g. it exists and does not modify any a
 
 ## Example usage
 
+This example is a bit involved because it also involves a script that downloads the PR artifact first (taken from https://securitylab.github.com/research/github-actions-preventing-pwn-requests).
+
 ```yaml
-uses: zkamvar/check-pr@main
-with:
-  pr: 227
-  repo: grunwaldlab/poppr
-  token: ${{ secrets.GITHUB_TOKEN }}
+on:
+  workflow_run:
+    workflows: ["Receive Pull Request"]
+
+jobs:
+  test-pr-artifact:
+    runs-on: ubuntu-latest
+    if: >
+      ${{ github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: 'Download artifact'
+        uses: actions/github-script@v3.1.0
+        with:
+          script: |
+            var artifacts = await github.actions.listWorkflowRunArtifacts({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: ${{github.event.workflow_run.id }},
+            });
+            var matchArtifact = artifacts.data.artifacts.filter((artifact) => {
+              return artifact.name == "pr"
+            })[0];
+            var download = await github.actions.downloadArtifact({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               artifact_id: matchArtifact.id,
+               archive_format: 'zip',
+            });
+            var fs = require('fs');
+            fs.writeFileSync('${{github.workspace}}/pr.zip', Buffer.from(download.data));
+            
+      - name: "Get PR Number"
+        id: get-pr
+        run: |
+          unzip pr.zip
+          cho "::set-output name=NR::$(cat ./NR)"
+      
+      - name: "Check PR"
+        id: check-pr
+        uses: zkamvar/check-pr@main
+        with:
+          pr: ${{ steps.get-pr.outputs.NR }}
+          repo: ${{ github.repository }}
+          sha: ${{ github.events.workflow_run.head_commit.sha }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: "Run if valid"
+        if: ${{ steps.check-pr.outputs.VALID }}
+        run: echo "It's valid!"
 ```
