@@ -9,10 +9,14 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     steps:
+      - name: "Checkout Pull Request"
+        uses: actions/checkout@v2
+
       - name: "Create PR Number"
         id: get-number
         run: |
           echo ${{ github.event.number }} > NUM
+
       - name: "Upload Artifact"
         id: upload-number
         uses: actions/upload-artifact@v2
