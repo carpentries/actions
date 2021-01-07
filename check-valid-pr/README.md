@@ -72,7 +72,7 @@ jobs:
       
       - name: "Check PR"
         id: check-pr
-        uses: zkamvar/check-pr@main
+        uses: zkamvar/actions/check-pr@main
         with:
           pr: ${{ steps.get-pr.outputs.NR }}
           repo: ${{ github.repository }}
