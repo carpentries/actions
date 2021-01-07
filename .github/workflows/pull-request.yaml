@@ -12,7 +12,7 @@ jobs:
       - name: "Checkout Pull Request"
         uses: actions/checkout@v2
 
-      - name: "Create PR Number"
+      - name: "Create PR Number!"
         id: get-number
         run: |
           echo ${{ github.event.number }} > NUM
