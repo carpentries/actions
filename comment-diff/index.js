@@ -13,9 +13,9 @@ async function run() {
   const octokit    = github.getOctokit(myToken)
 
 
-  var fs = require('fs');
-  var issue_number = Number(fs.readFileSync('./NR'));
-  var body = String(fs.readFileSync('./diff.md', {encoding:'utf8', flag:'r'}));
+  // var fs = require('fs');
+  // var issue_number = Number(fs.readFileSync('./NR'));
+  // var body = String(fs.readFileSync('./diff.md', {encoding:'utf8', flag:'r'}));
   var page = 1;
   var myBot = -1;
   var issue_comments;
