@@ -48,6 +48,9 @@ async function run() {
       core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
       process.exit(1);
     });
+    console.log(issue_comments);
+    console.log(bots);
+    console.log(myBot);
     page++;
   }
   while(myBot <= 0 && issue_comments.length > 0);
