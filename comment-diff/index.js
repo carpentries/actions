@@ -16,7 +16,7 @@ async function run() {
   // var fs = require('fs');
   // var issue_number = Number(fs.readFileSync('./NR'));
   // var body = String(fs.readFileSync('./diff.md', {encoding:'utf8', flag:'r'}));
-  var page = 1;
+  var page = 0;
   var myBot = -1;
   var issue_comments = await octokit.issues.listComments({
       owner: repository[0],
