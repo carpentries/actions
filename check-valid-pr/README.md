@@ -27,6 +27,10 @@ is very useful in runs that are triggered from pull request workflow runs.
 
 Tells you if the Pull Request is valid (e.g. it exists and does not modify any actions files)
 
+### `payload`
+
+The pull request payload if it's not a spoof or closed pull request. 
+
 ## Example usage
 
 This example is a bit involved because it also involves a script that downloads the PR artifact first (taken from https://securitylab.github.com/research/github-actions-preventing-pwn-requests).
