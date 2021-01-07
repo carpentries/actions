@@ -36,7 +36,7 @@ async function run() {
   do {
     bots = issue_comments.map(item => item.type === "bot" && item.user.login == "github-actions[bot]");
     myBot = bots.indexOf(true);
-    { data: issue_comments } = await octokit.issues.listComments({
+    var { data: issue_comments } = await octokit.issues.listComments({
       owner: repository[0],
       repo: repository[1],
       issue_number: Number(PR),
