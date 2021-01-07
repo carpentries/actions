@@ -46,8 +46,8 @@ jobs:
     - id: echo-results
       name: "Echo Payloads"
       run: |
-        echo ${{ steps.valid-pr.outputs.payload }}
-        echo ${{ steps.spoofed-pr.outputs.payload }}
-        echo ${{ steps.invalid-pr-closed.outputs.payload }}
-        echo ${{ steps.invalid-pr-files.outputs.payload }}
-        echo ${{ steps.closed.outputs.payload }}
+        echo ${{ fromJSON(steps.valid-pr.outputs.payload).url }}
+        echo ${{ fromJSON(steps.spoofed-pr.outputs.payload).url }}
+        echo ${{ fromJSON(steps.invalid-pr-closed.outputs.payload).url }}
+        echo ${{ fromJSON(steps.invalid-pr-files.outputs.payload).url }}
+        echo ${{ fromJSON(steps.closed.outputs.payload).url }}
