@@ -5,11 +5,11 @@ on: [push]
 jobs:
   test:
     runs-on: ubuntu-20.04
-    name: Testing PR states
+    name: Testing Comment on PR
     steps:
       - uses: actions/checkout@v2
       - id: comment-diff
-        name: "Valid PR"
+        name: "PR Comment"
         uses: zkamvar/actions/comment-diff@main
         with:
           pr: 6

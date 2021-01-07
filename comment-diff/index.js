@@ -18,7 +18,7 @@ async function run() {
   // var body = String(fs.readFileSync('./diff.md', {encoding:'utf8', flag:'r'}));
   var page = 1;
   var myBot = -1;
-  var issue_comments = [];
+  var issue_comments = new Array(0);
   var bots;
 
   do {
