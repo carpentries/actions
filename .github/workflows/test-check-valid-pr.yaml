@@ -1,6 +1,8 @@
 name: Test check-valid-pr
 
-on: [push]
+on: 
+  push:
+    paths: ['.github/workflows/test-check-valid-pr.yaml', 'check-valid-pr/**']
 
 jobs:
   test:

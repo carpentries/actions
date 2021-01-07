@@ -45,8 +45,6 @@ async function run() {
   }
   while(id < 0 || issue_comments.length > 0);
 
-
-
   if (id >= 0) {
     var id = await octokit.issues.updateComment({
       owner: repository[0],

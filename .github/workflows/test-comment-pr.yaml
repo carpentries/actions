@@ -1,6 +1,8 @@
 name: Test comment-diff
 
-on: [push]
+on: 
+  push:
+    paths: ['.github/workflows/test-comment-pr.yaml', 'comment-diff/**']
 
 jobs:
   test:
