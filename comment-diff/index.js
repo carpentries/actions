@@ -52,21 +52,24 @@ async function run() {
   }
   while(myBot <= 0 && issue_comments.length > 0);
 
-  if (myBot > 0) {
-    var id = await octokit.issues.updateComment({
-      owner: repository[0],
-      repo: repository[1],
-      comment_id: issue_comments[myBot].id, 
-      body: body 
-    });
-  } else {
-    var id = await octokit.issues.createComment({
-      owner: repository[0],
-      repo: repository[1],
-      issue_number: Number(PR),
-      body: body 
-    });
-  }
+  console.log(issue_comments);
+  console.log(myBot);
+
+  // if (myBot > 0) {
+  //   var id = await octokit.issues.updateComment({
+  //     owner: repository[0],
+  //     repo: repository[1],
+  //     comment_id: issue_comments[myBot].id, 
+  //     body: body 
+  //   });
+  // } else {
+  //   var id = await octokit.issues.createComment({
+  //     owner: repository[0],
+  //     repo: repository[1],
+  //     issue_number: Number(PR),
+  //     body: body 
+  //   });
+  // }
 
 }
 
