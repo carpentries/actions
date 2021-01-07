@@ -2,7 +2,7 @@ on: [push]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     name: Testing PR states
     steps:
     - uses: actions/checkout@v2
