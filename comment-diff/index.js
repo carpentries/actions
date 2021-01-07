@@ -18,23 +18,12 @@ async function run() {
   // var body = String(fs.readFileSync('./diff.md', {encoding:'utf8', flag:'r'}));
   var page = 0;
   var myBot = -1;
-  var { data: issue_comments } = await octokit.issues.listComments({
-      owner: repository[0],
-      repo: repository[1],
-      issue_number: Number(PR),
-      page: page
-
-    }).catch(err => { 
-      // HTTP errors turn into a failed run --------------------------------------
-      console.log(err);
-      core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
-      process.exit(1);
-    });
+  var issue_comments = { "user" : { "type": "meat-popsicle", "login": "Corban Dallas" } }
   var bots;
 
 
   do {
-    bots = issue_comments.map(item => item.user.type === "Bot" && item.user.login == "github-actions[bot]");
+    bots = issue_comments.map(item => item.user.type == "Bot" && item.user.login == "github-actions[bot]");
     myBot = bots.indexOf(true);
     var { data: issue_comments } = await octokit.issues.listComments({
       owner: repository[0],
