@@ -45,8 +45,8 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
     - id: echo-results
       run: |
-        echo ${{ steps.valid-pr.outpus.VALID }}
-        echo ${{ steps.spoofed-pr.outpus.VALID }}
+        echo ${{ steps.valid-pr.outputs.VALID }}
+        echo ${{ steps.spoofed-pr.outputs.VALID }}
         echo ${{ steps.invalid-pr-closed.outputs.VALID }}
         echo ${{ steps.invalid-pr-files.outputs.VALID }}
         echo ${{ steps.closed.outputs.VALID }}
