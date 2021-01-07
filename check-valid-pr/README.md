@@ -32,12 +32,16 @@ Tells you if the Pull Request is valid (e.g. it exists and does not modify any a
 This example is a bit involved because it also involves a script that downloads the PR artifact first (taken from https://securitylab.github.com/research/github-actions-preventing-pwn-requests).
 
 ```yaml
+name: "Validate Pull Request"
+
 on:
   workflow_run:
     workflows: ["Receive Pull Request"]
+    types:
+      - completed
 
 jobs:
-  test-pr-artifact:
+  upload:
     runs-on: ubuntu-latest
     if: >
       ${{ github.event.workflow_run.event == 'pull_request' &&
@@ -63,23 +67,31 @@ jobs:
             });
             var fs = require('fs');
             fs.writeFileSync('${{github.workspace}}/pr.zip', Buffer.from(download.data));
-            
+
       - name: "Get PR Number"
         id: get-pr
         run: |
           unzip pr.zip
-          cho "::set-output name=NR::$(cat ./NR)"
+          echo "::set-output name=NUM::$(cat ./NUM)"
       
       - name: "Check PR"
         id: check-pr
-        uses: zkamvar/actions/check-pr@main
+        uses: zkamvar/actions/check-valid-pr@main
         with:
-          pr: ${{ steps.get-pr.outputs.NR }}
+          pr: ${{ steps.get-pr.outputs.NUM }}
           repo: ${{ github.repository }}
           sha: ${{ github.events.workflow_run.head_commit.sha }}
           token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: "Run if valid"
-        if: ${{ steps.check-pr.outputs.VALID }}
-        run: echo "It's valid!"
+        if: ${{ steps.check-pr.outputs.VALID == 'true'}}
+        run: |
+          echo "It's valid!"
+          echo ${{ steps.check-pr.outputs.payload }}
+
+      - name: "Run if invalid"
+        if: ${{ steps.check-pr.outputs.VALID == 'false'}}
+        run: |
+          echo "It's not valid"
+          echo ${{ steps.check-pr.outputs.payload }}
 ```

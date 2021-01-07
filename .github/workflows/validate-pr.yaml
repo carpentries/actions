@@ -49,6 +49,7 @@ jobs:
           sha: ${{ github.events.workflow_run.head_commit.sha }}
           token: ${{ secrets.GITHUB_TOKEN }}
           
-      - name: "Run if valid"
-        if: ${{ steps.check-pr.outputs.VALID }}
-        run: echo "It's valid!"
+      - name: "Inspect Payload"
+        run: |
+          echo "It's valid!"
+          echo ${{ steps.check-pr.outputs.payload }}

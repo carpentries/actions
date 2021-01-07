@@ -17,7 +17,9 @@ inputs:
     required: true
 outputs:
   VALID: 
-    description: "flag indicating if the PR is valid"
+    description: "flag indicating if the PR is valid. 'true' if valid, 'false' otherwise"
+  payload:
+    description: "the JSON from the pull request call"
 runs:
   using: 'node12'
   main: 'index.js'

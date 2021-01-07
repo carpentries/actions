@@ -10,7 +10,7 @@ async function run() {
   const PR         = core.getInput('pr');
   const sha        = core.getInput('sha');
   const repository = core.getInput('repo').split('/');
-  const octokit = github.getOctokit(myToken)
+  const octokit    = github.getOctokit(myToken)
 
   function getFilename(f) {
     return f.filename;
@@ -32,6 +32,7 @@ async function run() {
     process.exit(1);
   });
 
+
   // VALIDITY: pull request is still open
   let valid = pullRequest.data.state == 'open';
   let msg = `Pull Request ${PR} was previously merged`;
@@ -40,9 +41,10 @@ async function run() {
     valid = valid && pullRequest.data.head.sha == sha;
     msg = `PR #${PR} sha (${pullRequest.data.head.sha}) does not equal the expected sha (${sha})`;
   }
-  
 
   if (valid) {
+    // create payload output if the PR is not spoofed
+    core.setOutput("payload", JSON.stringify(pullRequest));
     // What files are associated? ----------------------------------------------
     const { data: pullRequestFiles } = await octokit.pulls.listFiles({
       owner: repository[0],
@@ -62,7 +64,7 @@ async function run() {
     console.log(msg);
   }
   console.log(`Is valid?: ${valid}`);
-  core.setOutput("VALID", valid ? "true" : null);
+  core.setOutput("VALID", valid);
 }
 
 

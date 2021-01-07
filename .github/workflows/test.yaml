@@ -44,9 +44,10 @@ jobs:
         repo: 'zkamvar/testme'
         token: ${{ secrets.GITHUB_TOKEN }}
     - id: echo-results
+      name: "Echo Payloads"
       run: |
-        echo ${{ steps.valid-pr.outputs.VALID }}
-        echo ${{ steps.spoofed-pr.outputs.VALID }}
-        echo ${{ steps.invalid-pr-closed.outputs.VALID }}
-        echo ${{ steps.invalid-pr-files.outputs.VALID }}
-        echo ${{ steps.closed.outputs.VALID }}
+        echo ${{ steps.valid-pr.outputs.payload }}
+        echo ${{ steps.spoofed-pr.outputs.payload }}
+        echo ${{ steps.invalid-pr-closed.outputs.payload }}
+        echo ${{ steps.invalid-pr-files.outputs.payload }}
+        echo ${{ steps.closed.outputs.payload }}
