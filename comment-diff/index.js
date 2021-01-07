@@ -18,6 +18,7 @@ async function run() {
   // var body = String(fs.readFileSync('./diff.md', {encoding:'utf8', flag:'r'}));
   var page = 0;
   var myBot = -1;
+  var id = -1;
   var issue_comments = [{ "user" : { "type": "meat-popsicle", "login": "Corban Dallas" } }]
   var bots;
 
@@ -25,6 +26,9 @@ async function run() {
   do {
     bots = issue_comments.map(item => item.user.type == "Bot" && item.user.login == "github-actions[bot]");
     myBot = bots.indexOf(true);
+    if (myBot > -1) {
+      id = issue_comments[myBot].id;
+    }
     var { data: issue_comments } = await octokit.issues.listComments({
       owner: repository[0],
       repo: repository[1],
@@ -42,16 +46,19 @@ async function run() {
     console.log(myBot);
     page++;
   }
-  while(myBot <= 0 || issue_comments.length > 0);
+  while(id < 0 || issue_comments.length > 0);
 
+  console.log("finished");
+  console.log(id);
   console.log(issue_comments);
-  console.log(myBot);
+  console.log(bots);
+
 
   // if (myBot > 0) {
   //   var id = await octokit.issues.updateComment({
   //     owner: repository[0],
   //     repo: repository[1],
-  //     comment_id: issue_comments[myBot].id, 
+  //     comment_id: id,
   //     body: body 
   //   });
   // } else {
