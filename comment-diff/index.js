@@ -18,11 +18,11 @@ async function run() {
   // var body = String(fs.readFileSync('./diff.md', {encoding:'utf8', flag:'r'}));
   var page = 1;
   var myBot = -1;
-  var issue_comments;
+  var issue_comments = [];
   var bots;
 
   do {
-    issue_comments = await github.issues.listComments({
+    issue_comments = await octokit.issues.listComments({
       owner: repository[0],
       repo: repository[1],
       issue_number: Number(PR),
@@ -41,14 +41,14 @@ async function run() {
   while(myBot <= 0 || issue_comments.length == 0);
 
   if (myBot > 0) {
-    var id = await github.issues.updateComment({
+    var id = await octokit.issues.updateComment({
       owner: repository[0],
       repo: repository[1],
       comment_id: issue_comments[myBot].id, 
       body: body 
     });
   } else {
-    var id = await github.issues.createComment({
+    var id = await octokit.issues.createComment({
       owner: repository[0],
       repo: repository[1],
       issue_number: Number(PR),
