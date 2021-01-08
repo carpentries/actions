@@ -44,12 +44,15 @@ async function run() {
     }
     page++;
   }
-  while(page < 10 && (id < 0 || issue_comments.length > 0));
+  while(page < 3 && (id < 0 || issue_comments.length > 0));
 
-  if (page > 10) {
+  if (page > 2) {
     console.log(comments);
-    core.setFailed(`There was a problem scanning comments for https://github.com/${repository[0]}/${repository[1]}/pulls/${PR}/. Scanning 1000 comments did not return any bots`);
+    core.setFailed(`There was a problem scanning comments for https://github.com/${repository[0]}/${repository[1]}/pulls/${PR}/. Scanning 300 comments did not return any bots`);
     process.exit(1);
+  } else {
+    console.log(`pages used: ${page}`);
+    console.log(`request: ${comments}`);
   }
 
   if (id >= 0) {
