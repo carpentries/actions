@@ -1,0 +1,23 @@
+name: 'download a workflow artifact'
+description: 'This does what it says. It download a specific artifact given a workflow number'
+inputs:
+  run:  # id of input
+    description: 'workflow run number'
+    required: true
+  repo:
+    description: 'github repository (default: current repository)'
+    required: false 
+    default: ${{ github.repository }}
+  token:
+    description: 'github token'
+    required: true
+  name:
+    description: 'name of the artifact'
+    required: true
+  dir:
+    description: 'directory to dump the artifact (default: current workspace)'
+    required: false
+    default: ${{ github.workspace }}
+runs:
+  using: 'node12'
+  main: 'index.js'

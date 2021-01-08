@@ -5,8 +5,8 @@ inputs:
     description: 'pull request number'
     required: true
   repo:
-    description: 'github repository'
-    required: true
+    description: 'github repository (default: ${{ github.repository }})'
+    required: false 
     default: ${{ github.repository }}
   sha:
     description: 'sha of the latest head'
