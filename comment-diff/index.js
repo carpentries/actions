@@ -9,14 +9,17 @@ async function run() {
   // https://help.github.com/en/actions/automating-your-workflow-with-github-actions/authenticating-with-the-github_token#about-the-github_token-secret
   const myToken    = core.getInput('token');
   const PR         = core.getInput('pr');
+  let   body;
   const path       = core.getInput('path');
   const repository = core.getInput('repo').split('/');
   const octokit    = github.getOctokit(myToken)
+
 
   if (path) {
     fs.stat(path, function(err, stat) {
       if(err == null) {
         console.log(`Path: ${path}`);
+        body = fs.readFileSync(path);
       } else if(err.code === 'ENOENT') {
         // file does not exist
         core.setFailed(`File ${path} not found.`);
@@ -26,10 +29,9 @@ async function run() {
         process.exit(1);
       }
     });
-    const body = fs.readFileSync(path);
     console.log(`Body: ${body}`);
   } else {
-    const body = core.getInput('body');
+    body = core.getInput('body');
   }
 
   if (typeof body === undefined) {
