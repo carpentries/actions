@@ -18,7 +18,6 @@ async function run() {
   if (path) {
     fs.stat(path, function(err, stat) {
       if(err == null) {
-        console.log(`Path: ${path}`);
         body = String(fs.readFileSync(path));
       } else if(err.code === 'ENOENT') {
         // file does not exist
@@ -29,7 +28,6 @@ async function run() {
         process.exit(1);
       }
     });
-    console.log(`Body: ${body}`);
   } else {
     body = core.getInput('body');
   }
@@ -38,7 +36,6 @@ async function run() {
     core.setFailed("No Body");
     process.exit(1);
   }
-
 
   var page = 0;
   var myBot = -1;
