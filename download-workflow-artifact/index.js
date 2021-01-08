@@ -29,20 +29,24 @@ async function run() {
     return artifact.name == name
   })[0];
 
-  var download = await octokit.actions.downloadArtifact({
-    owner: repository[0],
-    repo: repository[1],
-    artifact_id: matchArtifact.id,
-    archive_format: 'zip',
-  }).catch(err => { 
-    // HTTP errors turn into a failed run --------------------------------------
-    console.log(err);
-    core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
-    process.exit(1);
-  });
+  if (matchArtifact) {
+    var download = await octokit.actions.downloadArtifact({
+      owner: repository[0],
+      repo: repository[1],
+      artifact_id: matchArtifact.id,
+      archive_format: 'zip',
+    }).catch(err => { 
+      // HTTP errors turn into a failed run --------------------------------------
+      console.log(err);
+      core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
+      process.exit(1);
+    });
 
-  fs.writeFileSync(`${dir}/${name}.zip`, Buffer.from(download.data));
-
+    fs.writeFileSync(`${dir}/${name}.zip`, Buffer.from(download.data));
+  } else {
+    console.log(artifacts);
+    core.setFailed(`${name}.zip could not be found. Check logs.`)
+  }
 }
 
 try {
