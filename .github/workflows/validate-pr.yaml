@@ -38,9 +38,5 @@ jobs:
           
       - name: "Inspect Payload"
         run: |
-          if [ ${{ steps.check-pr.outputs.VALID == 'true' ]; then
-            echo "It's valid!"
-          else
-            echo "INVALID"
-          fi
+          echo ${{ steps.check-pr.outputs.VALID }}
           echo ${{ steps.check-pr.outputs.payload }}
