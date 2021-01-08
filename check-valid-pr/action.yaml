@@ -5,7 +5,7 @@ inputs:
     description: 'pull request number'
     required: true
   repo:
-    description: 'github repository 
+    description: 'github repository'
     required: true
   sha:
     description: 'sha of the latest head'
