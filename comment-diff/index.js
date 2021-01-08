@@ -17,12 +17,8 @@ async function run() {
 
   if (path) {
     fs.stat(path, function(err, stat) {
-      if(err == null) {
+      if (err == null) {
         body = String(fs.readFileSync(path));
-      } else if(err.code === 'ENOENT') {
-        // file does not exist
-        core.setFailed(`File ${path} not found.`);
-        process.exit(1);
       } else {
         core.setFailed(`File Error: ${err.code}`);
         process.exit(1);
