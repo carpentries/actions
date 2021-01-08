@@ -52,8 +52,7 @@ async function run() {
     process.exit(1);
   } else {
     console.log(`pages used: ${page}`);
-    console.log(`request: ${comments}`);
-  }
+    console.log(`request: ${JSON.stringify(comments)}`); }
 
   if (id >= 0) {
     var id = await octokit.issues.updateComment({
