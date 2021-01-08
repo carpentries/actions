@@ -46,8 +46,6 @@ async function run() {
   }
   while(id < 0 || issue_comments.length > 0 || page < 10);
 
-  console.log(comments);
-
   if (page > 10) {
     console.log(comments);
     core.setFailed(`There was a problem scanning comments for https://github.com/${repository[0]}/${repository[1]}/pulls/${PR}/. Scanning 1000 comments did not return any bots`);
