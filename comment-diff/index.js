@@ -14,6 +14,7 @@ async function run() {
   const octokit    = github.getOctokit(myToken)
 
   if (path) {
+    console.log(`Path: ${path}`);
     fs.stat(path, function(err, stat) {
       if(err == null) {
         const body = fs.readFileSync(path);
@@ -26,6 +27,7 @@ async function run() {
         process.exit(1);
       }
     });
+    console.log(`Body: ${body}`);
   } else {
     const body = core.getInput('body');
   }
