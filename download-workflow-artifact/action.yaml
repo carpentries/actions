@@ -6,7 +6,7 @@ inputs:
     required: true
   repo:
     description: 'github repository (default: current repository)'
-    required: false 
+    required: true
     default: ${{ github.repository }}
   token:
     description: 'github token'

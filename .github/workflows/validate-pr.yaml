@@ -17,8 +17,9 @@ jobs:
         uses: zkamvar/actions/download-workflow-artifact@main
         with:
           run: ${{ github.events.workflow_run.id }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          repo: ${{ github.repository }}
           name: 'pr'
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Get PR Number"
         id: get-pr
@@ -31,8 +32,8 @@ jobs:
         uses: zkamvar/actions/check-valid-pr@main
         with:
           pr: ${{ steps.get-pr.outputs.NUM }}
-          repo: ${{ github.repository }}
           sha: ${{ github.events.workflow_run.head_commit.sha }}
+          repo: ${{ github.repository }}
           token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: "Inspect Payload"
