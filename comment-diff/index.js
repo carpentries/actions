@@ -19,7 +19,7 @@ async function run() {
     fs.stat(path, function(err, stat) {
       if(err == null) {
         console.log(`Path: ${path}`);
-        body = fs.readFileSync(path);
+        body = String(fs.readFileSync(path));
       } else if(err.code === 'ENOENT') {
         // file does not exist
         core.setFailed(`File ${path} not found.`);
