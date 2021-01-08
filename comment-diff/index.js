@@ -44,7 +44,7 @@ async function run() {
     }
     page++;
   }
-  while(page < 3 && (id < 0 || issue_comments.length > 0));
+  while(page < 3 && id < 0 && issue_comments.length > 0);
 
   if (page > 2) {
     console.log(comments);
