@@ -17,9 +17,15 @@ the comment as changes are made to the pull request.
 
 **Required** The default GITHUB TOKEN 
 
+### `path`
+
+Path to a file that contains the body text for the comment. If not supplied, 
+this action will use the `body` parameter
+
 ### `body`
 
-**Required** The body of the pull Request
+If `path` is not supplied, a string containing the body text of the comment.
+
 
 ## Example usage
 
