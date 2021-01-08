@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: |
           printf "### Test Comment\n" > ${{ github.workspace }}/body.txt
-          printf ":heavy_check_mark: The ID for this run is `${{ github.run_id }}`" >> ${{ github.workspace }}/body.txt
+          printf ":heavy_check_mark: The ID for this run is ${{ github.run_id }}" >> ${{ github.workspace }}/body.txt
       - id: comment-diff
         name: "PR Comment"
         uses: zkamvar/actions/comment-diff@main
