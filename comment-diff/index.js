@@ -12,16 +12,11 @@ async function run() {
   const repository = core.getInput('repo').split('/');
   const octokit    = github.getOctokit(myToken)
 
-
-  // var fs = require('fs');
-  // var issue_number = Number(fs.readFileSync('./NR'));
-  // var body = String(fs.readFileSync('./diff.md', {encoding:'utf8', flag:'r'}));
   var page = 0;
   var myBot = -1;
   var id = -1;
   var issue_comments = [{ "user" : { "type": "meat-popsicle", "login": "Corban Dallas" } }]
   var bots;
-
 
   do {
     var comments = await octokit.issues.listComments({
@@ -46,13 +41,11 @@ async function run() {
   }
   while(page < 3 && id < 0 && issue_comments.length > 0);
 
-  if (page > 2) {
+  if (page > 3) {
     console.log(comments);
     core.setFailed(`There was a problem scanning comments for https://github.com/${repository[0]}/${repository[1]}/pulls/${PR}/. Scanning 300 comments did not return any bots`);
     process.exit(1);
-  } else {
-    console.log(`pages used: ${page}`);
-    console.log(`request: ${JSON.stringify(comments)}`); }
+  }
 
   if (id >= 0) {
     var id = await octokit.issues.updateComment({
