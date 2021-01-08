@@ -14,10 +14,9 @@ async function run() {
   const octokit    = github.getOctokit(myToken)
 
   if (path) {
-    console.log(`Path: ${path}`);
     fs.stat(path, function(err, stat) {
       if(err == null) {
-        const body = fs.readFileSync(path);
+        console.log(`Path: ${path}`);
       } else if(err.code === 'ENOENT') {
         // file does not exist
         core.setFailed(`File ${path} not found.`);
@@ -27,6 +26,7 @@ async function run() {
         process.exit(1);
       }
     });
+    const body = fs.readFileSync(path);
     console.log(`Body: ${body}`);
   } else {
     const body = core.getInput('body');
