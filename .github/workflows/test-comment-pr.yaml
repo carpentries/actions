@@ -20,4 +20,4 @@ jobs:
           pr: 6
           repo: 'zkamvar/actions'
           token: ${{ secrets.GITHUB_TOKEN }}
-          body: ':see_no_evil:'
+          path: ${{ github.workspace }}/body.txt
