@@ -24,26 +24,33 @@ async function run() {
 
 
   do {
-    bots = issue_comments.map(item => item.user.type == "Bot" && item.user.login == "github-actions[bot]");
-    myBot = bots.indexOf(true);
-    if (myBot > -1) {
-      id = issue_comments[myBot].id;
-    }
-    var { data: issue_comments } = await octokit.issues.listComments({
+    var comments = await octokit.issues.listComments({
       owner: repository[0],
       repo: repository[1],
       issue_number: Number(PR),
-      page: page
-
+      page: page,
+      per_page: 100
     }).catch(err => { 
       // HTTP errors turn into a failed run --------------------------------------
       console.log(err);
       core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
       process.exit(1);
     });
+    issue_comments = comments.data;
+    bots = issue_comments.map(item => item.user.type == "Bot" && item.user.login == "github-actions[bot]");
+    myBot = bots.indexOf(true);
+    if (myBot > -1) {
+      id = issue_comments[myBot].id;
+    }
     page++;
   }
-  while(id < 0 || issue_comments.length > 0);
+  while(id < 0 || issue_comments.length > 0 || page < 10);
+
+  if (page > 10) {
+    console.log(comments);
+    core.setFailed(`There was a problem scanning comments for https://github.com/${repository[0]}/${repository[1]}/pulls/${PR}/. Scanning 1000 comments did not return any bots`);
+    process.exit(1)
+  }
 
   if (id >= 0) {
     var id = await octokit.issues.updateComment({
