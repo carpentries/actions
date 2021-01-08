@@ -17,7 +17,7 @@ async function run() {
   var artifacts = await octokit.actions.listWorkflowRunArtifacts({
     owner: repository[0],
     repo: repository[1],
-    run_id: WF
+    run_id: Number(WF)
   }).catch(err => { 
     // HTTP errors turn into a failed run --------------------------------------
     console.log(err);

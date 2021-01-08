@@ -16,7 +16,8 @@ jobs:
       - name: 'Download artifact'
         uses: zkamvar/actions/download-workflow-artifact@main
         with:
-          run: ${{ github.events.workflow_run.id }}
+          run: ${{ github.event.workflow_run.id }}
+          dir: ${{ github.workspace }}
           repo: ${{ github.repository }}
           name: 'pr'
           token: ${{ secrets.GITHUB_TOKEN }}
