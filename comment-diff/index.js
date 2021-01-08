@@ -1,5 +1,6 @@
-const core = require('@actions/core');
+const core   = require('@actions/core');
 const github = require('@actions/github');
+const fs     = require('fs');
 
 async function run() {
   // This should be a token with access to your repository scoped in as a secret.
@@ -8,9 +9,32 @@ async function run() {
   // https://help.github.com/en/actions/automating-your-workflow-with-github-actions/authenticating-with-the-github_token#about-the-github_token-secret
   const myToken    = core.getInput('token');
   const PR         = core.getInput('pr');
-  const body       = core.getInput('body');
+  const path       = core.getInput('path');
   const repository = core.getInput('repo').split('/');
   const octokit    = github.getOctokit(myToken)
+
+  if (path) {
+    fs.stat(path, function(err, stat) {
+      if(err == null) {
+        const body = fs.readFileSync(path);
+      } else if(err.code === 'ENOENT') {
+        // file does not exist
+        core.setFailed(`File ${path} not found.`);
+        process.exit(1);
+      } else {
+        core.setFailed(`File Error: ${err.code}`);
+        process.exit(1);
+      }
+    });
+  } else {
+    const body = core.getInput('body');
+  }
+
+  if (typeof body === undefined) {
+    core.setFailed("No Body");
+    process.exit(1);
+  }
+
 
   var page = 0;
   var myBot = -1;

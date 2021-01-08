@@ -12,8 +12,11 @@ inputs:
     description: 'github token'
     required: true
   body:
-    description: 'body of the comment'
-    requires: true
+    description: 'body of the comment as a string'
+    required: false
+  path:
+    description: 'path to a file to use for the body'
+    required: false
 runs:
   using: 'node12'
   main: 'index.js'
