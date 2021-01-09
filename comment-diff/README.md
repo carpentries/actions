@@ -47,7 +47,5 @@ jobs:
         uses: zkamvar/actions/comment-diff@main
         with:
           pr: 6
-          repo: 'zkamvar/actions'
-          token: ${{ secrets.GITHUB_TOKEN }}
           body: ":heavy_check_mark: The ID for this run is `${{ github.run_id }}`"
 ```

@@ -8,18 +8,18 @@ This action checks that a pull request number is not closed, does not contain mo
 
 **Required** The pull request number
 
-### `repo`
-
-**Required** The value of the repository. Defaults to `github.repository`
-
 ### `sha`
 
 The expected sha for the head commit of the pull request. This is optional, but
 is very useful in runs that are triggered from pull request workflow runs.
 
+### `repo`
+
+**Required** The value of the repository. Defaults to `github.repository`
+
 ### `token`
 
-**Required** The default GITHUB TOKEN 
+**Required** The default token for authorization. Defaults to `github.token`
 
 ## Outputs
 
@@ -52,40 +52,23 @@ jobs:
       github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: 'Download artifact'
-        uses: actions/github-script@v3.1.0
+        uses: zkamvar/actions/download-workflow-artifact@main
         with:
-          script: |
-            var artifacts = await github.actions.listWorkflowRunArtifacts({
-               owner: context.repo.owner,
-               repo: context.repo.repo,
-               run_id: ${{github.event.workflow_run.id }},
-            });
-            var matchArtifact = artifacts.data.artifacts.filter((artifact) => {
-              return artifact.name == "pr"
-            })[0];
-            var download = await github.actions.downloadArtifact({
-               owner: context.repo.owner,
-               repo: context.repo.repo,
-               artifact_id: matchArtifact.id,
-               archive_format: 'zip',
-            });
-            var fs = require('fs');
-            fs.writeFileSync('${{github.workspace}}/pr.zip', Buffer.from(download.data));
+          run: ${{ github.event.workflow_run.id }}
+          name: pr
 
       - name: "Get PR Number"
         id: get-pr
         run: |
           unzip pr.zip
-          echo "::set-output name=NUM::$(cat ./NUM)"
+          echo "::set-output name=NUM::$(<./NUM)"
       
       - name: "Check PR"
         id: check-pr
         uses: zkamvar/actions/check-valid-pr@main
         with:
           pr: ${{ steps.get-pr.outputs.NUM }}
-          repo: ${{ github.repository }}
           sha: ${{ github.events.workflow_run.head_commit.sha }}
-          token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: "Run if valid"
         if: ${{ steps.check-pr.outputs.VALID == 'true'}}

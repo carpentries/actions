@@ -21,24 +21,30 @@
 ## Example usage
 
 ```yaml
-name: "Comment on Pull Request"
+name: "Validate Pull Request"
 
-on: 
-  push:
-    paths: ['.github/workflows/test-comment-pr.yaml', 'comment-diff/**']
+on:
+  workflow_run:
+    workflows: ["Receive Pull Request"]
+    types:
+      - completed
 
 jobs:
-  test:
-    runs-on: ubuntu-20.04
-    name: Testing Comment on PR
+  upload:
+    runs-on: ubuntu-latest
+    if: >
+      ${{ github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - uses: actions/checkout@v2
-      - id: comment-diff
-        name: "PR Comment"
-        uses: zkamvar/actions/download-workflow-artifact
+      - name: 'Download artifact'
+        uses: zkamvar/actions/download-workflow-artifact@main
         with:
-          run: 6
-          repo: 'zkamvar/actions'
-          token: ${{ secrets.GITHUB_TOKEN }}
+          run: ${{ github.event.workflow_run.id }}
           name: pr
+
+      - name: "Get PR Number"
+        id: get-pr
+        run: |
+          unzip pr.zip
+          echo "::set-output name=NUM::$(<./NUM)"
 ```
