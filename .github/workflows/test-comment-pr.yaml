@@ -18,6 +18,4 @@ jobs:
         uses: zkamvar/actions/comment-diff@main
         with:
           pr: 6
-          repo: 'zkamvar/actions'
-          token: ${{ secrets.GITHUB_TOKEN }}
           path: ${{ github.workspace }}/body.txt

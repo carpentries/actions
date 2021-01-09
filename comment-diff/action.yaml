@@ -4,19 +4,20 @@ inputs:
   pr:  # id of input
     description: 'pull request number'
     required: true
-  repo:
-    description: 'github repository'
-    required: true
-    default: ${{ github.repository }}
-  token:
-    description: 'github token'
-    required: true
   body:
     description: 'body of the comment as a string'
     required: false
   path:
     description: 'path to a file to use for the body'
     required: false
+  repo:
+    description: 'github repository (default: current repository)'
+    required: true
+    default: ${{ github.repository }}
+  token:
+    description: 'github token'
+    required: true
+    default: ${{ github.token }}
 runs:
   using: 'node12'
   main: 'index.js'

@@ -15,8 +15,6 @@ jobs:
         uses: zkamvar/actions/check-valid-pr@main
         with:
           pr: 4
-          repo: 'zkamvar/actions'
-          token: ${{ secrets.GITHUB_TOKEN }}
           sha: '7237b06c519da8d35dd825df76785aacb1ae519e'
       - run: |
           echo ${{ steps.valid-pr.outputs.payload }}
@@ -25,8 +23,6 @@ jobs:
         uses: zkamvar/actions/check-valid-pr@main
         with:
           pr: 3
-          repo: 'zkamvar/actions'
-          token: ${{ secrets.GITHUB_TOKEN }}
           sha: '7237b06c519da8d35dd825df76785aacb1ae519e'
       - run: |
           echo ${{ steps.spoofed-pr.outputs.payload }}
@@ -35,8 +31,6 @@ jobs:
         uses: zkamvar/actions/check-valid-pr@main
         with:
           pr: 6
-          repo: 'zkamvar/actions'
-          token: ${{ secrets.GITHUB_TOKEN }}
           sha: 'f36adb8cb9816496a5636d841952ec0caaea2c1b'
       - run: |
           echo VALID? ${{ steps.invalid-pr.outputs.VALID }}
