@@ -13,7 +13,7 @@ async function run() {
   const octokit    = github.getOctokit(myToken)
 
 
-  const ref        = `heads/${prefix}-${pr}`
+  const ref        = `heads/${prefix}-${PR}`
 
   // Check if ref exists -------------------------------------------------------
   const pullRequest = await octokit.git.getRef({
