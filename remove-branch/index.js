@@ -29,8 +29,8 @@ async function run() {
 
   // Remove ref ----------------------------------------------------------------
   const id = await octokit.git.deleteRef({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
+    owner: repository[0],
+    repo: repository[1],
     ref: ref
   }).catch(err => { 
     // HTTP errors turn into a failed run --------------------------------------
