@@ -15,7 +15,7 @@ comments on pull requests from forked repositories**.
 
 In the end, the workflow looks like this:
 
-![Workflow of a Pull Request](img/pr-flow.dot.svg)
+![Workflow of a Pull Request](https://raw.githubusercontent.com/zkamvar/stunning-barnacle/main/img/pr-flow.dot.svg)
 
 ## Example
 
