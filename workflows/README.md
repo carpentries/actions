@@ -15,7 +15,7 @@ This workflow does not use any custom actions from this repository.
 This series of workflows all go together and are described in the following 
 diagram and the below sections:
 
-![Graph representation of a pull request](../img/pr-flow.dot.svg)
+![Graph representation of a pull request](https://raw.githubusercontent.com/zkamvar/stunning-barnacle/main/img/pr-flow.dot.svg)
 
 ### Recieve Pull Request (pull-request.yaml)
 
