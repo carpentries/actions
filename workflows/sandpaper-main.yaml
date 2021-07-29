@@ -5,6 +5,8 @@ on:
     branches:
       - main
       - master
+  schedule:
+    '0 0 * * 2'
 
 jobs:
   full-build:
@@ -26,6 +28,7 @@ jobs:
           install.packages('remotes')
           options(repos = c(
             "https://carpentries.r-universe.dev/", 
+            "https://carpentries.github.io/drat/",
             "https://cloud.r-project.org/"
           ))
           saveRDS(remotes::package_deps('sandpaper', dependencies = TRUE), 
@@ -49,6 +52,7 @@ jobs:
         run: |
           options(repos = c(
             "https://carpentries.r-universe.dev/", 
+            "https://carpentries.github.io/drat/",
             "https://cloud.r-project.org/"
           ))
           pkgs <- remotes::package_deps('sandpaper', dependencies = TRUE)
@@ -73,6 +77,11 @@ jobs:
             sessioninfo::package_info("sandpaper", dependencies = TRUE)
           }
         shell: Rscript {0}
+
+      - name: Reset site
+        if: ${{ github.event_name == "schedule" }}
+        run: |
+          Rscript -e 'sandpaper::reset_site()'
 
       - name: Deploy Site
         run: |

@@ -35,6 +35,7 @@ jobs:
           install.packages('remotes')
           options(repos = c(
             "https://carpentries.r-universe.dev/", 
+            "https://carpentries.github.io/drat/",
             "https://cloud.r-project.org/"
           ))
           saveRDS(remotes::package_deps('sandpaper', dependencies = TRUE), 
@@ -58,6 +59,7 @@ jobs:
         run: |
           options(repos = c(
             "https://carpentries.r-universe.dev/", 
+            "https://carpentries.github.io/drat/",
             "https://cloud.r-project.org/"
           ))
           pkgs <- remotes::package_deps('sandpaper', dependencies = TRUE)
