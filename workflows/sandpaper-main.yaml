@@ -7,7 +7,16 @@ on:
       - master
   schedule:
     '0 0 * * 2'
-
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Who triggered this build?'
+        required: true
+        default: 'Maintainer (via GitHub)'
+      reset:
+        description: 'Should the cached markdown files be reset?'
+        required: true
+        default: false
 jobs:
   full-build:
     name: "Build Full Site"
@@ -79,7 +88,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Reset site
-        if: ${{ github.event_name == "schedule" }}
+        if: ${{ github.event_name == "schedule" || (github.event_name == "workflow_dispatch" && github.event.input.reset)}}
         run: |
           Rscript -e 'sandpaper::reset_site()'
 
