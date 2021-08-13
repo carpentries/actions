@@ -17,6 +17,9 @@ In the end, the workflow looks like this:
 
 ![Workflow of a Pull Request](https://raw.githubusercontent.com/zkamvar/stunning-barnacle/main/img/pr-flow.dot.svg)
 
+Workflows created from these actions can be found in [The {sandpaper} 
+package](https://github.com/carpentries/sandpaper/tree/main/inst/workflows/).
+
 ## Example
 
 Assuming you have a workflow called "Receive Pull Request" that stores a text
