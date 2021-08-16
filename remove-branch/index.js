@@ -21,10 +21,18 @@ async function run() {
     repo: repository[1],
     ref: ref
   }).catch(err => { 
-    // HTTP errors turn into a failed run --------------------------------------
-    console.log(err);
-    core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
-    process.exit(1);
+    if (core.isDebug()) {
+      console.log(err);
+    }
+    if (err.status == '404') {
+      // 404 status is okay for us. Sometimes the branch is not created --------
+      core.info("Branch ${prefix}-${PR} does not exist. Nothing to do.")
+      process.exit(0);
+    } else {
+      // any other HTTP errors turn into a failed run --------------------------
+      core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
+      process.exit(1);
+    }
   });
 
   // Remove ref ----------------------------------------------------------------
