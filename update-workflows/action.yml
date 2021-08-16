@@ -24,5 +24,10 @@ runs:
   using: "composite"
   steps: 
     - name: "Update Workflows"
-      run: ${{ github.action_path }}/update-workflows.sh ${{ inputs.version }} ${{ inputs.repo }} ${{ inputs.clean }}
+      run: |
+        cd ${{ github.workspace }}
+        bash ${{ github.action_path }}/update-workflows.sh \
+          ${{ inputs.version }} \
+          ${{ inputs.repo }} \
+          ${{ inputs.clean }}
       shell: bash
