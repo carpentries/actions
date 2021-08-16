@@ -28,13 +28,13 @@ else
 fi
 
 # Set variables needed
-UPSTREAM="${1:-}"
+UPSTREAM="${1:-current}"
 SOURCE="${2:-https://carpentries.r-universe.dev}"
 CLEAN="${3:-}"
 CURRENT=$(cat .github/workflows/sandpaper-version.txt)
 
 # Fetch upstream version from the API if we don't have that information
-if [[ ${UPSTREAM} == '' ]]; then
+if [[ ${UPSTREAM} == 'current' ]]; then
   UPSTREAM=$(curl ${SOURCE}/packages/sandpaper/)
   UPSTREAM=$(echo ${UPSTREAM} | grep '[.]' | sed -E -e 's/[^0-9.]//g')
 fi
@@ -62,15 +62,20 @@ if [[ ${CURRENT} != ${UPSTREAM} ]]; then
     rm -fv .github/workflows/${CLEAN}
     echo "::endgroup::"
   fi
-  echo "::group::Copying files and updating the version number"
+  echo "::group::Copying files"
   curl ${SOURCE}/src/contrib/sandpaper_${UPSTREAM}.tar.gz | \
     tar -C ${TMP} --wildcards -xzv sandpaper/inst/workflows/*
   cp -v ${TMP}/sandpaper/inst/workflows/* .github/workflows/
-  echo "Updating version number to ${UPSTREAM}"
-  echo ${UPSTREAM} > .github/workflows/sandpaper-version.txt
-  echo "::set-output name=old::${CURRENT}"
-  echo "::set-output name=new::${UPSTREAM}"
   echo "::endgroup::"
+  NEEDS_UPDATE=$(git status --porcelain)
+  if [[ ${NEEDS_UPDATE} ]]; then
+    echo "Updating version number to ${UPSTREAM}"
+    echo ${UPSTREAM} > .github/workflows/sandpaper-version.txt
+    echo "::set-output name=old::${CURRENT}"
+    echo "::set-output name=new::${UPSTREAM}"
+  else
+    echo "${CURRENT} contains the latest version of the workflow files."
+  fi
   rm -r ${TMP}
 else
   echo "Nothing to update!"
