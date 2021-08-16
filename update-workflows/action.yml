@@ -1,0 +1,28 @@
+name: "Update Workflows"
+description: "Update GitHub Action Workflows for {sandpaper} repoisitories"
+inputs:
+  version:
+    description: "Version of {sandpaper} to use"
+    required: false
+    default: 'current'
+  repo:
+    description: "CRAN-like repository to get the workflow files"
+    required: false
+    default: "https://caprentries.r-universe.dev/"
+  clean:
+    description: "Pattern glob for workflow files to be cleaned before update. Defaults to none."
+    required: false
+    default: ''
+outputs:
+  old: 
+    description: "old version of {sandpaper}"
+    value: "${{ steps.update.output.old }}"
+  new:
+    description: "new version of {sandpaper}"
+    value: "${{ steps.update.output.new }}"
+runs:
+  using: "composite"
+  steps: 
+    - name: "Update Workflows"
+      run: ${{ github.action_path }}/update-workflow.sh ${{ inputs.version }} ${{ inputs.repo }} ${{ inputs.clean }}
+      shell: bash
