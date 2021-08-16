@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eo pipefail
+set -eo pipefail xtrace
 
 # Download and update sandpaper workflow files from an upstream repository
 #
@@ -18,6 +18,8 @@ set -eo pipefail
 #   archives
 #
 # bash update-workflows.sh 0.0.0.9041 https://carpentries.github.io/drat/ *.yaml
+
+pwd
 
 # Fail if we aren't in a sandpaper repository
 if [[ -r .github/workflows/sandpaper-main.yaml || -r .github/workflows/sandpaper-version.txt ]]; then
