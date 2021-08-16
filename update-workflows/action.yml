@@ -10,9 +10,9 @@ inputs:
     required: false
     default: "https://caprentries.r-universe.dev/"
   clean:
-    description: "Regex for workflow files to be cleaned before update. Defaults to all *.yaml files."
+    description: "Pattern glob for workflow files to be cleaned before update. Defaults to none."
     required: false
-    default: '*.yaml'
+    default: ''
 outputs:
   old: 
     description: "old version of {sandpaper}"
