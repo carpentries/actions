@@ -8,7 +8,7 @@ inputs:
   repo:
     description: "CRAN-like repository to get the workflow files (no slash at end)"
     required: false
-    default: "https://caprentries.r-universe.dev"
+    default: "https://carpentries.r-universe.dev"
   clean:
     description: "Pattern glob for workflow files to be cleaned before update. Defaults to none."
     required: false
