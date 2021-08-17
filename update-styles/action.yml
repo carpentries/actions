@@ -5,6 +5,10 @@ inputs:
     description: "Should changes be committed?"
     required: false
     default: true
+outputs:
+  update:
+    description: "true if a pull request needs to be created"
+    value: ${{ steps.update.outputs.update }}
 
 runs:
   using: "composite"
@@ -14,10 +18,13 @@ runs:
       run: ${{ github.action_path }}/update-styles.sh 
       shell: bash
     - name: "Commit Changes"
+      id: commit
       run: |
         if [[ ${{ inputs.commit == 'true' }} ]]; then
           git config --local user.email "team@carpentries.org"
           git config --local user.name "The Carpentries Bot"
           git commit -m "Sync lesson with carpentries/styles"
+        else
+          echo "Committing Later"
         fi
       shell: bash

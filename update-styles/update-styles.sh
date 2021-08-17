@@ -54,5 +54,6 @@ then
       exit 1
     fi
   fi
+  echo "::set-output name=update::true"
 fi
 echo "::endgroup::"
