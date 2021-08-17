@@ -20,7 +20,7 @@ runs:
     - name: "Commit Changes"
       id: commit
       run: |
-        if [[ ${{ inputs.commit == 'true' }} ]]; then
+        if [[ ${{ inputs.commit }} == 'true' ]]; then
           git config --local user.email "team@carpentries.org"
           git config --local user.name "The Carpentries Bot"
           git commit -m "Sync lesson with carpentries/styles"
