@@ -8,7 +8,7 @@ inputs:
   pr: 
     descrption: "Pull Request Number"
     required: false
-    default: ${{ github.event.pull_request.number }}
+    default: ""
   commit:
     description: "Should changes be committed?"
     required: false
