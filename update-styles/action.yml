@@ -4,11 +4,11 @@ inputs:
   pr: 
     descrption: "Pull Request Number"
     required: false
-    default: ''
+    default: ${{ github.event.pull_request.number }}
   name: 
     description: "Lesson Name"
     required: false
-    default: ''
+    default: ${{ github.event.repository.name }}
   commit:
     description: "Should changes be committed?"
     required: false
