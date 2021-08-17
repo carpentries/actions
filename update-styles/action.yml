@@ -1,0 +1,32 @@
+name: "Update Styles"
+description: "Update Repository to use the latest version of the Carpentries Styles"
+inputs:
+  pr: 
+    descrption: "Pull Request Number"
+    required: false
+    default: ''
+  name: 
+    description: "Lesson Name"
+    required: false
+    default: ''
+  commit:
+    description: "Should changes be committed?"
+    required: false
+    default: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Update Styles"
+      id: update
+      run: |
+        ${{ github.action_path }}/update-styles.sh \
+          ${{ inputs.pr }} \
+          ${{ inputs.name}}
+      shell: bash
+    - name: "Commit Changes"
+      if: ${{ inputs.commit }}
+      run: |
+        git config --local user.email "team@carpentries.org"
+        git config --local user.name "The Carpentries Bot"
+        git commit -m "Sync lesson with carpentries/styles"
