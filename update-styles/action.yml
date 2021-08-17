@@ -15,5 +15,5 @@ runs:
   steps:
     - name: "Update Styles"
       id: update
-      run: ${{ github.action_path }}/update-styles.sh 
+      run: ${{ github.action_path }}/update-styles.sh  ${{ inputs.commit }}
       shell: bash
