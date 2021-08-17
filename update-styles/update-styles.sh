@@ -54,6 +54,7 @@ then
       echo "$(git diff --compact-summary --diff-filter=U)"
       exit 1
     fi
+  fi
   if [[ ${COMMIT} == 'true' ]]
   then
     echo "Adding merge commit"
