@@ -20,7 +20,6 @@ set -eo pipefail
 echo "::group::Fetch Styles"
 if [[ -n "${PR}" ]]
 then
-  echo "PR is ${PR}!"
   ref="refs/pull/${PR}/head"
 else
   ref="gh-pages"
@@ -29,12 +28,14 @@ fi
 git config --local user.email "team@carpentries.org"
 git config --local user.name "The Carpentries Bot"
 git remote add styles https://github.com/carpentries/styles.git
-git fetch styles ${ref}:styles-ref
+git fetch -n styles ${ref}:styles-ref
 echo "::endgroup::"
 echo "::group::Synchronize Styles"
 # Sync up only if necessary
-if [[ $(git rev-list --count HEAD..styles-ref) != 0 ]]
+N=$(git rev-list --count HEAD..styles-ref)
+if [[ ${N} != 0 ]]
 then
+  echo "There are ${N} changes upstream"
   # The merge command below might fail for lessons that use remote theme
   # https://github.com/carpentries/carpentries-theme
   echo "Testing merge using recursive strategy, accepting upstream changes without committing"
@@ -44,7 +45,7 @@ then
     # these are the files that were removed from the lesson
     # but are still present in the carpentries/styles repo
     echo "Removing previously deleted files"
-    git rm $(git diff --name-only --diff-filter=DU)
+    git rm $(git diff --name-only --diff-filter=DU) || echo "No files to remove"
     # If there are still "unmerged" files,
     # let's raise an error and look into this more closely
     if [[ -n $(git diff --name-only --diff-filter=U) ]]
@@ -55,5 +56,9 @@ then
     fi
   fi
   echo "::set-output name=update::true"
+else
+  echo "Up to date!"
+  git branch -D styles-ref
+  git remote remove styles
 fi
 echo "::endgroup::"
