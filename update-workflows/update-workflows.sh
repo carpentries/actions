@@ -61,7 +61,12 @@ echo "::endgroup::"
 if [[ ${CURRENT} != ${UPSTREAM} ]]; then
   if [[ ${CLEAN} ]]; then
     echo "::group::Cleaning all ${CLEAN} workflow files"
-    rm -fv .github/workflows/${CLEAN}
+    if [[ $(grep -c '^\.' <<< ${CLEAN}) ]]; then
+      rm -fv .github/workflows/*${CLEAN}
+    else
+      rm -fv .github/workflows/${CLEAN}
+    fi
+
     echo "::endgroup::"
   fi
   echo "::group::Copying files"

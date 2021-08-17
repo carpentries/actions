@@ -10,7 +10,7 @@ inputs:
     required: false
     default: "https://carpentries.r-universe.dev"
   clean:
-    description: "Pattern glob for workflow files to be cleaned before update. Defaults to none."
+    description: "Workflow file extensions to be cleaned before update. No wildcards as they will be auto-expanded. Defaults to none."
     required: false
     default: ''
 outputs:
