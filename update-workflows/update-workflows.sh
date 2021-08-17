@@ -71,8 +71,8 @@ if [[ ${CURRENT} != ${UPSTREAM} ]]; then
   echo "::endgroup::"
   NEEDS_UPDATE=$(git status --porcelain)
   if [[ ${NEEDS_UPDATE} ]]; then
-    echo "::set-output name=old::${CURRENT}"
-    echo "::set-output name=new::${UPSTREAM}"
+    echo "::set-output name=old::$(echo ${CURRENT})"
+    echo "::set-output name=new::$(echo ${UPSTREAM})"
     echo "Updating version number to ${UPSTREAM}"
     echo ${UPSTREAM} > .github/workflows/sandpaper-version.txt
   else

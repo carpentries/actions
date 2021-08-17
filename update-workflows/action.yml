@@ -16,10 +16,10 @@ inputs:
 outputs:
   old: 
     description: "old version of {sandpaper}"
-    value: "${{ steps.update.output.old }}"
+    value: "${{ steps.update.outputs.old }}"
   new:
     description: "new version of {sandpaper}"
-    value: "${{ steps.update.output.new }}"
+    value: "${{ steps.update.outputs.new }}"
 runs:
   using: "composite"
   steps:
