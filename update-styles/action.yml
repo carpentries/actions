@@ -1,14 +1,14 @@
 name: "Update Styles"
 description: "Update Repository to use the latest version of the Carpentries Styles"
 inputs:
-  pr: 
-    descrption: "Pull Request Number"
-    required: false
-    default: ""
   name: 
     description: "Lesson Name"
     required: false
     default: ${{ github.event.repository.name }}
+  pr: 
+    descrption: "Pull Request Number"
+    required: false
+    default: ${{ github.event.pull_request.number }}
   commit:
     description: "Should changes be committed?"
     required: false
@@ -21,8 +21,8 @@ runs:
       id: update
       run: |
         ${{ github.action_path }}/update-styles.sh \
-          ${{ inputs.pr }} \
-          ${{ inputs.name}}
+          ${{ inputs.name}} \
+          ${{ inputs.pr }}
       shell: bash
     - name: "Commit Changes"
       run: |
