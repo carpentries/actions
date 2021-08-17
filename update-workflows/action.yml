@@ -22,11 +22,11 @@ outputs:
     value: "${{ steps.update.output.new }}"
 runs:
   using: "composite"
-  steps: 
+  steps:
     - name: "Update Workflows"
+      id: update
       run: |
-        cd ${{ github.workspace }}
-        bash ${{ github.action_path }}/update-workflows.sh \
+        ${{ github.action_path }}/update-workflows.sh \
           ${{ inputs.version }} \
           ${{ inputs.repo }} \
           ${{ inputs.clean }}
