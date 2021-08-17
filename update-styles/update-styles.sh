@@ -20,6 +20,7 @@ LESSON=${2:-}
 echo "::group::Fetch Styles"
 if [[ -n "${PR}" ]]
 then
+  echo "PR is ${PR}!"
   ref="refs/pull/${PR}/head"
 else
   ref="gh-pages"
