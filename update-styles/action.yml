@@ -17,19 +17,3 @@ runs:
       id: update
       run: ${{ github.action_path }}/update-styles.sh 
       shell: bash
-    - name: "Commit Changes"
-      id: commit
-      run: |
-        if [[ ${{ steps.update.outputs.update }} ]]
-        then
-          if [[ ${{ inputs.commit }} == 'true' ]]
-          then
-            echo "Adding merge commit"
-            git config --local user.email "team@carpentries.org"
-            git config --local user.name "The Carpentries Bot"
-            git commit -m "Sync lesson with carpentries/styles"
-          else
-            echo "Creating squash commit later"
-          fi
-        fi
-      shell: bash

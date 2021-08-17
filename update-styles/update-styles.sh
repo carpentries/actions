@@ -7,15 +7,15 @@ set -eo pipefail
 # irritating
 #
 # usage: 
-#   bash update-styles.sh [PR] [LESSON]
+#   bash update-styles.sh [COMMIT]
 #
 # args:
-#   PR the pull request number
-#   LESSON the name of the lesson
+#   [COMMIT] if 'true', a commit will be generated, otherwise it is ignored
 #
 # authors: Maxim Belkin
 # contributor: Zhian N. Kamvar
 
+COMMIT=${1:-}
 
 echo "::group::Fetch Styles"
 if [[ -n "${PR}" ]]
@@ -54,6 +54,14 @@ then
       echo "$(git diff --compact-summary --diff-filter=U)"
       exit 1
     fi
+  if [[ ${COMMIT} == 'true' ]]
+  then
+    echo "Adding merge commit"
+    git config --local user.email "team@carpentries.org"
+    git config --local user.name "The Carpentries Bot"
+    git commit -m "Sync lesson with carpentries/styles"
+  else
+    echo "Creating squash commit later"
   fi
   echo "::set-output name=update::true"
 else
