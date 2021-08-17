@@ -21,10 +21,11 @@ runs:
       id: commit
       run: |
         if [[ ${{ inputs.commit }} == 'true' ]]; then
+          echo "Adding merge commit"
           git config --local user.email "team@carpentries.org"
           git config --local user.name "The Carpentries Bot"
           git commit -m "Sync lesson with carpentries/styles"
         else
-          echo "Committing Later"
+          echo "Creating squash commit later"
         fi
       shell: bash
