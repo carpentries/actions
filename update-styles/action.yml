@@ -20,7 +20,7 @@ runs:
     - name: "Commit Changes"
       id: commit
       run: |
-        if [[ ${{ steps.update.outputs.update }} ]];then
+        if [[ ${{ steps.update.outputs.update }} ]]; then
           if [[ ${{ inputs.commit }} == 'true' ]]; then
             echo "Adding merge commit"
             git config --local user.email "team@carpentries.org"
