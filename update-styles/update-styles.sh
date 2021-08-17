@@ -38,7 +38,7 @@ then
   # The merge command below might fail for lessons that use remote theme
   # https://github.com/carpentries/carpentries-theme
   echo "Testing merge using recursive strategy, accepting upstream changes without committing"
-  if [[ ! $(git merge -s recursive -Xtheirs --no-commit styles-ref) ]]
+  if [[ ! $(git merge -s --allow-unrelated-histories recursive -Xtheirs --no-commit styles-ref) ]]
   then
     # Remove "deleted by us, unmerged" files from the staging area.
     # these are the files that were removed from the lesson
