@@ -4,7 +4,7 @@ inputs:
   pr: 
     descrption: "Pull Request Number"
     required: false
-    default: ${{ github.event.pull_request.number }}
+    default: ""
   name: 
     description: "Lesson Name"
     required: false
