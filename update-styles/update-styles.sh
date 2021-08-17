@@ -2,6 +2,9 @@
 set -eo pipefail
 
 # Fetch and merge the updated styles from upstream
+# 
+# Note: you have to set environment variables for this to work.... it's kind of
+# irritating
 #
 # usage: 
 #   bash update-styles.sh [PR] [LESSON]
@@ -13,9 +16,6 @@ set -eo pipefail
 # authors: Maxim Belkin
 # contributor: Zhian N. Kamvar
 
-
-PR=${1:-}
-LESSON=${2:-}
 
 echo "::group::Fetch Styles"
 if [[ -n "${PR}" ]]
