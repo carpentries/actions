@@ -17,7 +17,8 @@ and a downstream action will need to perform that task.
 Because I don't want to wrap my head around getopt for BASH, I'm using 
 environment variables to pass in user parameters. These parameters are 
 `PR`, which is the pull request number, if any, and `LESSON`, which is the 
-human-readable name of the lesson.
+human-readable name of the lesson. The `REF` environment variable can be set to
+`${{ github.ref }}`, but if it's unset, it will default to `gh-pages`
 
 ## Outputs
 
@@ -31,7 +32,7 @@ If there were changes, this value will be `true`, otherwise, it will be empty
 This example is truncated from the update-styles action proposed in the lesson
 example repository. Note that because this action creates a pull request, it 
 should only ever use `workflow_dispatch` and `schedule`. Here, you can see us
-setting the `LESSON` environment variable.
+setting the `LESSON` environment variable and the `REF` environment variable.
 
 ```yaml
 name: Weekly Styles Update
@@ -50,6 +51,7 @@ jobs:
         id: update
         uses: zkamvar/actions/update-styles@main
         env:
+          REF: ${{ github.ref }}
           LESSON: "Lesson Example"
         with:
           commit: true
