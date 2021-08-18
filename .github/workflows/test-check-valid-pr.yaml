@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
       - id: valid-pr
         name: "Valid PR"
-        uses: zkamvar/actions/check-valid-pr@main
+        uses: carpentries/actions/check-valid-pr@main
         with:
           pr: 4
           sha: '7237b06c519da8d35dd825df76785aacb1ae519e'
@@ -20,7 +20,7 @@ jobs:
           echo ${{ steps.valid-pr.outputs.payload }}
       - id: spoofed-pr
         name: "Spoofed PR"
-        uses: zkamvar/actions/check-valid-pr@main
+        uses: carpentries/actions/check-valid-pr@main
         with:
           pr: 3
           sha: '7237b06c519da8d35dd825df76785aacb1ae519e'
@@ -28,7 +28,7 @@ jobs:
           echo ${{ steps.spoofed-pr.outputs.payload }}
       - id: invalid-pr
         name: "Invalid PR"
-        uses: zkamvar/actions/check-valid-pr@main
+        uses: carpentries/actions/check-valid-pr@main
         with:
           pr: 6
           sha: 'f36adb8cb9816496a5636d841952ec0caaea2c1b'
@@ -37,7 +37,7 @@ jobs:
           echo ${{ steps.invalid-pr.outputs.payload }}
       - id: invalid-pr-closed
         name: "Invalid PR (status)"
-        uses: zkamvar/actions/check-valid-pr@main
+        uses: carpentries/actions/check-valid-pr@main
         with:
           pr: 227
           repo: 'grunwaldlab/poppr'
@@ -46,7 +46,7 @@ jobs:
           echo ${{ steps.invalid-pr-files.outputs.payload }}
       - id: invalid-pr-files
         name: "Invalid PR (files)"
-        uses: zkamvar/actions/check-valid-pr@main
+        uses: carpentries/actions/check-valid-pr@main
         with:
           pr: 228
           repo: 'grunwaldlab/poppr'
@@ -55,7 +55,7 @@ jobs:
           echo ${{ steps.invalid-pr-closed.outputs.payload }}
       - id: closed
         name: "Closed PR"
-        uses: zkamvar/actions/check-valid-pr@main
+        uses: carpentries/actions/check-valid-pr@main
         with:
           pr: 21
           repo: 'zkamvar/testme'

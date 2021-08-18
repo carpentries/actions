@@ -15,7 +15,7 @@ jobs:
           printf ":heavy_check_mark: The ID for this run is ${{ github.run_id }}" >> ${{ github.workspace }}/body.txt
       - id: comment-diff
         name: "PR Comment"
-        uses: zkamvar/actions/comment-diff@main
+        uses: carpentries/actions/comment-diff@main
         with:
           pr: 6
           path: ${{ github.workspace }}/body.txt
