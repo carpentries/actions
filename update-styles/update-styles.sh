@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# set -eo pipefail
-set -o xtrace
+set -eo pipefail
 # Fetch and merge the updated styles from upstream
 # 
 # Note: you have to set environment variables for this to work.... it's kind of
@@ -50,6 +49,8 @@ then
     then
       echo "There were unmerged files in ${LESSON}:"
       echo "$(git diff --compact-summary --diff-filter=U)"
+      git branch -D styles-ref
+      git remote remove styles
       exit 1
     fi
   fi
@@ -58,6 +59,8 @@ then
     echo "Adding merge commit"
     git commit -m "[actions] Sync lesson with carpentries/styles" \
       --author "The Carpentries Bot <team@carpentries.org>"
+    git branch -D styles-ref
+    git remote remove styles
   else
     echo "Creating squash commit later"
   fi
