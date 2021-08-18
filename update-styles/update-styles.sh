@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail
-
+# set -eo pipefail
+set -o xtrace
 # Fetch and merge the updated styles from upstream
 # 
 # Note: you have to set environment variables for this to work.... it's kind of
@@ -25,8 +25,6 @@ else
   ref="gh-pages"
 fi
 
-git config --local user.email "team@carpentries.org"
-git config --local user.name "The Carpentries Bot"
 git remote add styles https://github.com/carpentries/styles.git
 git fetch -n styles ${ref}:styles-ref
 echo "::endgroup::"
@@ -58,9 +56,8 @@ then
   if [[ ${COMMIT} == 'true' ]]
   then
     echo "Adding merge commit"
-    git config --local user.email "team@carpentries.org"
-    git config --local user.name "The Carpentries Bot"
-    git commit -m "Sync lesson with carpentries/styles"
+    git commit -m "[actions] Sync lesson with carpentries/styles" \
+      --author "The Carpentries Bot <team@carpentries.org>"
   else
     echo "Creating squash commit later"
   fi
