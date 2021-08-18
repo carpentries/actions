@@ -21,7 +21,7 @@ if [[ -n "${PR}" ]]
 then
   ref="refs/pull/${PR}/head"
 else
-  ref="gh-pages"
+  ref="${REF:-gh-pages}"
 fi
 
 git remote add styles https://github.com/carpentries/styles.git
