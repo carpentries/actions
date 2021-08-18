@@ -44,7 +44,7 @@ jobs:
       - uses: actions/checkout@v2
       - id: comment-diff
         name: "PR Comment"
-        uses: zkamvar/actions/comment-diff@main
+        uses: carpentries/actions/comment-diff@main
         with:
           pr: 6
           body: ":heavy_check_mark: The ID for this run is `${{ github.run_id }}`"

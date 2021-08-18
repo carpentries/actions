@@ -49,7 +49,7 @@ jobs:
 
       - name: Update Workflows
         id: update
-        uses: zkamvar/actions/update-workflows@main
+        uses: carpentries/actions/update-workflows@main
 
       - name: Create Pull Request
         id: cpr

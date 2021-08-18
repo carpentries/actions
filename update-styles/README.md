@@ -49,7 +49,7 @@ jobs:
 
       - name: Sync lesson with carpentries/styles
         id: update
-        uses: zkamvar/actions/update-styles@main
+        uses: carpentries/actions/update-styles@main
         env:
           REF: ${{ github.ref }}
           LESSON: "Lesson Example"

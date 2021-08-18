@@ -52,7 +52,7 @@ jobs:
       github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: 'Download artifact'
-        uses: zkamvar/actions/download-workflow-artifact@main
+        uses: carpentries/actions/download-workflow-artifact@main
         with:
           run: ${{ github.event.workflow_run.id }}
           name: pr
@@ -65,7 +65,7 @@ jobs:
       
       - name: "Check PR"
         id: check-pr
-        uses: zkamvar/actions/check-valid-pr@main
+        uses: carpentries/actions/check-valid-pr@main
         with:
           pr: ${{ steps.get-pr.outputs.NUM }}
           sha: ${{ github.events.workflow_run.head_commit.sha }}

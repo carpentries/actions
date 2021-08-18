@@ -37,7 +37,7 @@ jobs:
       github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: 'Download artifact'
-        uses: zkamvar/actions/download-workflow-artifact@main
+        uses: carpentries/actions/download-workflow-artifact@main
         with:
           run: ${{ github.event.workflow_run.id }}
           name: pr
