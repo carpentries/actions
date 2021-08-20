@@ -1,0 +1,21 @@
+name: "Check Token"
+description: "Check if a Token has the Appropriate Authorization"
+inputs:
+  token:
+    description: "Token to validate"
+    required: false
+    default: ''
+outputs:
+  wf: 
+    description: "workflow authorization"
+    value: "${{ steps.validate.outputs.wf }}"
+  repo:
+    description: "repo authorization"
+    value: "${{ steps.update.outputs.repo }}"
+runs:
+  using: "composite"
+  steps:
+    - name: "Check Token"
+      id: check
+      run: ${{ github.action_path }}/validate.sh ${{ inputs.token }}
+      shell: bash
