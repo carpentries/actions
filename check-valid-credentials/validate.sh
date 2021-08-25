@@ -32,8 +32,9 @@ then
   curl --dump-header ${headerfile} --head -H "Authorization: token ${PAT}" \
     https://api.github.com/user/ > /dev/null
   cat ${headerfile}
-  WORKFLOW=$(grep -ic 'x-accepted-oauth-scopes: .*workflow' ${headerfile} || echo '0')
-  REPO=$(grep -ic 'x-accepted-oauth-scopes: .*repo' ${headerfile} || echo '0')
+
+  WORKFLOW=$(grep -ic 'x-oauth-scopes: .*workflow' ${headerfile} || echo '0')
+  REPO=$(grep -ic 'x-oauth-scopes: .*repo' ${headerfile} || echo '0')
   rm -r ${TMP}
 
   if [[ ${WORKFLOW} == 1 ]]
