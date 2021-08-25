@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -eo pipefail
-set -o xtrace
 
 # Download and update sandpaper workflow files from an upstream repository
 #
