@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
+set -o xtrace
 
 # Download and update sandpaper workflow files from an upstream repository
 #
@@ -30,6 +31,7 @@ then
   headerfile=${TMP}/${RANDOM}
   curl --dump-header ${headerfile} --head -H "Authorization: token ${PAT}" \
     https://api.github.com/user/ > /dev/null
+  cat ${headerfile}
   WORKFLOW=$(grep -ic 'x-accepted-oauth-scopes: .*workflow' ${headerfile} || echo '0')
   REPO=$(grep -ic 'x-accepted-oauth-scopes: .*repo' ${headerfile} || echo '0')
   rm -r ${TMP}
