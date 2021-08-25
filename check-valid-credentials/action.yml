@@ -8,10 +8,10 @@ inputs:
 outputs:
   wf: 
     description: "workflow authorization"
-    value: "${{ steps.validate.outputs.wf }}"
+    value: "${{ steps.check.outputs.wf }}"
   repo:
     description: "repo authorization"
-    value: "${{ steps.update.outputs.repo }}"
+    value: "${{ steps.check.outputs.repo }}"
 runs:
   using: "composite"
   steps:
