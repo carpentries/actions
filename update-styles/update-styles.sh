@@ -24,6 +24,20 @@ else
   ref="${REF:-gh-pages}"
 fi
 
+if [[ $(git config --global user.email) ]]
+then
+  echo ok > /dev/null
+else
+  git config --global user.email "team@carpentries.org"
+fi
+
+if [[ $(git config --global user.name) ]]
+then
+  echo ok > /dev/null
+else
+  git config --global user.name "Carpentries Bot"
+fi
+
 git remote add styles https://github.com/carpentries/styles.git
 git fetch -n styles ${ref}:styles-ref
 echo "::endgroup::"
@@ -57,8 +71,7 @@ then
   if [[ ${COMMIT} == 'true' ]]
   then
     echo "Adding merge commit"
-    git commit -m "[actions] Sync lesson with carpentries/styles" \
-      --author "The Carpentries Bot <team@carpentries.org>"
+    git commit -m "[actions] Sync lesson with carpentries/styles"
     git branch -D styles-ref
     git remote remove styles
   else
