@@ -31,16 +31,17 @@ then
   headerfile=${TMP}/${RANDOM}
   curl --dump-header ${headerfile} --head -H "Authorization: token ${PAT}" \
     https://api.github.com/user/ > /dev/null
+  cat ${headerfile}
   WORKFLOW=$(grep -ic 'x-accepted-oauth-scopes: .*workflow' ${headerfile} || echo '0')
   REPO=$(grep -ic 'x-accepted-oauth-scopes: .*repo' ${headerfile} || echo '0')
   rm -r ${TMP}
 
-  if [[ ${WORKFLOW} -eq 1 ]]
+  if [[ ${WORKFLOW} == 1 ]]
   then
     echo "::set-output name=wf::true"
   fi
 
-  if [[ ${REPO} -eq 1 ]]
+  if [[ ${REPO} == 1 ]]
   then
     echo "::set-output name=repo::true"
   fi
