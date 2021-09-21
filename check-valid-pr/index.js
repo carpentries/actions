@@ -16,8 +16,8 @@ async function run() {
     return f.filename;
   }
 
-  function notAction(truth, l) {
-    return truth && !l.startsWith('.github/');
+  function isNotAction(truth, l) {
+    return truth && !(l.startsWith('.github/') && (l.endsWith('.yaml') || l.endsWith('.yml')));
   }
 
   // Access Pull Request -------------------------------------------------------
@@ -54,7 +54,17 @@ async function run() {
     
     if (pullRequestFiles) {
       const files = pullRequestFiles.map(getFilename);
-      valid = valid && files.reduce(notAction, true);
+      // filter out the files that are not GHA files
+      let valid_files = files.filter(isNotAction);
+      // we have a valid PR if the valid file array is unchanged
+      valid = valid && valid_files.length == files.length;
+      if (!valid && valid_files.length > 0) {
+        // If we are not valid, we need to check if there is a mix of files
+        let invalid_files = files.filter(e => !isNotAction(e));
+        let vf = valid_files.join(", ");
+        let inv = invalid_files.join(", ");
+        core.setFailed(`PR #${PR} contains a mix of workflow files and regular files:\n\t  valid: ${vf}\n\tinvalid: ${inv}\nConsider this PR with caution.`)
+      }
       console.log(`Files in PR: ${files}`);
     } else {
       console.log(`No files found.`);
