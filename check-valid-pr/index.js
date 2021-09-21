@@ -63,9 +63,9 @@ async function run() {
         let invalid_files = files.filter(e => !isNotAction(e));
         let vf = valid_files.join(", ");
         let inv = invalid_files.join(", ");
-        core.setFailed(`PR #${PR} contains a mix of workflow files and regular files. This could be malicious.\n-> regular files: ${vf}\n->workflow files: ${inv}`)
+        core.setFailed(`PR #${PR} contains a mix of workflow files and regular files. This could be malicious.\n->  regular files: ${vf}\n-> workflow files: ${inv}`)
       }
-      console.log(`Files in PR: ${files}`);
+      console.log(`Files in PR: ${files.join(", ")}`);
     } else {
       console.log(`No files found.`);
       valid = false;
