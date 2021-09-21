@@ -16,7 +16,7 @@ async function run() {
     return f.filename;
   }
 
-  function isNotAction(l) {
+  function isNotWorkflow(l) {
     return !l.startsWith('.github/');
   }
 
@@ -55,12 +55,12 @@ async function run() {
     if (pullRequestFiles) {
       const files = pullRequestFiles.map(getFilename);
       // filter out the files that are not GHA files
-      let valid_files = files.filter(isNotAction);
+      let valid_files = files.filter(isNotWorkflow);
       // we have a valid PR if the valid file array is unchanged
       valid = valid && valid_files.length == files.length;
       if (!valid && valid_files.length > 0) {
         // If we are not valid, we need to check if there is a mix of files
-        let invalid_files = files.filter(e => !isNotAction(e));
+        let invalid_files = files.filter(e => !isNotWorkflow(e));
         let vf = valid_files.join(", ");
         let inv = invalid_files.join(", ");
         core.setFailed(`PR #${PR} contains a mix of workflow files and regular files. This could be malicious.\n->  regular files: ${vf}\n-> workflow files: ${inv}`)
