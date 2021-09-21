@@ -17,7 +17,7 @@ async function run() {
   }
 
   function isNotAction(truth, l) {
-    return truth && !(l.startsWith('.github/') && (l.endsWith('.yaml') || l.endsWith('.yml')));
+    return truth && !l.startsWith('.github/');
   }
 
   // Access Pull Request -------------------------------------------------------
