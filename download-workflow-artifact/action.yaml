@@ -19,6 +19,9 @@ inputs:
     description: 'github token'
     required: true
     default: ${{ github.token }}
+outputs:
+  success:
+    description: "a boolean variable if the download was successful (true) or not (false)"
 runs:
   using: 'node12'
   main: 'index.js'
