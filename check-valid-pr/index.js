@@ -16,8 +16,8 @@ async function run() {
     return f.filename;
   }
 
-  function isNotAction(truth, l) {
-    return truth && !l.startsWith('.github/');
+  function isNotAction(l) {
+    return !l.startsWith('.github/');
   }
 
   // Access Pull Request -------------------------------------------------------
