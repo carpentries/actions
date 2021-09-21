@@ -63,7 +63,7 @@ async function run() {
         let invalid_files = files.filter(e => !isNotAction(e));
         let vf = valid_files.join(", ");
         let inv = invalid_files.join(", ");
-        core.setFailed(`PR #${PR} contains a mix of workflow files and regular files:\n\t  valid: ${vf}\n\tinvalid: ${inv}\nConsider this PR with caution.`)
+        core.setFailed(`PR #${PR} contains a mix of workflow files and regular files:%0A\t  valid: ${vf}%0A\tinvalid: ${inv}%0AConsider this PR with caution.`)
       }
       console.log(`Files in PR: ${files}`);
     } else {
