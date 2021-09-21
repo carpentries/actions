@@ -36,16 +36,14 @@ async function run() {
       artifact_id: matchArtifact.id,
       archive_format: 'zip',
     }).catch(err => { 
-      // HTTP errors turn into a failed run --------------------------------------
       console.log(err);
-      core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
-      process.exit(1);
+      core.setOutput("success", false);
     });
-
     fs.writeFileSync(`${dir}/${name}.zip`, Buffer.from(download.data));
+    core.setOutput("success", true);
   } else {
-    console.log(artifacts);
-    core.setFailed(`${name}.zip could not be found. Check logs.`)
+    console.log(`${artifacts}.zip could not be found`);
+    core.setOutput("success", false);
   }
 }
 
