@@ -1,0 +1,78 @@
+name: 'setup-sandpaper'
+description: 'Action to setup The Carpentries lesson infrastructure'
+author: 'Zhian N. Kamvar'
+inputs:
+  cache-version:
+    description: 'The version of the cache, change this from the default (1) to start over with a fresh cache'
+    required: true
+    default: 1
+  extra-packages:
+    default: "varnish"
+    description: 'Any extra packages to install outside of sandpaper and its dependencies'
+runs:
+  using: "composite"
+  steps:
+      - name: Install pak and query dependencies
+        run: |
+          cat("::group::Install remotes\n")
+          options(
+            pak.no_extra_messages = TRUE,
+            repos = c(
+              carpentries = "https://carpentries.r-universe.dev/",
+              archive     = "https://carpentries.github.io/drat/",
+              CRAN        = "https://cran.rstudio.com"
+            )
+          )
+          install.packages('remotes')
+          deps <- remotes::package_deps("sandpaper", dependencies = TRUE)
+          saveRDS(deps, ".github/r-depends.rds")
+        shell: Rscript {0}
+
+      - name: Get R and OS version
+        id: get-version
+        run: |
+          cat("::set-output name=os-version::", sessionInfo()$running, "\n", sep = "")
+          cat("::set-output name=r-version::", R.Version()$version.string, "\n", sep = "")
+          cat("::endgroup::\n")
+        shell: Rscript {0}
+
+      - name: Restore R package cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ env.R_LIBS_USER }}/*
+            !${{ env.R_LIBS_USER }}/pak
+          key: ${{ steps.get-version.outputs.os-version }}-${{ steps.get-version.outputs.r-version }}-${{inputs.cache-version }}-${{ hashFiles('.github/r-depends.rds') }}
+          restore-keys: ${{ steps.get-version.outputs.os-version }}-${{ steps.get-version.outputs.r-version }}-${{inputs.cache-version }}-
+
+      - name: Install dependencies
+        run: |
+          cat("::group::Install dependencies\n")
+          options(
+            pak.no_extra_messages = TRUE,
+            repos = c(
+              carpentries = "https://carpentries.r-universe.dev/",
+              archive     = "https://carpentries.github.io/drat/",
+              CRAN        = "https://cran.rstudio.com"
+            )
+          )
+          library("remotes")
+          pkgs <- package_deps('sandpaper', dependencies = TRUE)
+          pkgs$diff[pkgs$package == "tinkr"] <- -1
+          update(pkgs, upgrade = "always")
+          cat("::endgroup::\n")
+        shell: Rscript {0}
+
+      - name: Session info
+        run: |
+          cat("::group::Session info\n")
+          sandpaper:::ci_session_info()
+          cat("::endgroup::\n")
+        shell: Rscript {0}
+
+      - name: Don't use tar 1.30 from Rtools35 to store the cache
+        shell: bash
+        run: |
+          if command -v /c/Rtools/bin/tar && /c/Rtools/bin/tar --version | grep -q 'tar (GNU tar) 1.30'
+            then echo 'C:/Program Files/Git/usr/bin' >> $GITHUB_PATH
+          fi

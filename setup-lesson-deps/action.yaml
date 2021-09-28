@@ -1,0 +1,35 @@
+name: 'setup-lesson-deps'
+description: 'Action to set up package dependencies for Carpentries Lessons'
+author: 'Zhian N. Kamvar'
+inputs:
+  cache-version:
+    description: 'The version of the cache, change this from the default (1) to start over with a fresh cache'
+    required: true
+    default: 1
+runs:
+  using: "composite"
+  steps:
+      - name: "Restore {renv} Cache"
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.RENV_PATHS_ROOT }}
+          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ hashFiles('**/renv.lock') }}
+          restore-keys:
+            ${{ runner.os }}-${{ inputs.cache-version }}-renv-
+
+      - name: "Fortify Local {renv} Packages"
+        shell: Rscript {0}
+        run: |
+          wd <- '${{ github.workspace }}'
+          if (file.exists(file.path(wd, 'renv'))) {
+            sandpaper::manage_deps(path = wd, quiet = FALSE)
+          } else {
+            writLines("Package cache not used")
+          }
+
+      - name: Don't use tar 1.30 from Rtools35 to store the cache
+        shell: bash
+        run: |
+          if command -v /c/Rtools/bin/tar && /c/Rtools/bin/tar --version | grep -q 'tar (GNU tar) 1.30'
+            then echo 'C:/Program Files/Git/usr/bin' >> $GITHUB_PATH
+          fi
