@@ -5,7 +5,7 @@ inputs:
   cache-version:
     description: 'The version of the cache, change this from the default (1) to start over with a fresh cache'
     required: true
-    default: ${{ secrets.CACHE_VERSION }}
+    default: 1
   extra-packages:
     description: 'Any extra packages to install outside of sandpaper and its dependencies'
 runs:
