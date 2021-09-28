@@ -23,7 +23,7 @@ runs:
         shell: Rscript {0}
         run: |
           wd <- '${{ github.workspace }}'
-          if (file.exists(file.path(wd, 'renv'))
+          if (file.exists(file.path(wd, 'renv')))
             sandpaper::manage_deps(path = wd, quiet = FALSE)
           else 
             writLines("Package cache not used")
