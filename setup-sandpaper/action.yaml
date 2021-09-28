@@ -14,7 +14,7 @@ runs:
   steps:
       - name: Install pak and query dependencies
         run: |
-          cat("::group::Install pak\n")
+          cat("::group::Install remotes\n")
           options(
             pak.no_extra_messages = TRUE,
             repos = c(
@@ -23,8 +23,9 @@ runs:
               CRAN        = "https://cran.rstudio.com"
             )
           )
-          install.packages("pak", repos = "https://r-lib.github.io/p/pak/dev/")
-          deps <- pak::pkg_deps("sandpaper")
+          # install.packages("pak", repos = "https://r-lib.github.io/p/pak/dev/")
+          install.packages('remotes')
+          deps <- remotes::package_deps("sandpaper", dependencies = TRUE)
           saveRDS(deps, ".github/r-depends.rds")
         shell: Rscript {0}
 
@@ -56,14 +57,18 @@ runs:
               CRAN        = "https://cran.rstudio.com"
             )
           )
-          local_deps <- readRDS(".github/r-depends.rds")[["ref"]]
-          extra_deps <- strsplit("${{ inputs.extra-packages }}", "[[:space:],]+")[[1]]
-          if (Sys.info()[["sysname"]] == "Linux") {
-            for (dep in c(local_deps, extra_deps)) {
-              pak::pkg_system_requirements(dep, execute = TRUE)
-            }
-          }
-          pak::pkg_install(c(local_deps, extra_deps, "sessioninfo"))
+          library("remotes")
+          pkgs <- package_deps('sandpaper', dependencies = TRUE)
+          pkgs$diff[pkgs$package == "tinkr"] <- -1
+          update(pkgs, upgrade = "always")
+          # local_deps <- readRDS(".github/r-depends.rds")[["ref"]]
+          # extra_deps <- strsplit("${{ inputs.extra-packages }}", "[[:space:],]+")[[1]]
+          # if (Sys.info()[["sysname"]] == "Linux") {
+          #   for (dep in c(local_deps, extra_deps)) {
+          #     pak::pkg_system_requirements(dep, execute = TRUE)
+          #   }
+          # }
+          # pak::pkg_install(c(local_deps, extra_deps, "sessioninfo"))
           cat("::endgroup::\n")
         shell: Rscript {0}
 
