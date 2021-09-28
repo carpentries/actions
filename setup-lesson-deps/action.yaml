@@ -1,4 +1,4 @@
-name: 'setup-deps'
+name: 'setup-lesson-deps'
 description: 'Action to set up package dependencies for Carpentries Lessons'
 author: 'Zhian N. Kamvar'
 inputs:

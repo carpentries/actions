@@ -21,7 +21,7 @@ steps:
 - uses: carpentries/actions/setup-sandpaper@main
   with:
     cache-version: ${{ secrets.CACHE_VERSION }}
-- uses: carpentries/actions/setup-deps@main
+- uses: carpentries/actions/setup-lesson-deps@main
   with:
     cache-version: ${{ secrets.CACHE_VERSION }}
 ```

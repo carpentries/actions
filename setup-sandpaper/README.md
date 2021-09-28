@@ -16,7 +16,7 @@ It uses the following process:
 
 Inputs available
 
-- `cache-version` - default `1`. If you need to invalidate the existing cache pass any other number and a new cache will be used.
+- `cache-version` - default `1`. If you need to invalidate the existing cache pass any other number and a new cache will be used. You can use a secret called `CACHE_VERSION` set to a date for to reset the cache without needing to commit it. 
 - `extra-packages` - One or more extra package references to install. Separate each reference by newlines or commas for more than one package.
 
 Basic:
@@ -26,7 +26,7 @@ steps:
 - uses: r-lib/actions/setup-r@v1
 - uses: carpentries/actions/setup-sandpaper@main
   with:
-    cache-version: 2
+    cache-version: ${{ secrets.CACHE_VERSION }}
     extra-packages: |
       ggplot2
       rcmdcheck
