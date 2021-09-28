@@ -5,7 +5,7 @@ inputs:
   cache-version:
     description: 'The version of the cache, change this from the default (1) to start over with a fresh cache'
     required: true
-    default: 1
+    default: ${{ secrets.CACHE_VERSION }}
   extra-packages:
     description: 'Any extra packages to install outside of sandpaper and its dependencies'
 runs:
@@ -23,9 +23,9 @@ runs:
         uses: actions/cache@v2
         with:
           path: ${{ env.RENV_PATHS_ROOT }}
-          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ hashFiles('**/renv.lock') }}
           restore-keys:
-            ${{ runner.os }}-renv-
+            ${{ runner.os }}-${{ inputs.cache-version }}-renv-
 
       - name: "Fortify Local {renv} Packages"
         if: ${{ steps.renv.outputs.exists }}
