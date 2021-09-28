@@ -5,10 +5,9 @@ This action is modified from
 sandpaper for use in Carpentries lessons. The vast majority of this workflow was
 written by Jim Hester at RStudio. Zhian Kamvar mostly just added tweaks.
 
-
 It uses the following process:
 
-- Installing [pak](https://pak.r-lib.org/)
+- Installing [remotes](https://remotes.r-lib.org/)
 - Setting up a dependency cache using [actions/cache](https://github.com/actions/cache).
 - Installing system dependencies if needed using [rstudio/r-system-requirements](https://github.com/rstudio/r-system-requirements).
 - Printing the installed session info using [sessioninfo](https://github.com/r-lib/sessioninfo).
@@ -40,3 +39,11 @@ The scripts and documentation in this project are released under the [MIT Licens
 # Contributions
 
 Contributions are welcome!
+
+# LOG
+
+## 2021-09-28
+
+ - copied action from r-lib
+ - modified action to use {remotes} because the process for {pak} was twice as long
+
