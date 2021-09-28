@@ -1,13 +1,11 @@
 name: 'setup-deps'
 description: 'Action to set up package dependencies for Carpentries Lessons'
-author: 'Jim Hester'
+author: 'Zhian N. Kamvar'
 inputs:
   cache-version:
     description: 'The version of the cache, change this from the default (1) to start over with a fresh cache'
     required: true
     default: 1
-  extra-packages:
-    description: 'Any extra packages to install outside of sandpaper and its dependencies'
 runs:
   using: "composite"
   steps:
