@@ -47,7 +47,14 @@ runs:
       - name: Install dependencies
         run: |
           cat("::group::Install dependencies\n")
-          options(pak.no_extra_messages = TRUE)
+          options(
+            pak.no_extra_messages = TRUE,
+            repos = c(
+              carpentries = "https://carpentries.r-universe.dev/",
+              archive     = "https://carpentries.github.io/drat/",
+              CRAN        = "https://cran.rstudio.com"
+            )
+          )
           local_deps <- readRDS(".github/r-depends.rds")[["ref"]]
           extra_deps <- strsplit("${{ inputs.extra-packages }}", "[[:space:],]+")[[1]]
           if (Sys.info()[["sysname"]] == "Linux") {
