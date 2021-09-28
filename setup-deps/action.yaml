@@ -12,6 +12,7 @@ runs:
   using: "composite"
   steps:
       - name: "Check if We Need {renv}"
+        shell: bash
         id: renv
         run: |
           if [[ -d renv ]]; then
@@ -28,12 +29,13 @@ runs:
             ${{ runner.os }}-${{ inputs.cache-version }}-renv-
 
       - name: "Fortify Local {renv} Packages"
+        shell: Rscript {0}
         if: ${{ steps.renv.outputs.exists }}
         run: sandpaper::manage_deps(path = '${{ github.workspace }}', quiet = FALSE)
-        shell: Rscript {0}
 
       - name: Don't use tar 1.30 from Rtools35 to store the cache
         shell: bash
+        if: ${{ steps.renv.outputs.exists }}
         run: |
           if command -v /c/Rtools/bin/tar && /c/Rtools/bin/tar --version | grep -q 'tar (GNU tar) 1.30'
             then echo 'C:/Program Files/Git/usr/bin' >> $GITHUB_PATH
