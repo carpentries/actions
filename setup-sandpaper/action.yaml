@@ -62,7 +62,7 @@ runs:
           update(pkgs, upgrade = "always")
           cat("::endgroup::\n")
           sandpaper_version <- '${{ inputs.sandpaper-version }}'
-          if (sandpaper_version != "default") {
+          if (sandpaper_version != "latest") {
             cat("::group::Installing", sandpaper_version, "\n")
             install_github(sandpaper_version)
             cat("::endgroup::\n")
