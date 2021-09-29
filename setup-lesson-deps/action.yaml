@@ -24,7 +24,7 @@ runs:
           if (file.exists(file.path(wd, 'renv'))) {
             sandpaper::manage_deps(path = wd, quiet = FALSE)
           } else {
-            writLines("Package cache not used")
+            writeLines("Package cache not used")
           }
 
       - name: Don't use tar 1.30 from Rtools35 to store the cache
