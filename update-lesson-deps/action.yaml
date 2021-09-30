@@ -79,6 +79,7 @@ runs:
           # https://github.community/t/set-output-truncates-multiline-strings/16852/3?u=zkamvar
           the_report <- paste0(the_report, collapse = "%0A")
           meow  <- function(...) cat(..., "\n", sep = "")
+          meow(the_report)
           meow("::set-output name=report::", the_report)
           meow("::set-output name=n::", n)
           meow("::set-output name=date::", as.character(Sys.Date()))
