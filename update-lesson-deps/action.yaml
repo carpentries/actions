@@ -38,23 +38,41 @@ runs:
           # install renv if we don't have it. 
           if (!requireNamespace("renv", quietly = TRUE))
             install.packages("renv")
+          if (!requireNamespace("jsonlite"))
+            install.packages("jsonlite")
           Sys.setenv("RENV_PROFILE" = "lesson-requirements")
+          current_lock <- jsonlite::read_json(renv::paths$lockfile())
           renv::load()
           lib  <- renv::paths$library()
           lock <- renv::paths$lockfile()
           shh  <- capture.output(renv::restore(library = lib, lockfile = lock))
           # snapshot to capture any dependencies that were added but not tracked
-          renv::snapshot(lockfile = lock)
+          new_lock <- renv::snapshot(library = lib, lockfile = tmplock)
+          sneaky_pkgs <- setdiff(names(new_lock$Packages), names(current_lock$Packages))
           # do a check for the updates
           updates <- renv::update(library = lib, check = TRUE)
           n <- 0
           the_report <- character(0)
+          if (length(sneaky_packages)) {
+            these <- new_lock$Packages[sneaky_packages]
+            pkgs <- vapply(these, 
+              FUN = function(i) paste0(i$Package, '@', i$Version), 
+              FUN.VALUE = character(1)
+            )
+            n <- n + length(sneaky_packages)
+            the_report <- c(the_report, 
+              "The following packages have been introduced into the lesson without being updated in the lockfile:",
+              "============",
+              pkgs
+            )
+          }
           if (!identical(updates, TRUE)) {
             # apply the updates and run a snapshot if the dry run found updates
             renv::update(library = lib)
             renv::snapshot(lockfile = lock)
-            n <- length(updates$diff)
-            the_report <- utils::capture.output(print(updates), type = "message")
+            n <- n + length(updates$diff)
+            the_report <- c(the_report, 
+              utils::capture.output(print(updates), type = "message"))
             # https://github.community/t/set-output-truncates-multiline-strings/16852/3?u=zkamvar
             the_report <- paste0(the_report, collapse = "%0A")
           }
