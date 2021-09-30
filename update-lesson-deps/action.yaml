@@ -53,6 +53,7 @@ runs:
           updates <- renv::update(library = lib, check = TRUE)
           n <- 0
           the_report <- character(0)
+          # If there are packages in the cache already
           if (length(sneaky_packages)) {
             these <- new_lock$Packages[sneaky_packages]
             pkgs <- vapply(these, 
@@ -66,6 +67,7 @@ runs:
               pkgs
             )
           }
+          # when there are additional updates to be had
           if (!identical(updates, TRUE)) {
             # apply the updates and run a snapshot if the dry run found updates
             renv::update(library = lib)
@@ -73,9 +75,9 @@ runs:
             n <- n + length(updates$diff)
             the_report <- c(the_report, 
               utils::capture.output(print(updates), type = "message"))
-            # https://github.community/t/set-output-truncates-multiline-strings/16852/3?u=zkamvar
-            the_report <- paste0(the_report, collapse = "%0A")
           }
+          # https://github.community/t/set-output-truncates-multiline-strings/16852/3?u=zkamvar
+          the_report <- paste0(the_report, collapse = "%0A")
           meow  <- function(...) cat(..., "\n", sep = "")
           meow("::set-output name=report::", the_report)
           meow("::set-output name=n::", n)
