@@ -42,6 +42,7 @@ runs:
             install.packages("jsonlite")
           Sys.setenv("RENV_PROFILE" = "lesson-requirements")
           current_lock <- jsonlite::read_json(renv::paths$lockfile())
+          print(current_lock)
           renv::load()
           lib  <- renv::paths$library()
           lock <- renv::paths$lockfile()
