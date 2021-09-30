@@ -1,0 +1,71 @@
+name: 'update-lesson-deps'
+description: 'Action to update package dependencies for Carpentries Lessons'
+author: 'Zhian N. Kamvar'
+inputs:
+  cache-version:
+    description: 'The version of the cache, change this from the default (1) to start over with a fresh cache'
+    required: true
+    default: 1
+runs:
+  using: "composite"
+  steps:
+      - name: "Restore {renv} Cache"
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.RENV_PATHS_ROOT }}
+          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ hashFiles('**/renv.lock') }}
+          restore-keys:
+            ${{ runner.os }}-${{ inputs.cache-version }}-renv-
+
+      - name: "Check if renv dir exists"
+        id: check
+        shell: bash
+        run: |
+          if [[ -d renv ]]; then
+            echo '::set-output name=can-update::true'
+          else
+            echo 'nothing to do!'
+          fi
+
+      - name: "Update {renv} deps and determine if a PR is needed"
+        id: update
+        shell: Rscript {0}
+        run: |
+          update <- '${{ steps.check.outputs.can-update }}' == 'true'
+          if (!update) {
+            quit(save = "no", status = 0)
+          }
+          options(repos = c(
+            carpentries = "https://carpentries.r-universe.dev",
+            carpentries_archive = "https://carpentries.github.io/drat",
+            CRAN = "https://cran.rstudio.com"))
+          # install renv if we don't have it. 
+          if (!requireNamespace("renv", quietly = TRUE))
+            install.packages("renv")
+          Sys.setenv("RENV_PROFILE" = "lesson-requirements")
+          renv::load()
+          lib  <- renv::paths$library()
+          lock <- renv::paths$lockfile()
+          shh  <- capture.output(renv::restore(library = lib, lockfile = lock))
+          updates <- renv::update(library = lib, check = TRUE)
+          n <- 0
+          the_report <- character(0)
+          if (!identical(updates, TRUE)) {
+            renv::update(library = lib)
+            renv::snapshot(lockfile = lock)
+            n <- length(updates$diff)
+            the_report <- utils::capture.output(print(updates), type = "message")
+            # https://github.community/t/set-output-truncates-multiline-strings/16852/3?u=zkamvar
+            the_report <- paste0(the_report, collapse = "%0A")
+          }
+          meow  <- function(...) cat(..., "\n", sep = "")
+          meow("::set-output name=report::", the_report)
+          meow("::set-output name=n::", n)
+          meow("::set-output name=date::", as.character(Sys.Date()))
+
+      - name: Don't use tar 1.30 from Rtools35 to store the cache
+        shell: bash
+        run: |
+          if command -v /c/Rtools/bin/tar && /c/Rtools/bin/tar --version | grep -q 'tar (GNU tar) 1.30'
+            then echo 'C:/Program Files/Git/usr/bin' >> $GITHUB_PATH
+          fi
