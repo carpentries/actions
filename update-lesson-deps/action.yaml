@@ -68,7 +68,7 @@ runs:
             these <- new_lock$Packages[sneaky_pkgs]
             pkg_info <- function(i) {
               lead <- "- "
-              paste0(lead, i$Package, '\t[* ->', i$Version, ']')
+              paste0(lead, i$Package, '\t[* -> ', i$Version, ']')
             }
             pkgs <- vapply(these, FUN = pkg_info, FUN.VALUE = character(1))
             n <- n + length(sneaky_pkgs)
