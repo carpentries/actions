@@ -38,7 +38,7 @@ runs:
           # install renv if we don't have it. 
           if (!requireNamespace("renv", quietly = TRUE))
             install.packages("renv")
-          if (!requireNamespace("jsonlite"))
+          if (!requireNamespace("jsonlite", quietly = TRUE))
             install.packages("jsonlite")
           Sys.setenv("RENV_PROFILE" = "lesson-requirements")
           current_lock <- jsonlite::read_json(renv::paths$lockfile())
@@ -49,6 +49,7 @@ runs:
           # snapshot to capture any dependencies that were added but not tracked
           new_lock <- renv::snapshot(library = lib, lockfile = lock)
           sneaky_pkgs <- setdiff(names(new_lock$Packages), names(current_lock$Packages))
+          print(sneaky_pkgs)
           # do a check for the updates
           updates <- renv::update(library = lib, check = TRUE)
           n <- 0
