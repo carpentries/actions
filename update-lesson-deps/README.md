@@ -4,6 +4,7 @@ This will update the dependencies for Carpentries lessons using {renv}. It is
 important to note that this action is not independent. It requires the following
 items:
 
+ - R must be set up
  - `RENV_PATHS_ROOT` must be defined in the job environment
 
 # Usage

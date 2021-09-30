@@ -6,6 +6,16 @@ inputs:
     description: 'The version of the cache, change this from the default (1) to start over with a fresh cache'
     required: true
     default: 1
+outputs:
+  n:
+    description: the number of packages to be updated
+    value: ${{ steps.update.outputs.n }}
+  date:
+    description: the date (used for branch name)
+    value: ${{ steps.update.outputs.date }}
+  report:
+    description: the report of packages to be updated in the lesson
+    value: ${{ steps.update.outputs.report }}
 runs:
   using: "composite"
   steps:
@@ -17,24 +27,10 @@ runs:
           restore-keys:
             ${{ runner.os }}-${{ inputs.cache-version }}-renv-
 
-      - name: "Check if renv dir exists"
-        id: check
-        shell: bash
-        run: |
-          if [[ -d renv ]]; then
-            echo '::set-output name=can-update::true'
-          else
-            echo 'nothing to do!'
-          fi
-
       - name: "Update {renv} deps and determine if a PR is needed"
         id: update
         shell: Rscript {0}
         run: |
-          update <- '${{ steps.check.outputs.can-update }}' == 'true'
-          if (!update) {
-            quit(save = "no", status = 0)
-          }
           options(repos = c(
             carpentries = "https://carpentries.r-universe.dev",
             carpentries_archive = "https://carpentries.github.io/drat",
