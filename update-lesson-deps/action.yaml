@@ -73,9 +73,9 @@ runs:
             pkgs <- vapply(these, FUN = pkg_info, FUN.VALUE = character(1))
             n <- n + length(sneaky_pkgs)
             the_report <- c(the_report, 
-              "# Present in the lesson, but not the lockfile:",
-              "",
-              pkgs
+              "# NEW ================================",
+              pkgs,
+              ""
             )
             cat(n, "packages found", paste(sneaky_pkgs, collapse = ", "), "\n")
           }
