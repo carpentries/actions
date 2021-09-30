@@ -43,10 +43,14 @@ runs:
           lib  <- renv::paths$library()
           lock <- renv::paths$lockfile()
           shh  <- capture.output(renv::restore(library = lib, lockfile = lock))
+          # snapshot to capture any dependencies that were added but not tracked
+          renv::snapshot(lockfile = lock)
+          # do a check for the updates
           updates <- renv::update(library = lib, check = TRUE)
           n <- 0
           the_report <- character(0)
           if (!identical(updates, TRUE)) {
+            # apply the updates and run a snapshot if the dry run found updates
             renv::update(library = lib)
             renv::snapshot(lockfile = lock)
             n <- length(updates$diff)
