@@ -47,7 +47,7 @@ runs:
           lock <- renv::paths$lockfile()
           shh  <- capture.output(renv::restore(library = lib, lockfile = lock))
           # snapshot to capture any dependencies that were added but not tracked
-          new_lock <- renv::snapshot(library = lib, lockfile = tmplock)
+          new_lock <- renv::snapshot(library = lib, lockfile = lock)
           sneaky_pkgs <- setdiff(names(new_lock$Packages), names(current_lock$Packages))
           # do a check for the updates
           updates <- renv::update(library = lib, check = TRUE)
