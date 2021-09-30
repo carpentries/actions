@@ -54,13 +54,13 @@ runs:
           n <- 0
           the_report <- character(0)
           # If there are packages in the cache already
-          if (length(sneaky_packages)) {
-            these <- new_lock$Packages[sneaky_packages]
+          if (length(sneaky_pkgs)) {
+            these <- new_lock$Packages[sneaky_pkgs]
             pkgs <- vapply(these, 
               FUN = function(i) paste0(i$Package, '@', i$Version), 
               FUN.VALUE = character(1)
             )
-            n <- n + length(sneaky_packages)
+            n <- n + length(sneaky_pkgs)
             the_report <- c(the_report, 
               "The following packages have been introduced into the lesson without being updated in the lockfile:",
               "============",
