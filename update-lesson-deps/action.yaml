@@ -45,6 +45,15 @@ runs:
         id: update
         shell: Rscript {0}
         run: |
+          # Verify inputs ------------------------------------------------------
+          cat("::group::Verifying inputs\n")
+          in_repos <- expression(${{ inputs.repos }})
+          pd <- getParseData(parse(text = as.character(in_repos)))
+          funs <- pd$token == "SYMBOL_FUNCTION_CALL"
+          if (any(funs) && any(pd$text[funs] != "c")) {
+            stop("::error::repository settings should be an R vector. No functions other than `c()` are allowed")
+          }
+          cat("::endgroup::\n")
           # Setup --------------------------------------------------------------
           cat("::group::Preparing {renv}\n")
           options(repos = ${{ inputs.repos }})
