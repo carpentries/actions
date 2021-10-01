@@ -10,7 +10,7 @@ inputs:
     description: 'flag to update already installed packages'
     default: true
   repos:
-    description: 'default repositories to set'
+    description: 'default repositories to set as an R expression'
     default: |
       c(
         carpentries = 'https://carpentries.r-universe.dev/',
@@ -44,7 +44,7 @@ runs:
         run: |
           # Setup --------------------------------------------------------------
           cat("::group::Preparing {renv}\n")
-          cat(expression(${{ input.repos }}), "\n")
+          cat(expression(${{ inputs.repos }}), "\n")
           options(repos = c(
             carpentries = "https://carpentries.r-universe.dev",
             carpentries_archive = "https://carpentries.github.io/drat",
