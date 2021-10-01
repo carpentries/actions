@@ -9,6 +9,12 @@ inputs:
   update:
     description: 'flag to update already installed packages'
     default: true
+  repos:
+    description: 'default repositories to set'
+    default:
+      carpentries: 'https://carpentries.r-universe.dev/'
+      carpentries_archive: 'https://carpentries.github.io/drat/'
+      CRAN: 'https://cran.rstudio.com'
 outputs:
   n:
     description: the number of packages to be updated
@@ -36,6 +42,8 @@ runs:
         run: |
           # Setup --------------------------------------------------------------
           cat("::group::Preparing {renv}\n")
+          repos <- '${{ inputs.repos }}'
+          cat(repos)
           options(repos = c(
             carpentries = "https://carpentries.r-universe.dev",
             carpentries_archive = "https://carpentries.github.io/drat",
