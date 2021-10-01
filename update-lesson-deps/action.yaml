@@ -11,10 +11,12 @@ inputs:
     default: true
   repos:
     description: 'default repositories to set'
-    default:
-      carpentries: 'https://carpentries.r-universe.dev/'
-      carpentries_archive: 'https://carpentries.github.io/drat/'
-      CRAN: 'https://cran.rstudio.com'
+    default: |
+      c(
+        carpentries = 'https://carpentries.r-universe.dev/',
+        carpentries_archive = 'https://carpentries.github.io/drat/',
+        CRAN = 'https://cran.rstudio.com'
+      )
 outputs:
   n:
     description: the number of packages to be updated
