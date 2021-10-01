@@ -1,4 +1,4 @@
-# update-lesson-deps
+# update-lockfile
 
 This will update the dependencies for Carpentries lessons using {renv}. It is
 important to note that this action is not independent. It requires the following
@@ -26,6 +26,8 @@ steps:
 - uses: carpentries/actions/update-lesson-deps@main
   with:
     cache-version: ${{ secrets.CACHE_VERSION }}
+    repos: |
+      c(CRAN = 'https://cran.rstudio.com/')
 ```
 
 # License

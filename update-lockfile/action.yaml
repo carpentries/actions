@@ -1,4 +1,4 @@
-name: 'update-lesson-deps'
+name: 'update-lockfile'
 description: 'Action to update package dependencies for Carpentries Lessons'
 author: 'Zhian N. Kamvar'
 inputs:
