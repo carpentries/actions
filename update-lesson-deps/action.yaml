@@ -53,10 +53,6 @@ runs:
           if (any(funs) && any(pd$text[funs] != "c")) {
             stop("::error::repository settings should be an R vector. No functions other than `c()` are allowed")
           }
-          strs <- pd$token == "STR_CONST"
-          if (any(strs) && any(grepl("^gh", pd$text[strs]))) {
-            stop("::error::Tokens can not be included in the repository settings")
-          }
           cat("::endgroup::\n")
           # Setup --------------------------------------------------------------
           cat("::group::Preparing {renv}\n")
