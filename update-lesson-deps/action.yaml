@@ -44,8 +44,7 @@ runs:
         run: |
           # Setup --------------------------------------------------------------
           cat("::group::Preparing {renv}\n")
-          repos <- '${{ inputs.repos }}'
-          cat(repos)
+          cat(expression(${{ input.repos }}), "\n")
           options(repos = c(
             carpentries = "https://carpentries.r-universe.dev",
             carpentries_archive = "https://carpentries.github.io/drat",
