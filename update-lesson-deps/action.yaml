@@ -10,13 +10,16 @@ inputs:
     description: 'flag to update already installed packages'
     default: true
   repos:
-    description: 'default repositories to set as an R expression'
+    description: 'default repositories to set as an R expression (defaults to Carpentries repositories)'
     default: |
       c(
         carpentries = 'https://carpentries.r-universe.dev/',
         carpentries_archive = 'https://carpentries.github.io/drat/',
         CRAN = 'https://cran.rstudio.com'
       )
+  profile:
+    description: 'the {renv} profile to update (defaults to lesson-requirements)'
+    default: 'lesson-requirements'
 outputs:
   n:
     description: the number of packages to be updated
@@ -44,12 +47,7 @@ runs:
         run: |
           # Setup --------------------------------------------------------------
           cat("::group::Preparing {renv}\n")
-          cat(expression(${{ inputs.repos }}), "\n")
-          options(repos = c(
-            carpentries = "https://carpentries.r-universe.dev",
-            carpentries_archive = "https://carpentries.github.io/drat",
-            CRAN = "https://cran.rstudio.com")
-          )
+          options(repos = ${{ inputs.repos }})
           if (!requireNamespace("renv", quietly = TRUE))
             install.packages("renv")
           if (!requireNamespace("jsonlite", quietly = TRUE))
@@ -60,7 +58,7 @@ runs:
 
           # Load {renv}, read lockfile, restore, hydrate, and snapshot ---------
           cat("::group::Restoring package library\n")
-          Sys.setenv("RENV_PROFILE" = "lesson-requirements")
+          Sys.setenv("RENV_PROFILE" = "${{ inputs.profile }}")
           lib  <- renv::paths$library()
           lock <- renv::paths$lockfile()
           current_lock <- jsonlite::read_json(lock)
