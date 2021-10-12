@@ -115,6 +115,9 @@ runs:
             cat("Updating", length(updates$diff), "packages", "\n")
             cat("::endgroup::\n")
           }
+          cat("::group::Cleaning the cache\n")
+          renv::clean(actions = c('package.locks', 'library.tempdirs', 'unused.packages'))
+          cat("::endgroup::\n"
           # Construct the output -----------------------------------------------
           # https://github.community/t/set-output-truncates-multiline-strings/16852/3?u=zkamvar
           cat("::group::Creating the output\n")
