@@ -21,7 +21,7 @@ if [[ -n "${PR}" ]]
 then
   ref="refs/pull/${PR}/head"
 else
-  ref="${REF:-gh-pages}"
+  ref="gh-pages"
 fi
 
 if [[ $(git config --global user.email) ]]
