@@ -59,7 +59,6 @@ runs:
           if (Sys.info()[["sysname"]] == "Linux") {
             to_compile <- pkgs$needscompilation & pkgs$type == "standard"
             for (dep in pkgs$ref[to_compile]) {
-              print(dep)
               pak::pkg_system_requirements(dep, execute = TRUE)
             }
           }
