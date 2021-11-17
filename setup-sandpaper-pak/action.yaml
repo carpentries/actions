@@ -63,7 +63,7 @@ runs:
               pak::pkg_system_requirements(dep, execute = TRUE)
             }
           }
-          pak::pkg_install(deps)
+          pak::pkg_install(pkgs$ref)
           cat("::endgroup::\n")
           sandpaper_version <- '${{ inputs.sandpaper-version }}'
           if (sandpaper_version != "latest") {
