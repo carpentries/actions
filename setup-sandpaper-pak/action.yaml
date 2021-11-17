@@ -55,9 +55,11 @@ runs:
               CRAN        = "https://cran.rstudio.com"
             )
           )
-          deps <- readRDS(".github/r-depends.rds")
+          pkgs <- readRDS(".github/r-depends.rds")
           if (Sys.info()[["sysname"]] == "Linux") {
-            for (dep in c(deps$ref[deps$needscompilation])) {
+            to_compile <- pkgs$needscompilation & pkgs$type == "standard"
+            for (dep in pkgs$ref[to_compile]) {
+              print(dep)
               pak::pkg_system_requirements(dep, execute = TRUE)
             }
           }
