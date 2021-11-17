@@ -34,7 +34,7 @@ runs:
             }
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
             lock <- renv:::lockfile(renv::paths$lockfile())$data()
-            pkgs <- names(lock$data()$Packages)
+            pkgs <- names(lock$Packages)
             pkgs <- pak::pkg_deps(pkgs, upgrade = FALSE, dependencies = FALSE)
             to_compile <- pkgs$needscompilation & pkgs$type == "standard"
             for (dep in pkgs$ref[to_compile]) {
