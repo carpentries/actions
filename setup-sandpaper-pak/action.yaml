@@ -57,7 +57,7 @@ runs:
           )
           deps <- readRDS(".github/r-depends.rds")
           if (Sys.info()[["sysname"]] == "Linux") {
-            for (dep in c(deps$ref[deps$needscompillation])) {
+            for (dep in c(deps$ref[deps$needscompilation])) {
               pak::pkg_system_requirements(dep, execute = TRUE)
             }
           }
