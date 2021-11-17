@@ -36,7 +36,9 @@ runs:
             lock <- renv:::lockfile(renv::paths$lockfile())$data()
             pkgs <- names(lock$data()$Packages)
             pkgs <- pak::pkg_deps(pkgs, upgrade = FALSE, dependencies = FALSE)
-            for (dep in pkgs$ref[pkgs$needscompilation]) {
+            to_compile <- pkgs$needscompilation & pkgs$type == "standard"
+            for (dep in pkgs$ref[to_compile]) {
+              print(dep)
               pak::pkg_system_requirements(dep, execute = TRUE)
             }
           }
