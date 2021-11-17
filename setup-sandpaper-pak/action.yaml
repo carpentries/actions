@@ -47,6 +47,7 @@ runs:
       - name: Install dependencies
         run: |
           cat("::group::Install dependencies\n")
+          on_linux <- Sys.info()[["sysname"]] == "Linux"
           options(
             pak.no_extra_messages = TRUE,
             repos = c(
@@ -56,7 +57,8 @@ runs:
             )
           )
           pkgs <- readRDS(".github/r-depends.rds")
-          if (Sys.info()[["sysname"]] == "Linux") {
+          if (on_linux) {
+            options(repos = c(RSPM = Sys.getenv("RSPM"), getOption(repos)))
             to_compile <- pkgs$needscompilation & pkgs$type == "standard"
             for (dep in pkgs$ref[to_compile]) {
               pak::pkg_system_requirements(dep, execute = TRUE)
