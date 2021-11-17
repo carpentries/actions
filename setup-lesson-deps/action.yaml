@@ -20,6 +20,24 @@ runs:
       # NOTE: Right here, I need to write a jq script that will extract the
       #       packages needed for the lesson and pass it to R so that I can 
       #       install the dependencies for these packages.
+      - name: "Setup System Dependencies"
+        shell: Rscript {0}
+        run: |
+          if (Sys.info()[["sysname"]] == "Linux") {
+            if (!requireNamespace("renv")) {
+              install.packages("renv", repos = "https://cran.rstudio.com")
+            }
+            if (!requireNamespace("pak")) {
+              install.packages("pak", repos = "https://r-lib.github.io/p/pak/stable/")
+            }
+            Sys.setenv("RENV_PROFILE" = "lesson-requirements")
+            lock <- renv:::lockfile(renv::paths$lockfile())$data()
+            pkgs <- names(lockfile$data()$Packages)
+            comp <- Filter(function(x) packageDescription(x)$NeedsCompilation == "yes", pkgs)
+            for (dep in comp) {
+              pak::pkg_system_requirements(dep, execute = TRUE)
+            }
+          }
       - name: "Fortify Local {renv} Packages"
         shell: Rscript {0}
         run: |
