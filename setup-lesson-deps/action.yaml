@@ -38,7 +38,6 @@ runs:
             pkgs <- pak::pkg_deps(pkgs, upgrade = FALSE, dependencies = FALSE)
             to_compile <- pkgs$needscompilation & pkgs$type == "standard"
             for (dep in pkgs$ref[to_compile]) {
-              print(dep)
               pak::pkg_system_requirements(dep, execute = TRUE)
             }
           }
@@ -47,6 +46,16 @@ runs:
         run: |
           wd <- '${{ github.workspace }}'
           if (file.exists(file.path(wd, 'renv'))) {
+            if (!requireNamespace("renv")) {
+              install.packages("renv", repos = "https://cran.rstudio.com")
+            }
+            if (!requireNamespace("pak")) {
+              install.packages("pak", repos = "https://r-lib.github.io/p/pak/stable/")
+            }
+            Sys.setenv("RENV_PROFILE" = "lesson-requirements")
+            lock <- renv:::lockfile(renv::paths$lockfile())$data()
+            pkgs <- names(lock$Packages)
+            pak::pkg_install(pkgs, upgrade = FALSE, dependencies = FALSE)
             sandpaper::manage_deps(path = wd, quiet = FALSE)
           } else {
             writeLines("Package cache not used")
