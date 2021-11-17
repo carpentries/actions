@@ -23,7 +23,9 @@ runs:
       - name: "Setup System Dependencies"
         shell: Rscript {0}
         run: |
-          if (Sys.info()[["sysname"]] == "Linux") {
+          wd <- '${{ github.workspace }}'
+          has_lock <- file.exists(file.path(wd, 'renv'))
+          if (Sys.info()[["sysname"]] == "Linux" && has_lock) {
             if (!requireNamespace("renv")) {
               install.packages("renv", repos = "https://cran.rstudio.com")
             }
@@ -32,9 +34,9 @@ runs:
             }
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
             lock <- renv:::lockfile(renv::paths$lockfile())$data()
-            pkgs <- names(lockfile$data()$Packages)
-            comp <- Filter(function(x) packageDescription(x)$NeedsCompilation == "yes", pkgs)
-            for (dep in comp) {
+            pkgs <- names(lock$data()$Packages)
+            pkgs <- pak::pkg_deps(pkgs, upgrade = FALSE, dependencies = FALSE)
+            for (dep in pkgs$ref[pkgs$needscompilation]) {
               pak::pkg_system_requirements(dep, execute = TRUE)
             }
           }
