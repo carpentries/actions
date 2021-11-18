@@ -39,19 +39,19 @@ runs:
         id: run-apt
         shell: bash
         run: |
-          sudo apt-get install -y libcurl4-openssl-dev
-          sudo apt-get install -y libssl-dev
-          sudo apt-get install -y libgit2-dev
-          sudo apt-get install -y libicu-dev
-          sudo apt-get install -y libxml2-dev
-          sudo apt-get install -y libfreetype6-dev
-          sudo apt-get install -y libfribidi-dev
-          sudo apt-get install -y libharfbuzz-dev
-          sudo apt-get install -y libfontconfig1-dev
-          sudo apt-get install -y libjpeg-dev
-          sudo apt-get install -y libpng-dev
-          sudo apt-get install -y libtiff-dev
-          sudo apt-get install -y libxslt-dev
+          sudo apt-get install -y libcurl4-openssl-dev \
+           libssl-dev \
+           libgit2-dev \
+           libicu-dev \
+           libxml2-dev \
+           libfreetype6-dev \
+           libfribidi-dev \
+           libharfbuzz-dev \
+           libfontconfig1-dev \
+           libjpeg-dev \
+           libpng-dev \
+           libtiff-dev \
+           libxslt-dev
 
       - name: Restore R package cache
         uses: actions/cache@v2
