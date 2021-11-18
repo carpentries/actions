@@ -35,6 +35,23 @@ runs:
           cat("::endgroup::\n")
         shell: Rscript {0}
 
+      - name: Install apts
+        id: run-apt
+        run: |
+          apt-get install -y libcurl4-openssl-dev
+          apt-get install -y libssl-dev
+          apt-get install -y libgit2-dev
+          apt-get install -y libicu-dev
+          apt-get install -y libxml2-dev
+          apt-get install -y libfreetype6-dev
+          apt-get install -y libfribidi-dev
+          apt-get install -y libharfbuzz-dev
+          apt-get install -y libfontconfig1-dev
+          apt-get install -y libjpeg-dev
+          apt-get install -y libpng-dev
+          apt-get install -y libtiff-dev
+          apt-get install -y libxslt-dev
+
       - name: Restore R package cache
         uses: actions/cache@v2
         with:
@@ -59,10 +76,6 @@ runs:
           pkgs <- readRDS(".github/r-depends.rds")
           if (on_linux) {
             options(repos = c(RSPM = Sys.getenv("RSPM"), getOption("repos")))
-            to_compile <- pkgs$needscompilation & pkgs$type == "standard"
-            for (dep in pkgs$ref[to_compile]) {
-              pak::pkg_system_requirements(dep, execute = TRUE)
-            }
           }
           pak::pkg_install(pkgs$ref)
           cat("::endgroup::\n")
