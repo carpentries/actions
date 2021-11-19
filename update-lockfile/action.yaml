@@ -53,6 +53,9 @@ runs:
             if (!requireNamespace("pak")) {
               install.packages("pak", repos = "https://r-lib.github.io/p/pak/stable/")
             }
+            if (!requireNamespace("processx")) {
+              install.packages("processx")
+            }
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
             lock <- renv:::lockfile(renv::paths$lockfile())$data()
             pkgs <- names(lock$Packages)
