@@ -71,7 +71,7 @@ runs:
               these <- pak::pkg_system_requirements(
                 os = ver[1], os_release = ver[2], package = dep, execute = FALSE
               )
-              these <- sub('apt-get install -yes ', '', these)
+              these <- sub('apt-get install -y ', '', these)
               new <- setdiff(these, seen)
               if (length(new)) {
                 seen <- c(seen, new)
