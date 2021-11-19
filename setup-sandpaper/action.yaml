@@ -1,5 +1,5 @@
-name: 'setup-sandpaper-pak'
-description: 'Action to setup The Carpentries lesson infrastructure'
+name: 'setup-sandpaper'
+description: 'Action to setup The Carpentries Lesson Infrastructure'
 author: 'Zhian N. Kamvar'
 inputs:
   cache-version:
@@ -36,7 +36,7 @@ runs:
           cat("::endgroup::\n")
         shell: Rscript {0}
 
-      - name: Install apts
+      - name: Install apt dependencies for Ubuntu
         id: run-apt
         shell: bash
         run: |

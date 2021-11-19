@@ -41,6 +41,46 @@ runs:
           restore-keys:
             ${{ runner.os }}-${{ inputs.cache-version }}-renv-
 
+      - name: "Setup System Dependencies"
+        shell: Rscript {0}
+        run: |
+          wd <- '${{ github.workspace }}'
+          has_lock <- file.exists(file.path(wd, 'renv'))
+          if (Sys.info()[["sysname"]] == "Linux" && has_lock) {
+            if (!requireNamespace("renv")) {
+              install.packages("renv", repos = "https://cran.rstudio.com")
+            }
+            if (!requireNamespace("pak")) {
+              install.packages("pak", repos = "https://r-lib.github.io/p/pak/stable/")
+            }
+            Sys.setenv("RENV_PROFILE" = "lesson-requirements")
+            lock <- renv:::lockfile(renv::paths$lockfile())$data()
+            pkgs <- names(lock$Packages)
+            db <- available.packages()
+            compiled <- db[, "Package"] %in% pkgs & db[, "NeedsCompilation"] == "yes"
+            pkgs <- db[compiled, "Package", drop = TRUE]
+            ver <- tolower(system("lsb_release -irs", intern = TRUE))
+            seen <- character(0)
+            for (dep in pkgs) {
+              if (dep == "stringi") { # We have this one taken care of
+                next
+              }
+              these <- pak::pkg_system_requirements(
+                os = ver[1], os_release = ver[2], package = dep, execute = FALSE
+              )
+              these <- sub('apt-get install -yes ', '', these)
+              new <- setdiff(these, seen)
+              if (length(new)) {
+                seen <- c(seen, new)
+                cmd <- paste(new, collapse = " ")
+                cmd <- paste("sudo apt-get install -y", cmd)
+                cat("Executing", cmd, "\n")
+                processx::run("sh", c("-c", cmd), stdout_callback = NULL,
+                  stderr_to_stdout = TRUE)
+              }
+            }
+          }
+
       - name: "Update {renv} deps and determine if a PR is needed"
         id: update
         shell: Rscript {0}
@@ -56,6 +96,9 @@ runs:
           cat("::endgroup::\n")
           # Setup --------------------------------------------------------------
           cat("::group::Preparing {renv}\n")
+          on_linux <- Sys.info()[["sysname"]] == "Linux"
+          if (on_linux)
+            options(repos = c(RSPM = Sys.getenv("RSPM"), getOption("repos")))
           options(repos = ${{ inputs.repos }})
           if (!requireNamespace("renv", quietly = TRUE))
             install.packages("renv")
@@ -87,6 +130,20 @@ runs:
               paste0(lead, i$Package, '\t[* -> ', i$Version, ']')
             }
             pkgs <- vapply(these, FUN = pkg_info, FUN.VALUE = character(1))
+            if (on_linux) {
+              # We need to make sure that we have the resources for the packages
+              # we are bringing in. This _could_ be optimized, but considering
+              # this is an update step and not a production step, it can take
+              # its sweet time. 
+              if (!requireNamespace("pak", quietly = TRUE))
+                install.packages("pak")
+              ver <- tolower(system("lsb_release -irs", intern = TRUE))
+              for (pkg in these) {
+                pak::pkg_system_requirements(
+                  os = ver[1], os_release = ver[2], package = dep, execute = TRUE
+                )
+              }
+            }
             n <- n + length(sneaky_pkgs)
             the_report <- c(the_report, 
               "# NEW ================================",

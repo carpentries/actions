@@ -70,7 +70,9 @@ runs:
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
             lock <- renv:::lockfile(renv::paths$lockfile())$data()
             pkgs <- names(lock$Packages)
-            options(repos = c(RSPM = Sys.getenv("RSPM"), getOption("repos")))
+            if (Sys.info()[["sysname"]] == "Linux") {
+              options(repos = c(RSPM = Sys.getenv("RSPM"), getOption("repos")))
+            }
             pak::pkg_install(pkgs, upgrade = FALSE, dependencies = FALSE)
             sandpaper::manage_deps(path = wd, quiet = FALSE)
           } else {
