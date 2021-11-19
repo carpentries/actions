@@ -40,8 +40,8 @@ runs:
         shell: bash
         run: |
           sudo apt-get install -y \
-          libxslt-dev
-          $(curl https://carpentries.r-universe.dev/stats/sysdeps 2> /dev/null/ | jq -r '.sysdep')
+          libxslt-dev \
+          $(curl https://carpentries.r-universe.dev/stats/sysdeps 2> /dev/null | jq -r '.sysdep')
 
       - name: Restore R package cache
         uses: actions/cache@v2
