@@ -23,8 +23,9 @@ runs:
               CRAN        = "https://cran.rstudio.com"
             )
           )
-          install.packages("pak", repos = "https://r-lib.github.io/p/pak/stable/")
-          saveRDS(pak::pkg_deps("sandpaper", dependencies = TRUE), ".github/r-depends.rds")
+          install.packages('remotes')
+          deps <- remotes::package_deps("sandpaper", dependencies = TRUE)
+          saveRDS(deps, ".github/r-depends.rds")
         shell: Rscript {0}
 
       - name: Get R and OS version
@@ -40,8 +41,8 @@ runs:
         shell: bash
         run: |
           sudo apt-get install -y \
-          libxslt-dev \
-          $(curl https://carpentries.r-universe.dev/stats/sysdeps 2> /dev/null | jq -r '.sysdep')
+           libxslt-dev \
+           $(curl https://carpentries.r-universe.dev/stats/sysdeps 2> /dev/null | jq -r '.sysdep')
 
       - name: Restore R package cache
         uses: actions/cache@v2
@@ -64,16 +65,18 @@ runs:
               CRAN        = "https://cran.rstudio.com"
             )
           )
-          pkgs <- readRDS(".github/r-depends.rds")
           if (on_linux) {
             options(repos = c(RSPM = Sys.getenv("RSPM"), getOption("repos")))
           }
-          pak::pkg_install(pkgs$ref)
+          library("remotes")
+          pkgs <- package_deps('sandpaper', dependencies = TRUE)
+          pkgs$diff[pkgs$package == "tinkr"] <- -1
+          update(pkgs, upgrade = "always")
           cat("::endgroup::\n")
           sandpaper_version <- '${{ inputs.sandpaper-version }}'
           if (sandpaper_version != "latest") {
             cat("::group::Installing", sandpaper_version, "\n")
-            pak::pkg_install(sandpaper_version)
+            install_github(sandpaper_version)
             cat("::endgroup::\n")
           }
         shell: Rscript {0}
