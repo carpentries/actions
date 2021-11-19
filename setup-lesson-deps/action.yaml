@@ -17,9 +17,6 @@ runs:
           restore-keys:
             ${{ runner.os }}-${{ inputs.cache-version }}-renv-
 
-      # NOTE: Right here, I need to write a jq script that will extract the
-      #       packages needed for the lesson and pass it to R so that I can 
-      #       install the dependencies for these packages.
       - name: "Setup System Dependencies"
         shell: Rscript {0}
         run: |
@@ -39,8 +36,6 @@ runs:
             compiled <- db[, "Package"] %in% pkgs & db[, "NeedsCompilation"] == "yes"
             pkgs <- db[compiled, "Package", drop = TRUE]
             ver <- tolower(system("lsb_release -irs", intern = TRUE))
-            # pkgs <- pak::pkg_deps(pkgs, upgrade = FALSE, dependencies = FALSE)
-            # to_compile <- pkgs$needscompilation & pkgs$type == "standard"
             seen <- character(0)
             for (dep in pkgs) {
               if (dep == "stringi") { # We have this one taken care of
