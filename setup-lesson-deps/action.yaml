@@ -35,14 +35,20 @@ runs:
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
             lock <- renv:::lockfile(renv::paths$lockfile())$data()
             pkgs <- names(lock$Packages)
-            pkgs <- pak::pkg_deps(pkgs, upgrade = FALSE, dependencies = FALSE)
-            to_compile <- pkgs$needscompilation & pkgs$type == "standard"
+            db <- available.packages()
+            compiled <- db[, "Package"] %in% pkgs & db[, "NeedsCompilation"] == "yes"
+            pkgs <- db[compiled, "Package", drop = TRUE]
+            ver <- tolower(system("lsb_release -irs", intern = TRUE))
+            # pkgs <- pak::pkg_deps(pkgs, upgrade = FALSE, dependencies = FALSE)
+            # to_compile <- pkgs$needscompilation & pkgs$type == "standard"
             seen <- character(0)
-            for (dep in pkgs$ref[to_compile]) {
+            for (dep in pkgs) {
               if (dep == "stringi") { # We have this one taken care of
                 next
               }
-              these <- pak::pkg_system_requirements(dep, execute = FALSE)
+              these <- pak::pkg_system_requirements(
+                os = ver[1], os_release = ver[2], package = dep, execute = FALSE
+              )
               these <- sub('apt-get install -y ', '', these)
               new <- setdiff(these, seen)
               if (length(new)) {
