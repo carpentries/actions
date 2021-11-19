@@ -37,11 +37,21 @@ runs:
             pkgs <- names(lock$Packages)
             pkgs <- pak::pkg_deps(pkgs, upgrade = FALSE, dependencies = FALSE)
             to_compile <- pkgs$needscompilation & pkgs$type == "standard"
+            seen <- character(0)
             for (dep in pkgs$ref[to_compile]) {
               if (dep == "stringi") { # We have this one taken care of
                 next
               }
-              pak::pkg_system_requirements(dep, execute = TRUE)
+              these <- pak::pkg_system_requirements(dep, execute = FALSE)
+              these <- sub('apt-get install -y ', '', these)
+              new <- setdiff(these, seen)
+              if (length(new)) {
+                seen <- c(seen, new)
+                cmd <- paste(new, collapse = " ")
+                cmd <- paste("sudo apt-get install -y", cmd)
+                processx::run("sh", c("-c", cmd), stdout_callback = NULL,
+                  stderr_to_stdout = TRUE)
+              }
             }
           }
       - name: "Fortify Local {renv} Packages"
