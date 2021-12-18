@@ -74,6 +74,9 @@ runs:
           cat("::endgroup::\n")
           # Setup --------------------------------------------------------------
           cat("::group::Preparing {renv}\n")
+          # load packages needed for sysreqs
+          library(desc)
+          library(remotes)
           library(vise)
           on_linux <- Sys.info()[["sysname"]] == "Linux"
           if (on_linux)
