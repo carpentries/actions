@@ -64,27 +64,23 @@ runs:
         shell: Rscript {0}
         run: |
           # Verify inputs ------------------------------------------------------
-          cat("::group::Verifying inputs\n")
-          in_repos <- expression(${{ inputs.repos }})
-          pd <- getParseData(parse(text = as.character(in_repos)))
-          funs <- pd$token == "SYMBOL_FUNCTION_CALL"
-          if (any(funs) && any(pd$text[funs] != "c")) {
-            stop("::error::repository settings should be an R vector. No functions other than `c()` are allowed")
-          }
+          cat("::group::Verifying inputs and setting repositories\n")
+          library(vise)
+          vise::verify_simple_vector(${{ inputs.repos }})
+          options(repos = ${{ inputs.repos }})
+          cat("done")
           cat("::endgroup::\n")
           # Setup --------------------------------------------------------------
           cat("::group::Preparing {renv}\n")
-          # load packages needed for sysreqs
+          # load packages needed for ci_sysreqs
           library(desc)
           library(remotes)
-          library(vise)
           on_linux <- Sys.info()[["sysname"]] == "Linux"
           if (on_linux)
             options(repos = c(RSPM = Sys.getenv("RSPM"), getOption("repos")))
-          options(repos = ${{ inputs.repos }})
-
           n <- 0
           the_report <- character(0)
+          cat("done")
           cat("::endgroup::\n")
 
           # Load {renv}, read lockfile, restore, hydrate, and snapshot ---------
