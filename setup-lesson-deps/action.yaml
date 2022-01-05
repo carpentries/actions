@@ -20,6 +20,7 @@ runs:
       - name: "Setup System Dependencies"
         shell: Rscript {0}
         run: |
+          # Set up system dependencies
           req <- function(pkg) {
             if (!requireNamespace(pkg, quietly = TRUE)) 
               install.packages(pkg, repos = "https://cran.rstudio.com")
@@ -34,63 +35,32 @@ runs:
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
             vise::ci_sysreqs(renv::paths$lockfile(), execute = TRUE)
           }
-          # wd <- '${{ github.workspace }}'
-          # has_lock <- file.exists(file.path(wd, 'renv'))
-          # if (Sys.info()[["sysname"]] == "Linux" && has_lock) {
-          #   if (!requireNamespace("renv")) {
-          #     install.packages("renv", repos = "https://cran.rstudio.com")
-          #   }
-          #   if (!requireNamespace("pak")) {
-          #     install.packages("pak", repos = "https://r-lib.github.io/p/pak/stable/")
-          #   }
-          #   Sys.setenv("RENV_PROFILE" = "lesson-requirements")
-          #   lock <- renv:::lockfile(renv::paths$lockfile())$data()
-          #   pkgs <- names(lock$Packages)
-          #   db <- available.packages()
-          #   compiled <- db[, "Package"] %in% pkgs & db[, "NeedsCompilation"] == "yes"
-          #   pkgs <- db[compiled, "Package", drop = TRUE]
-          #   ver <- tolower(system("lsb_release -irs", intern = TRUE))
-          #   seen <- character(0)
-          #   for (dep in pkgs) {
-          #     if (dep == "stringi") { # We have this one taken care of
-          #       next
-          #     }
-          #     these <- pak::pkg_system_requirements(
-          #       os = ver[1], os_release = ver[2], package = dep, execute = FALSE
-          #     )
-          #     these <- sub('apt-get install -y ', '', these)
-          #     new <- setdiff(these, seen)
-          #     if (length(new)) {
-          #       seen <- c(seen, new)
-          #       cmd <- paste(new, collapse = " ")
-          #       cmd <- paste("sudo apt-get install -y", cmd)
-          #       cat("Executing", cmd, "\n")
-          #       processx::run("sh", c("-c", cmd), stdout_callback = NULL,
-          #         stderr_to_stdout = TRUE)
-          #     }
-          #   }
-          # }
       - name: "Fortify Local {renv} Packages"
         shell: Rscript {0}
         run: |
+          # Fortify local {renv} packages
           wd <- '${{ github.workspace }}'
+          req <- function(pkg) {
+            if (!requireNamespace(pkg, quietly = TRUE)) 
+              install.packages(pkg, repos = "https://cran.rstudio.com")
+          }
           if (file.exists(file.path(wd, 'renv'))) {
-            if (!requireNamespace("renv")) {
-              install.packages("renv", repos = "https://cran.rstudio.com")
-            }
-            if (!requireNamespace("pak")) {
-              install.packages("pak", repos = "https://r-lib.github.io/p/pak/stable/")
-            }
+            req("renv")
+            req("pak")
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
             lock <- renv:::lockfile(renv::paths$lockfile())$data()
             pkgs <- names(lock$Packages)
             if (Sys.info()[["sysname"]] == "Linux") {
               options(repos = c(RSPM = Sys.getenv("RSPM"), getOption("repos")))
             }
+            # Use pak for cached installation. This will fail for some github
+            # packages, but that is okay, manage_deps will take care of the rest
             tryCatch(pak::pkg_install(pkgs, upgrade = FALSE, dependencies = FALSE),
               error = function(e) {
+                message("START ==="
                 message("an installation error was found, maybe due to being on github")
                 message(e$message)
+                message("END ====="
             })
             sandpaper::manage_deps(path = wd, quiet = FALSE)
           } else {
