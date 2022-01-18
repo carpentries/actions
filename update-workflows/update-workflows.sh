@@ -35,7 +35,7 @@ CURRENT=$(cat .github/workflows/sandpaper-version.txt)
 
 # Fetch upstream version from the API if we don't have that information
 if [[ ${UPSTREAM} == 'current' ]]; then
-  UPSTREAM=$(curl ${SOURCE}/packages/sandpaper/)
+  UPSTREAM=$(curl -L ${SOURCE}/packages/sandpaper/)
   UPSTREAM=$(echo ${UPSTREAM} | grep '[.]' | sed -E -e 's/[^0-9.]//g')
 elif [[ ${SOURCE} == 'https://carpentries.r-universe.dev' ]]; then
   SOURCE=https://carpentries.github.io/drat
@@ -70,7 +70,7 @@ if [[ ${CURRENT} != ${UPSTREAM} ]]; then
     echo "::endgroup::"
   fi
   echo "::group::Copying files"
-  curl ${SOURCE}/src/contrib/sandpaper_${UPSTREAM}.tar.gz | \
+  curl -L ${SOURCE}/src/contrib/sandpaper_${UPSTREAM}.tar.gz | \
     tar -C ${TMP} --wildcards -xzv sandpaper/inst/workflows/*
   cp -v ${TMP}/sandpaper/inst/workflows/* .github/workflows/
   echo "::endgroup::"
