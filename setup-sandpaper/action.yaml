@@ -9,6 +9,9 @@ inputs:
   sandpaper-version: 
     description: 'The version of sandpaper to use. You can use the remotes syntax to specify a version to use. Defaults to latest on the r-universe.'
     default: 'latest'
+  varnish-version: 
+    description: 'The version of varnish to use. You can use the remotes syntax to specify a version to use. Defaults to latest on the r-universe.'
+    default: 'latest'
 runs:
   using: "composite"
   steps:
@@ -74,6 +77,12 @@ runs:
           pkgs$diff[pkgs$package == "tinkr"] <- -1
           update(pkgs, upgrade = "always")
           cat("::endgroup::\n")
+          varnish_version <- '${{ inputs.varnish-version }}'
+          if (varnish_version != "latest") {
+            cat("::group::Installing", varnish_version, "\n")
+            install_github(varnish_version)
+            cat("::endgroup::\n")
+          }
           sandpaper_version <- '${{ inputs.sandpaper-version }}'
           if (sandpaper_version != "latest") {
             cat("::group::Installing", sandpaper_version, "\n")
