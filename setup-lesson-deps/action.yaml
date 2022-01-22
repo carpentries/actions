@@ -37,7 +37,7 @@ runs:
             vise::ci_sysreqs(renv::paths$lockfile(), execute = TRUE)
           }
       - name: "Setup Dependencies"
-        uses: r-lib/actions/setup-r-deps@v2
+        uses: r-lib/actions/setup-r-dependencies@v2
 
       - name: "Fortify Local {renv} Packages"
         shell: Rscript {0}
