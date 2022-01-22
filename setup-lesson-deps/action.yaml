@@ -32,9 +32,13 @@ runs:
             req("remotes")
             req("desc")
             remotes::install_github("zkamvar/vise")
+            vise::lock2desc(renv::paths$lockfile(), desc = "DESCRIPTION")
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
             vise::ci_sysreqs(renv::paths$lockfile(), execute = TRUE)
           }
+      - name: "Setup Dependencies"
+        uses: r-lib/actions/setup-r-deps@v2
+
       - name: "Fortify Local {renv} Packages"
         shell: Rscript {0}
         run: |
@@ -46,22 +50,10 @@ runs:
           }
           if (file.exists(file.path(wd, 'renv'))) {
             req("renv")
-            req("pak")
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
-            lock <- renv:::lockfile(renv::paths$lockfile())$data()
-            pkgs <- names(lock$Packages)
             if (Sys.info()[["sysname"]] == "Linux") {
               options(repos = c(RSPM = Sys.getenv("RSPM"), getOption("repos")))
             }
-            # Use pak for cached installation. This will fail for some github
-            # packages, but that is okay, manage_deps will take care of the rest
-            tryCatch(pak::pkg_install(pkgs, upgrade = FALSE, dependencies = FALSE),
-              error = function(e) {
-                message("START ===")
-                message("an installation error was found, maybe due to being on github")
-                message(e$message)
-                message("END =====")
-            })
             sandpaper::manage_deps(path = wd, quiet = FALSE)
           } else {
             writeLines("Package cache not used")
