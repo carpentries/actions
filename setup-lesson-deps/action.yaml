@@ -36,7 +36,8 @@ runs:
               file.rename("DESCRIPTION", "DESCRIPTION.bak")
             }
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
-            vise::lock2desc(renv::paths$lockfile(), desc = "DESCRIPTION")
+            vise::lock2desc(renv::paths$lockfile(), desc = "${{ github.workspace }}/DESCRIPTION")
+            writeLines(readLines("${{ github.workspace }}/DESCRIPTION"))
             vise::ci_sysreqs(renv::paths$lockfile(), execute = TRUE)
           }
       - name: "Setup Dependencies"
