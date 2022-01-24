@@ -40,8 +40,6 @@ runs:
             writeLines(readLines("${{ github.workspace }}/DESCRIPTION"))
             vise::ci_sysreqs(renv::paths$lockfile(), execute = TRUE)
           }
-      - name: "Setup Dependencies"
-        uses: r-lib/actions/setup-r-dependencies@v2
 
       - name: "Fortify Local {renv} Packages"
         shell: Rscript {0}
@@ -52,6 +50,8 @@ runs:
             if (!requireNamespace(pkg, quietly = TRUE)) 
               install.packages(pkg, repos = "https://cran.rstudio.com")
           }
+          req("remotes")
+          remotes::install_deps()
           if (file.exists(file.path(wd, 'renv'))) {
             if (file.exists("DESCRIPTION.bak")) {
               file.rename("DESCRIPTION.bak", "DESCRIPTION")
