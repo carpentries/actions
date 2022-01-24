@@ -32,9 +32,15 @@ runs:
             req("remotes")
             req("desc")
             remotes::install_github("zkamvar/vise")
+            if (file.exists("DESCRIPTION")) {
+              file.rename("DESCRIPTION", "DESCRIPTION.bak")
+            }
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
+            vise::lock2desc(renv::paths$lockfile(), desc = "${{ github.workspace }}/DESCRIPTION")
+            writeLines(readLines("${{ github.workspace }}/DESCRIPTION"))
             vise::ci_sysreqs(renv::paths$lockfile(), execute = TRUE)
           }
+
       - name: "Fortify Local {renv} Packages"
         shell: Rscript {0}
         run: |
@@ -44,24 +50,19 @@ runs:
             if (!requireNamespace(pkg, quietly = TRUE)) 
               install.packages(pkg, repos = "https://cran.rstudio.com")
           }
+          req("remotes")
+          remotes::install_deps()
           if (file.exists(file.path(wd, 'renv'))) {
+            if (file.exists("DESCRIPTION.bak")) {
+              file.rename("DESCRIPTION.bak", "DESCRIPTION")
+            } else {
+              try(file.remove("DESCRIPTION"))
+            }
             req("renv")
-            req("pak")
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
-            lock <- renv:::lockfile(renv::paths$lockfile())$data()
-            pkgs <- names(lock$Packages)
             if (Sys.info()[["sysname"]] == "Linux") {
               options(repos = c(RSPM = Sys.getenv("RSPM"), getOption("repos")))
             }
-            # Use pak for cached installation. This will fail for some github
-            # packages, but that is okay, manage_deps will take care of the rest
-            tryCatch(pak::pkg_install(pkgs, upgrade = FALSE, dependencies = FALSE),
-              error = function(e) {
-                message("START ===")
-                message("an installation error was found, maybe due to being on github")
-                message(e$message)
-                message("END =====")
-            })
             sandpaper::manage_deps(path = wd, quiet = FALSE)
           } else {
             writeLines("Package cache not used")
