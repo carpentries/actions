@@ -58,7 +58,7 @@ runs:
             if (file.exists("DESCRIPTION.bak")) {
               file.rename("DESCRIPTION.bak", "DESCRIPTION")
             } else {
-              try(file.remove("DESCRIPTION"), quietly = TRUE)
+              try(file.remove("DESCRIPTION"), silent = TRUE)
             }
             req("renv")
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
