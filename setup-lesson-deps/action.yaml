@@ -50,13 +50,15 @@ runs:
             if (!requireNamespace(pkg, quietly = TRUE)) 
               install.packages(pkg, repos = "https://cran.rstudio.com")
           }
-          req("remotes")
-          remotes::install_deps()
+          if (file.exists("DESCRIPTION")) {
+            req("remotes")
+            remotes::install_deps()
+          }
           if (file.exists(file.path(wd, 'renv'))) {
             if (file.exists("DESCRIPTION.bak")) {
               file.rename("DESCRIPTION.bak", "DESCRIPTION")
             } else {
-              try(file.remove("DESCRIPTION"))
+              try(file.remove("DESCRIPTION"), quietly = TRUE)
             }
             req("renv")
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
