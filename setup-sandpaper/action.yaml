@@ -78,6 +78,21 @@ runs:
           update(pkgs, upgrade = "always")
           cat("::endgroup::\n")
           varnish_version <- '${{ inputs.varnish-version }}'
+          cfg <- readLines("config.yaml")
+          get_version <- function(x, key = "varnish") {
+            res <- x[grepl(paste0("^", key, "\\s?:"), x)]
+            if (length(res)) {
+              res <- trimws(strsplit(res, ":")[[1]][2])
+              if (grepl("^[0-9]", res)) {
+                res <- paste0("carpentries/", key, "@", res)
+              }
+            } else {
+              res <- "latest"
+            }
+            res
+          }
+          varnish_version <- get_version(cfg, key = "varnish")
+          sandpaper_version <- get_version(cfg, key = "sandpaper")
           if (varnish_version != "latest") {
             cat("::group::Installing", varnish_version, "\n")
             install_github(varnish_version)
