@@ -78,6 +78,7 @@ runs:
           update(pkgs, upgrade = "always")
           cat("::endgroup::\n")
           varnish_version <- '${{ inputs.varnish-version }}'
+          sandpaper_version <- '${{ inputs.sandpaper-version }}'
           cfg <- readLines("config.yaml")
           get_version <- function(x, key = "varnish") {
             res <- x[grepl(paste0("^", key, "\\s?:"), x)]
@@ -98,7 +99,6 @@ runs:
             install_github(varnish_version)
             cat("::endgroup::\n")
           }
-          sandpaper_version <- '${{ inputs.sandpaper-version }}'
           if (sandpaper_version != "latest") {
             cat("::group::Installing", sandpaper_version, "\n")
             install_github(sandpaper_version)
