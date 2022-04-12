@@ -36,7 +36,7 @@ CURRENT=$(cat .github/workflows/sandpaper-version.txt)
 # Fetch upstream version from the API if we don't have that information
 if [[ ${UPSTREAM} == 'current' ]]; then
   UPSTREAM=$(curl -L ${SOURCE}/packages/sandpaper/)
-  UPSTREAM=$(echo ${UPSTREAM} | grep '[.]' | sed -E -e 's/[^0-9.]//g')
+  UPSTREAM=$(echo ${UPSTREAM} | jq -r .[1].Version)
 elif [[ ${SOURCE} == 'https://carpentries.r-universe.dev' ]]; then
   SOURCE=https://carpentries.github.io/drat
 fi
