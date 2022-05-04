@@ -43,6 +43,7 @@ runs:
         id: run-apt
         shell: bash
         run: |
+          sudo apt update
           curl https://carpentries.r-universe.dev/stats/sysdeps 2> /dev/null \
           | jq -r '.headers[0] | select(. != null)' 2> /dev/null \
           > ${{ runner.temp }}/sysdeps.txt
