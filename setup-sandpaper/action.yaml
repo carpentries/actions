@@ -57,7 +57,7 @@ runs:
             echo "::warn::System dependencies could not be acquired. Builds may fail"
             exit 1
           fi
-          cat libsxlt-dev >> ${{ runner.temp }}/sysdeps.txt
+          printf "libsxlt-dev\n" >> ${{ runner.temp }}/sysdeps.txt
           sudo xargs apt-get install -y < ${{ runner.temp }}/sysdeps.txt || echo "Not on Ubuntu"
 
       - name: Restore R package cache
