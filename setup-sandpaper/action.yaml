@@ -44,12 +44,12 @@ runs:
         shell: bash
         run: |
           curl https://carpentries.r-universe.dev/stats/sysdeps 2> /dev/null \
-          | jq -r '.headers[0] | select(. != null)') 2> /dev/null \
+          | jq -r '.headers[0] | select(. != null)' 2> /dev/null \
           > ${{ runner.temp }}/sysdeps.txt
           if [[ `wc -l < {{ runner.temp }}/sysdeps.txt` ]]; then
           else
-            curl https://carpentries.r-universe.dev/stats/descriptions | \
-            jq -r '._builder.sysdeps | .[].headers | select(. != null)' 2> /dev/null \
+            curl https://carpentries.r-universe.dev/stats/descriptions \
+            | jq -r '._builder.sysdeps | .[].headers | select(. != null)' 2> /dev/null \
             > ${{ runner.temp }}/sysdeps.txt
           fi
           cat libsxlt-dev >> ${{ runner.temp }}/sysdeps.txt
