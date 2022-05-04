@@ -46,11 +46,16 @@ runs:
           curl https://carpentries.r-universe.dev/stats/sysdeps 2> /dev/null \
           | jq -r '.headers[0] | select(. != null)' 2> /dev/null \
           > ${{ runner.temp }}/sysdeps.txt
-          if [[ `wc -l < ${{ runner.temp }}/sysdeps.txt` ]]; then
+          if [[ `wc -l < ${{ runner.temp }}/sysdeps.txt` -gt 0 ]]; then
+            echo 'sysdeps acquired'
           else
             curl https://carpentries.r-universe.dev/stats/descriptions \
             | jq -r '._builder.sysdeps | .[].headers | select(. != null)' 2> /dev/null \
             > ${{ runner.temp }}/sysdeps.txt
+          fi
+          if [[ `wc -l < ${{ runner.temp }}/sysdeps.txt` -eq 0 ]]; then
+            echo "::warn::System dependencies could not be acquired. Builds may fail"
+            exit 1
           fi
           cat libsxlt-dev >> ${{ runner.temp }}/sysdeps.txt
           sudo xargs apt-get install -y < ${{ runner.temp }}/sysdeps.txt || echo "Not on Ubuntu"
