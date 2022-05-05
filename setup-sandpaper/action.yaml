@@ -18,11 +18,19 @@ runs:
       - name: Install pak and query dependencies
         run: |
           cat("::group::Register Repositories\n")
+          on_linux <- Sys.info()[["sysname"]] == "Linux"
+          if (on_linux) {
+            if (Sys.getenv("RSPM") == "") {
+              release <- system("lsb_release -c | awk '{print $2}'", intern = TRUE)
+              Sys.setenv("RSPM" = 
+                paste("https://packagemanager.rstudio.com/all/__linux__/", release, "/latest"))
+            }
+          }
           repos <- list(
+            RSPM        = Sys.getenv("RSPM"),
             carpentries = "https://carpentries.r-universe.dev/",
             archive     = "https://carpentries.github.io/drat/",
-            CRAN        = "https://cran.rstudio.com",
-            RSPM        = Sys.getenv("RSPM")
+            CRAN        = "https://cran.rstudio.com"
           )
           old_repos <- as.list(getOption("repos"))
           new_repos <- unlist(modifyList(old_repos, repos))
@@ -82,11 +90,19 @@ runs:
       - name: Install dependencies
         run: |
           cat("::group::Register Repositories\n")
+          on_linux <- Sys.info()[["sysname"]] == "Linux"
+          if (on_linux) {
+            if (Sys.getenv("RSPM") == "") {
+              release <- system("lsb_release -c | awk '{print $2}'", intern = TRUE)
+              Sys.setenv("RSPM" = 
+                paste("https://packagemanager.rstudio.com/all/__linux__/", release, "/latest"))
+            }
+          }
           repos <- list(
+            RSPM        = Sys.getenv("RSPM"),
             carpentries = "https://carpentries.r-universe.dev/",
             archive     = "https://carpentries.github.io/drat/",
-            CRAN        = "https://cran.rstudio.com",
-            RSPM        = Sys.getenv("RSPM")
+            CRAN        = "https://cran.rstudio.com"
           )
           old_repos <- as.list(getOption("repos"))
           new_repos <- unlist(modifyList(old_repos, repos))
