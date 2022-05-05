@@ -24,7 +24,8 @@ runs:
           repos <- list(
             carpentries = "https://carpentries.r-universe.dev/",
             archive     = "https://carpentries.github.io/drat/",
-            CRAN        = "https://cran.rstudio.com"
+            CRAN        = "https://cran.rstudio.com",
+            RSPM        = Sys.getenv("RSPM")
           )
           old_repos <- as.list(getOption("repos"))
           new_repos <- unlist(modifyList(old_repos, repos))
@@ -60,7 +61,8 @@ runs:
           repos <- list(
             carpentries = "https://carpentries.r-universe.dev/",
             archive     = "https://carpentries.github.io/drat/",
-            CRAN        = "https://cran.rstudio.com"
+            CRAN        = "https://cran.rstudio.com",
+            RSPM        = Sys.getenv("RSPM")
           )
           old_repos <- as.list(getOption("repos"))
           new_repos <- unlist(modifyList(old_repos, repos))

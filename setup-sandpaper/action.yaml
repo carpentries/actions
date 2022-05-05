@@ -21,7 +21,8 @@ runs:
           repos <- list(
             carpentries = "https://carpentries.r-universe.dev/",
             archive     = "https://carpentries.github.io/drat/",
-            CRAN        = "https://cran.rstudio.com"
+            CRAN        = "https://cran.rstudio.com",
+            RSPM        = Sys.getenv("RSPM")
           )
           old_repos <- as.list(getOption("repos"))
           new_repos <- unlist(modifyList(old_repos, repos))
@@ -48,7 +49,7 @@ runs:
         id: run-apt
         shell: bash
         run: |
-          sudo apt update
+          sudo apt update || exit 0
           curl https://carpentries.r-universe.dev/stats/sysdeps 2> /dev/null \
           | jq -r '.headers[0] | select(. != null)' 2> /dev/null \
           > ${{ runner.temp }}/sysdeps.txt
@@ -84,7 +85,8 @@ runs:
           repos <- list(
             carpentries = "https://carpentries.r-universe.dev/",
             archive     = "https://carpentries.github.io/drat/",
-            CRAN        = "https://cran.rstudio.com"
+            CRAN        = "https://cran.rstudio.com",
+            RSPM        = Sys.getenv("RSPM")
           )
           old_repos <- as.list(getOption("repos"))
           new_repos <- unlist(modifyList(old_repos, repos))
