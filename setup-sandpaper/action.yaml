@@ -32,9 +32,7 @@ runs:
             archive     = "https://carpentries.github.io/drat/",
             CRAN        = "https://cran.rstudio.com"
           )
-          old_repos <- as.list(getOption("repos"))
-          new_repos <- unlist(modifyList(old_repos, repos))
-          options(pak.no_extra_messages = TRUE, repos = new_repos)
+          options(pak.no_extra_messages = TRUE, repos = repos)
           cat("Repositories Used")
           print(getOption("repos"))
           cat("::endgroup::\n")
@@ -104,9 +102,7 @@ runs:
             archive     = "https://carpentries.github.io/drat/",
             CRAN        = "https://cran.rstudio.com"
           )
-          old_repos <- as.list(getOption("repos"))
-          new_repos <- unlist(modifyList(old_repos, repos))
-          options(pak.no_extra_messages = TRUE, repos = new_repos)
+          options(pak.no_extra_messages = TRUE, repos = repos)
           cat("Repositories Used")
           print(getOption("repos"))
           cat("::endgroup::\n")
