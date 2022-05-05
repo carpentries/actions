@@ -20,10 +20,22 @@ runs:
       - name: "Setup System Dependencies"
         shell: Rscript {0}
         run: |
+          cat("::group::Register Repositories\n")
+          repos <- list(
+            carpentries = "https://carpentries.r-universe.dev/",
+            archive     = "https://carpentries.github.io/drat/",
+            CRAN        = "https://cran.rstudio.com"
+          )
+          old_repos <- as.list(getOption("repos"))
+          new_repos <- unlist(modifyList(old_repos, repos))
+          options(pak.no_extra_messages = TRUE, repos = new_repos)
+          cat("Repositories Used")
+          print(getOption("repos"))
+          cat("::endgroup::\n")
           # Set up system dependencies
           req <- function(pkg) {
             if (!requireNamespace(pkg, quietly = TRUE)) 
-              install.packages(pkg, repos = "https://cran.rstudio.com")
+              install.packages(pkg)
           }
           wd <- '${{ github.workspace }}'
           has_lock <- file.exists(file.path(wd, 'renv'))
@@ -44,17 +56,33 @@ runs:
       - name: "Fortify Local {renv} Packages"
         shell: Rscript {0}
         run: |
+          cat("::group::Register Repositories\n")
+          repos <- list(
+            carpentries = "https://carpentries.r-universe.dev/",
+            archive     = "https://carpentries.github.io/drat/",
+            CRAN        = "https://cran.rstudio.com"
+          )
+          old_repos <- as.list(getOption("repos"))
+          new_repos <- unlist(modifyList(old_repos, repos))
+          options(pak.no_extra_messages = TRUE, repos = new_repos)
+          cat("Repositories Used")
+          print(getOption("repos"))
+          cat("::endgroup::\n")
+
           # Fortify local {renv} packages
+          cat("::group::Fortify local {renv} packages\n")
           wd <- '${{ github.workspace }}'
           req <- function(pkg) {
             if (!requireNamespace(pkg, quietly = TRUE)) 
-              install.packages(pkg, repos = "https://cran.rstudio.com")
+              install.packages(pkg)
           }
           if (file.exists("DESCRIPTION")) {
             req("remotes")
             remotes::install_deps()
           }
+          cat("::endgroup::\n")
           if (file.exists(file.path(wd, 'renv'))) {
+            cat("::group::Fortify local {renv} packages\n")
             if (file.exists("DESCRIPTION.bak")) {
               file.rename("DESCRIPTION.bak", "DESCRIPTION")
             } else {
@@ -62,10 +90,8 @@ runs:
             }
             req("renv")
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
-            if (Sys.info()[["sysname"]] == "Linux") {
-              options(repos = c(RSPM = Sys.getenv("RSPM"), getOption("repos")))
-            }
             sandpaper::manage_deps(path = wd, quiet = FALSE)
+            cat("::endgroup::\n")
           } else {
             writeLines("Package cache not used")
           }

@@ -17,15 +17,20 @@ runs:
   steps:
       - name: Install pak and query dependencies
         run: |
-          cat("::group::Install remotes\n")
-          options(
-            pak.no_extra_messages = TRUE,
-            repos = c(
-              carpentries = "https://carpentries.r-universe.dev/",
-              archive     = "https://carpentries.github.io/drat/",
-              CRAN        = "https://cran.rstudio.com"
-            )
+          cat("::group::Register Repositories\n")
+          repos <- list(
+            carpentries = "https://carpentries.r-universe.dev/",
+            archive     = "https://carpentries.github.io/drat/",
+            CRAN        = "https://cran.rstudio.com"
           )
+          old_repos <- as.list(getOption("repos"))
+          new_repos <- unlist(modifyList(old_repos, repos))
+          options(pak.no_extra_messages = TRUE, repos = new_repos)
+          cat("Repositories Used")
+          print(getOption("repos"))
+          cat("::endgroup::\n")
+
+          cat("::group::Install remotes\n")
           install.packages('remotes')
           deps <- remotes::package_deps("sandpaper", dependencies = TRUE)
           saveRDS(deps, ".github/r-depends.rds")
@@ -75,22 +80,24 @@ runs:
 
       - name: Install dependencies
         run: |
+          cat("::group::Register Repositories\n")
+          repos <- list(
+            carpentries = "https://carpentries.r-universe.dev/",
+            archive     = "https://carpentries.github.io/drat/",
+            CRAN        = "https://cran.rstudio.com"
+          )
+          old_repos <- as.list(getOption("repos"))
+          new_repos <- unlist(modifyList(old_repos, repos))
+          options(pak.no_extra_messages = TRUE, repos = new_repos)
+          cat("Repositories Used")
+          print(getOption("repos"))
+          cat("::endgroup::\n")
+
           cat("::group::Install dependencies\n")
           on_linux <- Sys.info()[["sysname"]] == "Linux"
-          options(
-            pak.no_extra_messages = TRUE,
-            repos = c(
-              carpentries = "https://carpentries.r-universe.dev/",
-              archive     = "https://carpentries.github.io/drat/",
-              CRAN        = "https://cran.rstudio.com"
-            )
-          )
-          if (on_linux) {
-            options(repos = c(RSPM = Sys.getenv("RSPM"), getOption("repos")))
-          }
           library("remotes")
           pkgs <- package_deps('sandpaper', dependencies = TRUE)
-          pkgs$diff[pkgs$package == "tinkr"] <- -1
+          print(pkgs)
           update(pkgs, upgrade = "always")
           cat("::endgroup::\n")
           varnish_version <- '${{ inputs.varnish-version }}'
