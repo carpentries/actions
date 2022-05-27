@@ -36,9 +36,9 @@ echo "### Steps to Generate a New Token" >> $GITHUB_STEP_SUMMARY
 echo "" >> $GITHUB_STEP_SUMMARY
 echo "1. :key: [Click here to generate a new token from your GitHub Account](https://github.com/settings/tokens/new?scopes=repo,workflow&description=Sandpaper%20Token%20%28$GITHUB_REPOSITORY%29)" >> $GITHUB_STEP_SUMMARY
 echo "2. :clipboard: Copy your new token to your clipboard" >> $GITHUB_STEP_SUMMARY
-echo "3. :inbox_tray: Go To https://github.com/$GITHUB_REPOSITORY/settings/secrets/actions/new" >> $GITHUB_STEP_SUMMARY
-echo "  - enter \`SANDPAPER_WORKFLOW\` for the 'Name'" >> $GITHUB_STEP_SUMMARY
-echo "  - paste your token for the 'Value'" >> $GITHUB_STEP_SUMMARY
+echo "3. Go To https://github.com/$GITHUB_REPOSITORY/settings/secrets/actions/new" >> $GITHUB_STEP_SUMMARY
+echo "   - enter \`SANDPAPER_WORKFLOW\` for the 'Name'" >> $GITHUB_STEP_SUMMARY
+echo "   - :inbox_tray: paste your token for the 'Value'" >> $GITHUB_STEP_SUMMARY
 
 if [[ ${PAT} ]]
 then
