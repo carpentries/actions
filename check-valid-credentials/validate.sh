@@ -13,6 +13,7 @@ set -eo pipefail
 # Fail if we aren't in a sandpaper repository
 
 PAT=${1:-}
+GH_REPO=${2:-}
 
 # Create a temporary directory for the sandpaper resource files to land in
 if [[ -d ${TMPDIR} ]]; then
@@ -43,9 +44,9 @@ then
     echo "or does not have the right scope to update the package cache." >> $GITHUB_STEP_SUMMARY
     echo "If you want to have automated pull request updates to your package cache," >> $GITHUB_STEP_SUMMARY
     echo "you will need to generate a new token by visiting " >> $GITHUB_STEP_SUMMARY
-    echo "https://github.com/settings/tokens/new?scopes=repo,workflow&description=Sandpaper%%20Token%%20%%28${{ github.repository }}%%29\n" >> $GITHUB_STEP_SUMMARY
+    echo "https://github.com/settings/tokens/new?scopes=repo,workflow&description=Sandpaper%20Token%20%28$GH_REPO%29\n" >> $GITHUB_STEP_SUMMARY
     echo "Once you have created the token, copy it to your clipboard and go to" >> $GITHUB_STEP_SUMMARY
-    echo "https://github.com/${{ github.repository }}/settings/secrets/actions/new" >> $GITHUB_STEP_SUMMARY
+    echo "https://github.com/$GH_REPO/settings/secrets/actions/new" >> $GITHUB_STEP_SUMMARY
     echo "and enter SANDPAPER_WORKFLOW for the 'Name' and paste your key for the 'Value'." >> $GITHUB_STEP_SUMMARY
   fi
 
