@@ -40,14 +40,16 @@ then
   then
     echo "::set-output name=wf::true"
   else
-    echo "The \`SANDPAPER_WORKFLOW\` secret is missing, invalid," >> $GITHUB_STEP_SUMMARY
-    echo "or does not have the right scope to update the package cache." >> $GITHUB_STEP_SUMMARY
-    echo "If you want to have automated pull request updates to your package cache," >> $GITHUB_STEP_SUMMARY
-    echo "you will need to generate a new token by visiting " >> $GITHUB_STEP_SUMMARY
-    echo "https://github.com/settings/tokens/new?scopes=repo,workflow&description=Sandpaper%20Token%20%28$GH_REPO%29\n" >> $GITHUB_STEP_SUMMARY
-    echo "Once you have created the token, copy it to your clipboard and go to" >> $GITHUB_STEP_SUMMARY
-    echo "https://github.com/$GH_REPO/settings/secrets/actions/new" >> $GITHUB_STEP_SUMMARY
-    echo "and enter SANDPAPER_WORKFLOW for the 'Name' and paste your key for the 'Value'." >> $GITHUB_STEP_SUMMARY
+    echo "The \`SANDPAPER_WORKFLOW\` secret is missing, invalid, or does not" \
+    "have the right scope to update the package cache." >> $GITHUB_STEP_SUMMARY
+    echo "" >> $GITHUB_STEP_SUMMARY
+    echo "If you want to have automated pull request updates to your package cache," \
+    "you will need to generate a new token." >> $GITHUB_STEP_SUMMARY
+    echo "" >> $GITHUB_STEP_SUMMARY
+    echo "1. [Click here to generate a new token from your GitHub Account](https://github.com/settings/tokens/new?scopes=repo,workflow&description=Sandpaper%20Token%20%28$GH_REPO%29)" >> $GITHUB_STEP_SUMMARY
+    echo "2. Copy your new token to your clipboard" >> $GITHUB_STEP_SUMMARY
+    echo "3. Go To https://github.com/$GH_REPO/settings/secrets/actions/new" \
+    "and enter \`SANDPAPER_WORKFLOW\` for the 'Name' and paste your token for the 'Value'." >> $GITHUB_STEP_SUMMARY
   fi
 
   if [[ ${REPO} == 1 ]]
