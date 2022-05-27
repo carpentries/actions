@@ -24,6 +24,25 @@ else
 fi
 mkdir -p ${TMP}
 
+# Set up output first because there
+TOKEN_NAME="Sandpaper%20Token%20%28${GITHUB_REPOSITORY}%29"
+TOKEN_URL="https://github.com/settings/tokens/new?scopes=repo,workflow&description=${TOKEN_NAME}"
+echo "## :warning: Missing Token" >> $GITHUB_STEP_SUMMARY
+echo "" >> $GITHUB_STEP_SUMMARY
+echo "The \`SANDPAPER_WORKFLOW\` secret is missing, invalid, or does not" \
+  "have the right scope (repo, workflow) to update the package cache." >> $GITHUB_STEP_SUMMARY
+echo "" >> $GITHUB_STEP_SUMMARY
+echo "If you want to have automated pull request updates to your package cache," \
+"you will need to generate a new token." >> $GITHUB_STEP_SUMMARY
+echo "" >> $GITHUB_STEP_SUMMARY
+echo "### Steps to Generate a New Token" >> $GITHUB_STEP_SUMMARY
+echo "" >> $GITHUB_STEP_SUMMARY
+echo "1. :key: [Click here to generate a new token](${TOKEN_URL}) called \`Sandpaper Token (${GITHUB_REPOSITORY})\` with the "repo" and "workflow" scopes from your GitHub Account" >> $GITHUB_STEP_SUMMARY
+echo "2. :clipboard: Copy your new token to your clipboard" >> $GITHUB_STEP_SUMMARY
+echo "3. Go To https://github.com/${GITHUB_REPOSITORY}/settings/secrets/actions/new" >> $GITHUB_STEP_SUMMARY
+echo "   - enter \`SANDPAPER_WORKFLOW\` for the 'Name'" >> $GITHUB_STEP_SUMMARY
+echo "   - :inbox_tray: paste your token for the 'Value'" >> $GITHUB_STEP_SUMMARY
+
 if [[ ${PAT} ]]
 then
 
@@ -38,11 +57,13 @@ then
   if [[ ${WORKFLOW} == 1 ]]
   then
     echo "::set-output name=wf::true"
+    rm -f $GITHUB_STEP_SUMMARY
   fi
 
   if [[ ${REPO} == 1 ]]
   then
     echo "::set-output name=repo::true"
+    rm -f $GITHUB_STEP_SUMMARY
   fi
 
 else
