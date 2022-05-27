@@ -39,7 +39,7 @@ then
   then
     echo "::set-output name=wf::true"
   else
-    echo "## Missing Token"
+    echo "## Missing Token" >> $GITHUB_STEP_SUMMARY
     echo "" >> $GITHUB_STEP_SUMMARY
     echo "The \`SANDPAPER_WORKFLOW\` secret is missing, invalid, or does not" \
     "have the right scope to update the package cache." >> $GITHUB_STEP_SUMMARY
