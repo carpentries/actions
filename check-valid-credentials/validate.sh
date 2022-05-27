@@ -37,7 +37,7 @@ echo "If you want to have automated pull request updates to your package cache,"
 echo "" >> $GITHUB_STEP_SUMMARY
 echo "### Steps to Generate a New Token" >> $GITHUB_STEP_SUMMARY
 echo "" >> $GITHUB_STEP_SUMMARY
-echo "1. :key: [Click here to generate a new token called 'Sandpaper Token (${GITHUB_REPOSITORY})' from your GitHub Account](${TOKEN_URL})" >> $GITHUB_STEP_SUMMARY
+echo "1. :key: [Click here to generate a new token](${TOKEN_URL}) called 'Sandpaper Token (${GITHUB_REPOSITORY})' from your GitHub Account" >> $GITHUB_STEP_SUMMARY
 echo "2. :clipboard: Copy your new token to your clipboard" >> $GITHUB_STEP_SUMMARY
 echo "3. Go To https://github.com/${GITHUB_REPOSITORY}/settings/secrets/actions/new" >> $GITHUB_STEP_SUMMARY
 echo "   - enter \`SANDPAPER_WORKFLOW\` for the 'Name'" >> $GITHUB_STEP_SUMMARY
