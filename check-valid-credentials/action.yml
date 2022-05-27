@@ -5,10 +5,6 @@ inputs:
     description: "Token to validate"
     required: false
     default: ''
-  repository:
-    description: "The GitHub Repository"
-    required: false
-    default: "${{ github.repository }}"
 outputs:
   wf: 
     description: "workflow authorization"

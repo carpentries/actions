@@ -13,7 +13,6 @@ set -eo pipefail
 # Fail if we aren't in a sandpaper repository
 
 PAT=${1:-}
-GH_REPO=${2:-}
 
 # Create a temporary directory for the sandpaper resource files to land in
 if [[ -d ${TMPDIR} ]]; then
@@ -40,15 +39,17 @@ then
   then
     echo "::set-output name=wf::true"
   else
+    echo "## Missing Token"
+    echo "" >> $GITHUB_STEP_SUMMARY
     echo "The \`SANDPAPER_WORKFLOW\` secret is missing, invalid, or does not" \
     "have the right scope to update the package cache." >> $GITHUB_STEP_SUMMARY
     echo "" >> $GITHUB_STEP_SUMMARY
     echo "If you want to have automated pull request updates to your package cache," \
     "you will need to generate a new token." >> $GITHUB_STEP_SUMMARY
     echo "" >> $GITHUB_STEP_SUMMARY
-    echo "1. [Click here to generate a new token from your GitHub Account](https://github.com/settings/tokens/new?scopes=repo,workflow&description=Sandpaper%20Token%20%28$GH_REPO%29)" >> $GITHUB_STEP_SUMMARY
+    echo "1. [Click here to generate a new token from your GitHub Account](https://github.com/settings/tokens/new?scopes=repo,workflow&description=Sandpaper%20Token%20%28$GITHUB_REPOSITORY%29)" >> $GITHUB_STEP_SUMMARY
     echo "2. Copy your new token to your clipboard" >> $GITHUB_STEP_SUMMARY
-    echo "3. Go To https://github.com/$GH_REPO/settings/secrets/actions/new" \
+    echo "3. Go To https://github.com/$GITHUB_REPOSITORY/settings/secrets/actions/new" \
     "and enter \`SANDPAPER_WORKFLOW\` for the 'Name' and paste your token for the 'Value'." >> $GITHUB_STEP_SUMMARY
   fi
 
