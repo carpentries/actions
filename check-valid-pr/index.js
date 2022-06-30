@@ -64,15 +64,15 @@ async function run() {
       // author should be encouraged to remove their repository 
       valid = pullRequestCommits === null;
       if (!valid) {
-        PR_msg = `## :danger: DANGER :danger:
+        PR_msg = "## :danger: DANGER :danger:";
 
-        the fork ${pullRequest.data.user.login}/${repository[1]} has divergent
-        history and contains an invalid commit (${bad_origin}) from the former
-        version of this repository before the switch to The Workbench. 
+//         the fork ${pullRequest.data.user.login}/${repository[1]} has divergent
+//         history and contains an invalid commit (${bad_origin}) from the former
+//         version of this repository before the switch to The Workbench. 
 
-        @${pullRequest.data.user.login}, if you want to contribute your changes,
-        you must [delete your fork](https://docs.github.com/en/repositories/creating-and-managing-repositories/deleting-a-repository) and re-fork this repository.
-        `;
+//         @${pullRequest.data.user.login}, if you want to contribute your changes,
+//         you must [delete your fork](https://docs.github.com/en/repositories/creating-and-managing-repositories/deleting-a-repository) and re-fork this repository.
+//         `;
         core.setOutput("MSG", PR_msg);
       }
 
