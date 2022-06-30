@@ -67,11 +67,16 @@ async function run() {
       // author should be encouraged to remove their repository 
       valid = pullRequestCommits === null;
       if (!valid) {
-        let forkurl = `${pullRequest.data.head.repo.html_url}/tree/${pullRequest.data.head.ref}`
+        let ref = pullRequest.data.head.ref
+        let forkurl = `${pullRequest.data.head.repo.html_url}/`
+        let commiturl = `[${pullRequest.data.head.repo.full_name}@${bad_origin}](${forkurl}/tree/${bad_origin})`
+        let forkurl = `[${pullRequest.data.head.repo.full_name}@${ref}](${forkurl}/tree/${ref}})`
         PR_msg = `${PR_msg}
 ## :x: DANGER :x:
 
-The fork ${forkurl} has divergent history and contains an invalid commit (${bad_origin}) from the former version of this repository before the switch to The Workbench.
+**DO NOT MERGE THIS PULL REQUEST**
+
+The fork ${forkurl} has divergent history and contains an invalid commit (${commiturl}) from the former version of this repository before the switch to The Workbench.
 
 @${pullRequest.data.user.login}, if you want to contribute your changes, **you must [delete your fork](https://docs.github.com/en/repositories/creating-and-managing-repositories/deleting-a-repository)** and re-fork this repository.
 `;
