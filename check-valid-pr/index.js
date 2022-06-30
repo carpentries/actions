@@ -104,10 +104,10 @@ The fork ${forkurl} has divergent history and contains an invalid commit (${comm
         let invalid_files = files.filter(e => !isNotWorkflow(e));
         let inv = invalid_files.join("\n - ");
         PR_msg = `${PR_msg}
-This pull request contains modified workflow files and no preview will be created.
+
+:information_source: This pull request contains modified workflow files and no preview will be created.
 
 Workflow files modified: 
-
  - ${inv}
 
 **Please inspect the changes for any malicious content.**`;
@@ -118,9 +118,11 @@ Workflow files modified:
 ## :warning: WARNING :warning:
 
 This pull request contains a mix of workflow files and regular files. **This could be malicious.**
+
 regular files:    
  - ${vf}
--> workflow files:    
+
+workflow files:    
  - ${inv}
 `;
         }
@@ -140,7 +142,7 @@ regular files:
   } else {
     if (pullRequest.data.author_association == "NONE") {
       // First-time contributors need their PRs approved.
-      PR_msg = `This pull request has been checked and contains no modified workflow files, spoofing, and invalid commits.
+      PR_msg = `:ok: This pull request has been checked and contains no modified workflow files, spoofing, and invalid commits.
 
 It should be safe to **Approve and Run** the workflows that need maintainer approval.`
     }
