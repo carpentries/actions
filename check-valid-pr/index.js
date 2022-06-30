@@ -49,7 +49,7 @@ async function run() {
       const { data: pullRequestCommits } = await octokit.request(bad_origin_request, {
         owner: pullRequest.data.user.login,
         repo: repository[1]
-      }).catch(err = { 
+      }).catch(err => { 
         if (err.status == '404') {
           // status 404 means that we did not see a commit so we can move on.
           return(null);
