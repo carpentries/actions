@@ -102,7 +102,7 @@ must [delete your fork](https://docs.github.com/en/repositories/creating-and-man
         let PR_msg = `## :warning: WARNING :warning:
 
 PR #${PR} contains a mix of workflow files and regular files. This could be malicious.\n->  regular files: ${vf}\n-> workflow files: ${inv}`;
-        core.setoutput("MSG", PR_msg);
+        core.setOutput("MSG", PR_msg);
         core.setFailed(PR_msg);
       }
       console.log(`Files in PR: ${files.join(", ")}`);
