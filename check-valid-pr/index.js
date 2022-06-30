@@ -99,7 +99,11 @@ must [delete your fork](https://docs.github.com/en/repositories/creating-and-man
         let invalid_files = files.filter(e => !isNotWorkflow(e));
         let vf = valid_files.join(", ");
         let inv = invalid_files.join(", ");
-        // core.setFailed(`PR #${PR} contains a mix of workflow files and regular files. This could be malicious.\n->  regular files: ${vf}\n-> workflow files: ${inv}`)
+        let PR_msg = `## :warning: WARNING :warning:
+
+PR #${PR} contains a mix of workflow files and regular files. This could be malicious.\n->  regular files: ${vf}\n-> workflow files: ${inv}`;
+        core.setoutput("MSG", PR_msg);
+        core.setFailed(PR_msg);
       }
       console.log(`Files in PR: ${files.join(", ")}`);
     } else {
