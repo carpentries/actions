@@ -68,9 +68,9 @@ async function run() {
       valid = pullRequestCommits === null;
       if (!valid) {
         let ref = pullRequest.data.head.ref
-        let forkurl = `${pullRequest.data.head.repo.html_url}/`
-        let commiturl = `[${pullRequest.data.head.repo.full_name}@${bad_origin}](${forkurl}/tree/${bad_origin})`
-        forkurl = `[${pullRequest.data.head.repo.full_name}@${ref}](${forkurl}/tree/${ref}})`
+        let forkurl = `${pullRequest.data.head.repo.html_url}`
+        let commiturl = `[${bad_origin}](${forkurl}/tree/${bad_origin})`
+        forkurl = `[${pullRequest.data.head.repo.full_name}@${ref}](${forkurl}/tree/${ref})`
         PR_msg = `${PR_msg}
 ## :x: DANGER :x:
 
