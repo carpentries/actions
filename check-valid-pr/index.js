@@ -67,7 +67,7 @@ async function run() {
       // author should be encouraged to remove their repository 
       valid = pullRequestCommits === null;
       if (!valid) {
-        let PR_msg = `${PR_msg}
+        PR_msg = `${PR_msg}
 ## :danger: DANGER :danger:
 
 The fork ${pullRequest.data.user.login}/${repository[1]} has divergent history 
@@ -100,7 +100,7 @@ must [delete your fork](https://docs.github.com/en/repositories/creating-and-man
         let invalid_files = files.filter(e => !isNotWorkflow(e));
         let vf = valid_files.join(", ");
         let inv = invalid_files.join(", ");
-        let PR_msg = `${PR_msg}
+        PR_msg = `${PR_msg}
 ## :warning: WARNING :warning:
 
 PR #${PR} contains a mix of workflow files and regular files. **This could be malicious.**
