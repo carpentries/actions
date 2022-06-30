@@ -74,9 +74,11 @@ async function run() {
         PR_msg = `${PR_msg}
 ## :x: DANGER :x:
 
-**DO NOT MERGE THIS PULL REQUEST**
+### DO NOT MERGE THIS PULL REQUEST
 
 The fork ${forkurl} has divergent history and contains an invalid commit (${commiturl}) from the former version of this repository before the switch to The Workbench.
+
+### For the Pull Request Author
 
 @${pullRequest.data.user.login}, if you want to contribute your changes, **you must [delete your fork](https://docs.github.com/en/repositories/creating-and-managing-repositories/deleting-a-repository)** and re-fork this repository.
 `;
