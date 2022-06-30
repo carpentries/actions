@@ -16,6 +16,10 @@ inputs:
     description: 'github token'
     required: true
     default: ${{ github.token }}
+  invalid-hash:
+    description: 'sha of an invalid commit hash'
+    required: false
+    default: null
 outputs:
   VALID: 
     description: "flag indicating if the PR is valid. 'true' if valid, 'false' otherwise"
