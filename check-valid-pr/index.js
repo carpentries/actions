@@ -68,7 +68,7 @@ async function run() {
       valid = pullRequestCommits === null;
       if (!valid) {
         PR_msg = `${PR_msg}
-## :danger: DANGER :danger:
+## :x: DANGER :x:
 
 The fork ${pullRequest.data.user.login}/${repository[1]} has divergent history 
 and contains an invalid commit (${bad_origin}) from the former version of this 
