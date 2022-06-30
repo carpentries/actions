@@ -76,7 +76,7 @@ async function run() {
 
 ### DO NOT MERGE THIS PULL REQUEST
 
-The fork ${forkurl} has divergent history and contains an invalid commit (${commiturl}) from the former version of this repository before the switch to The Workbench.
+The fork ${forkurl} has divergent history and contains an invalid commit (${commiturl}).
 
 ### For the Pull Request Author
 
@@ -100,18 +100,24 @@ The fork ${forkurl} has divergent history and contains an invalid commit (${comm
       let valid_files = files.filter(isNotWorkflow);
       // we have a valid PR if the valid file array is unchanged
       valid = valid && valid_files.length == files.length;
-      if (!valid && valid_files.length > 0) {
-        // If we are not valid, we need to check if there is a mix of files
-        let invalid_files = files.filter(e => !isNotWorkflow(e));
-        let vf = valid_files.join(", ");
-        let inv = invalid_files.join(", ");
+      if (!valid) {
         PR_msg = `${PR_msg}
+This pull request contains modified workflow files and no preview will be created.
+
+**Please inspect the changes for any malicious content.**`;
+        if (valid_files.length > 0) {
+          // If we are not valid, we need to check if there is a mix of files
+          let invalid_files = files.filter(e => !isNotWorkflow(e));
+          let vf = valid_files.join(", ");
+          let inv = invalid_files.join(", ");
+          PR_msg = `${PR_msg}
 ## :warning: WARNING :warning:
 
-PR #${PR} contains a mix of workflow files and regular files. **This could be malicious.**
+This pull request contains a mix of workflow files and regular files. **This could be malicious.**
 ->  regular files: ${vf}
 -> workflow files: ${inv}
 `;
+        }
       }
       console.log(`Files in PR: ${files.join(", ")}`);
     } else {
