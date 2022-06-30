@@ -133,7 +133,8 @@ This pull request contains a mix of workflow files and regular files. **This cou
     core.setFailed(PR_msg);
   } else {
     if (pullRequest.data.author_association == "NONE") {
-      PR_msg = `This pull request has been checked and is safe to test.`
+      // First-time contributors need their PRs approved.
+      PR_msg = `This pull request has been checked and should be safe to **Approve and Run** the workflows that need maintainer approval.`
     }
   }
   core.setOutput("MSG", PR_msg);
