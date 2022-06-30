@@ -131,8 +131,12 @@ This pull request contains a mix of workflow files and regular files. **This cou
   core.setOutput("VALID", valid);
   if (PR_msg != "") {
     core.setFailed(PR_msg);
-    core.setOutput("MSG", PR_msg);
+  } else {
+    if (pullRequest.data.author_association == "NONE") {
+      PR_msg = `This pull request has been checked and is safe to test.`
+    }
   }
+  core.setOutput("MSG", PR_msg);
 }
 
 
