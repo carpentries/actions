@@ -82,8 +82,11 @@ The fork ${forkurl} has divergent history and contains an invalid commit (${comm
 
 @${pullRequest.data.user.login}, if you want to contribute your changes, **you must [delete your fork](https://docs.github.com/en/repositories/creating-and-managing-repositories/deleting-a-repository)** and re-fork this repository.
 `;
+        core.setOutput("VALID", valid);
+        core.setOutput("MSG", PR_msg);
+        core.setFailed(PR_msg);
+        process.exit(1);
       }
-
     }
     // create payload output if the PR is not spoofed
     core.setOutput("payload", JSON.stringify(pullRequest));
