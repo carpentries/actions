@@ -134,7 +134,9 @@ This pull request contains a mix of workflow files and regular files. **This cou
   } else {
     if (pullRequest.data.author_association == "NONE") {
       // First-time contributors need their PRs approved.
-      PR_msg = `This pull request has been checked and should be safe to **Approve and Run** the workflows that need maintainer approval.`
+      PR_msg = `This pull request has been checked and contains no modified workflow files, spoofing, and invalid commits.
+
+It should be safe to **Approve and Run** the workflows that need maintainer approval.`
     }
   }
   core.setOutput("MSG", PR_msg);
