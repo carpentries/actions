@@ -64,7 +64,7 @@ async function run() {
       // author should be encouraged to remove their repository 
       valid = pullRequestCommits === null;
       if (!valid) {
-        PR_msg = "## :danger: DANGER :danger:";
+        PR_msg = `## :danger: DANGER :danger:
 
 //         the fork ${pullRequest.data.user.login}/${repository[1]} has divergent
 //         history and contains an invalid commit (${bad_origin}) from the former

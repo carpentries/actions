@@ -26,7 +26,7 @@ outputs:
   payload:
     description: "the JSON from the pull request call"
   MSG:
-    description: "a message that can be sent to the PR in the case of an invalid PR
+    description: "a message that can be sent to the PR in the case of an invalid PR"
 runs:
   using: 'node12'
   main: 'index.js'
