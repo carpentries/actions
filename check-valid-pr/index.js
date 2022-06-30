@@ -62,14 +62,18 @@ async function run() {
 
       // If we get the bad commit back, then the PR should be closed and the 
       // author should be encouraged to remove their repository 
-      if (pullRequestCommits != null) {
-        await octokit.request('PATCH /repos/{owner}/{repo}/pulls/{pull_number}', {
-          owner: repository[0],
-          repo: repository[1],
-          pull_number: Number(PR),
-          state: 'closed',
-        })
-        core.setFailed(`This PR contains an invalid commit (${bad_origin}).`);
+      valid = pullRequestCommits === null;
+      if (!valid) {
+        PR_msg = `## :danger: DANGER :danger:
+
+        the fork ${pullRequest.data.user.login}/${repository[1]} has divergent
+        history and contains an invalid commit (${bad_origin}) from the former
+        version of this repository before the switch to The Workbench. 
+
+        @${pullRequest.data.user.login}, if you want to contribute your changes,
+        you must [delete your fork](https://docs.github.com/en/repositories/creating-and-managing-repositories/deleting-a-repository) and re-fork this repository.
+        `;
+        core.setOutput("MSG", PR_msg);
       }
 
     }
