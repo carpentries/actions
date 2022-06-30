@@ -46,7 +46,7 @@ async function run() {
     // VALIDITY: bad commit does not exist
     if (bad_origin != null) {
       let bad_origin_request = `GET /repos/{owner}/{repo}/commits?per_page=1?sha=${bad_origin}`
-      const { data: pullRequestCommits } await octokit.request(bad_origin_request, {
+      const { data: pullRequestCommits } = await octokit.request(bad_origin_request, {
         owner: pullRequest.data.user.login,
         repo: repository[1]
       }).catch(err = { 
