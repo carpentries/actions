@@ -102,22 +102,26 @@ The fork ${forkurl} has divergent history and contains an invalid commit (${comm
       valid = valid && valid_files.length == files.length;
       if (!valid) {
         let invalid_files = files.filter(e => !isNotWorkflow(e));
-        let inv = invalid_files.join(", ");
+        let inv = invalid_files.join("\n - ");
         PR_msg = `${PR_msg}
 This pull request contains modified workflow files and no preview will be created.
 
-Workflow files modified: ${inv}
+Workflow files modified: 
+
+ - ${inv}
 
 **Please inspect the changes for any malicious content.**`;
         if (valid_files.length > 0) {
           // If we are not valid, we need to check if there is a mix of files
-          let vf = valid_files.join(", ");
+          let vf = valid_files.join("\n - ");
           PR_msg = `${PR_msg}
 ## :warning: WARNING :warning:
 
 This pull request contains a mix of workflow files and regular files. **This could be malicious.**
-->  regular files: ${vf}
--> workflow files: ${inv}
+regular files:    
+ - ${vf}
+-> workflow files:    
+ - ${inv}
 `;
         }
       }
