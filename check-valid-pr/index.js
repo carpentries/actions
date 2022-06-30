@@ -44,7 +44,7 @@ async function run() {
 
   if (valid) {
     // VALIDITY: bad commit does not exist
-    core.setOutput("MSG", PR_msg);
+    core.setOutput("MSG", '');
     if (bad_origin != '') {
       let bad_origin_request = `GET /repos/{owner}/{repo}/commits?per_page=1?sha=${bad_origin}`
       const { data: pullRequestCommits } = await octokit.request(bad_origin_request, {
@@ -65,7 +65,7 @@ async function run() {
       // author should be encouraged to remove their repository 
       valid = pullRequestCommits === null;
       if (!valid) {
-        PR_msg = `## :danger: DANGER :danger:
+        let PR_msg = `## :danger: DANGER :danger:
 
 The fork ${pullRequest.data.user.login}/${repository[1]} has divergent history 
 and contains an invalid commit (${bad_origin}) from the former version of this 
