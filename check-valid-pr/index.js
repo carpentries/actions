@@ -105,12 +105,14 @@ The fork ${forkurl} has divergent history and contains an invalid commit (${comm
         let inv = invalid_files.join("\n - ");
         PR_msg = `${PR_msg}
 
-:information_source: This pull request contains modified workflow files and no preview will be created.
+## :information_source: Modified Workflows
+
+This pull request contains modified workflow files and no preview will be created.
 
 Workflow files modified: 
  - ${inv}
 
-**Please inspect the changes for any malicious content.**`;
+**If this is not from a trusted source, please inspect the changes for any malicious content.**`;
         if (valid_files.length > 0) {
           // If we are not valid, we need to check if there is a mix of files
           let vf = valid_files.join("\n - ");
