@@ -36,6 +36,8 @@ async function run() {
   // VALIDITY: pull request is still open
   let valid = pullRequest.data.state == 'open';
   let msg = `Pull Request ${PR} was previously merged`;
+  let PR_msg = "";
+
   if (sha) {
     // VALIDITY: pull request is IDENTICAL to the provided sha
     valid = valid && pullRequest.data.head.sha == sha;
@@ -65,7 +67,8 @@ async function run() {
       // author should be encouraged to remove their repository 
       valid = pullRequestCommits === null;
       if (!valid) {
-        let PR_msg = `## :danger: DANGER :danger:
+        let PR_msg = `${PR_msg}
+## :danger: DANGER :danger:
 
 The fork ${pullRequest.data.user.login}/${repository[1]} has divergent history 
 and contains an invalid commit (${bad_origin}) from the former version of this 
@@ -73,9 +76,7 @@ repository before the switch to The Workbench.
 
 @${pullRequest.data.user.login}, if you want to contribute your changes, you 
 must [delete your fork](https://docs.github.com/en/repositories/creating-and-managing-repositories/deleting-a-repository) and re-fork this repository.
-        `;
-        core.setFailed(PR_msg);
-        core.setOutput("MSG", PR_msg);
+`;
       }
 
     }
@@ -99,11 +100,13 @@ must [delete your fork](https://docs.github.com/en/repositories/creating-and-man
         let invalid_files = files.filter(e => !isNotWorkflow(e));
         let vf = valid_files.join(", ");
         let inv = invalid_files.join(", ");
-        let PR_msg = `## :warning: WARNING :warning:
+        let PR_msg = `${PR_msg}
+## :warning: WARNING :warning:
 
-PR #${PR} contains a mix of workflow files and regular files. This could be malicious.\n->  regular files: ${vf}\n-> workflow files: ${inv}`;
-        core.setOutput("MSG", PR_msg);
-        core.setFailed(PR_msg);
+PR #${PR} contains a mix of workflow files and regular files. **This could be malicious.**
+->  regular files: ${vf}
+-> workflow files: ${inv}
+`;
       }
       console.log(`Files in PR: ${files.join(", ")}`);
     } else {
@@ -115,6 +118,10 @@ PR #${PR} contains a mix of workflow files and regular files. This could be mali
   }
   console.log(`Is valid?: ${valid}`);
   core.setOutput("VALID", valid);
+  if (PR_msg != "") {
+    core.setFailed(PR_msg);
+    core.setOutput("MSG", PR_msg);
+  }
 }
 
 
