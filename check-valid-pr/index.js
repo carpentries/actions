@@ -10,6 +10,7 @@ async function run() {
   const PR         = core.getInput('pr');
   const sha        = core.getInput('sha');
   const repository = core.getInput('repo').split('/');
+  const bad_origin = core.getInput('invalid-hash');
   const octokit    = github.getOctokit(myToken)
 
   function getFilename(f) {
@@ -32,7 +33,6 @@ async function run() {
     process.exit(1);
   });
 
-
   // VALIDITY: pull request is still open
   let valid = pullRequest.data.state == 'open';
   let msg = `Pull Request ${PR} was previously merged`;
@@ -43,6 +43,36 @@ async function run() {
   }
 
   if (valid) {
+    // VALIDITY: bad commit does not exist
+    if (bad_origin != null) {
+      let bad_origin_request = `GET /repos/{owner}/{repo}/commits?per_page=1?sha=${bad_origin}`
+      const { data: pullRequestCommits } await octokit.request(bad_origin_request, {
+        owner: pullRequest.data.user.login,
+        repo: repository[1]
+      }).catch(err = { 
+        if (err.status == '404') {
+          // status 404 means that we did not see a commit so we can move on.
+          return(null);
+        } else {
+          console.log(err);
+          core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
+          process.exit(1);
+        }
+      } );
+
+      // If we get the bad commit back, then the PR should be closed and the 
+      // author should be encouraged to remove their repository 
+      if (pullRequestCommits != null) {
+        await octokit.request('PATCH /repos/{owner}/{repo}/pulls/{pull_number}', {
+          owner: repository[0],
+          repo: repository[1],
+          pull_number: Number(PR),
+          state: 'closed',
+        })
+        core.setFailed(`This PR contains an invalid commit (${bad_origin}).`);
+      }
+
+    }
     // create payload output if the PR is not spoofed
     core.setOutput("payload", JSON.stringify(pullRequest));
     // What files are associated? ----------------------------------------------
