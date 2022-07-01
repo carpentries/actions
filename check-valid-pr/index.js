@@ -67,7 +67,7 @@ async function run() {
       // bad commit. If the hisotry is divergent, then it is safe to assume that
       // it does not exist on the branch.
       let bad_origin_request = `GET /repos/{repo}/compare/{branch}...${bad_origin}`
-      const { data: pullRequestCommits } = await octokit.request(bad_origin_request, {
+      const { pullRequestCommits } = await octokit.request(bad_origin_request, {
         repo: that_repo.full_name,
         branch: pullRequest.data.head.ref,
       }).catch(err => { 
