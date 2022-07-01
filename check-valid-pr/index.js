@@ -61,10 +61,10 @@ async function run() {
       console.log(`SHOULD WE ALLOW THIS? ${bad_origin != '' && is_a_fork}`);
     }
     if (bad_origin != '' && is_a_fork) {
-      let bad_origin_request = `GET /repos/{owner}/{repo}/commits?per_page=1?sha=${bad_origin}`
+      let bad_origin_request = `GET /repos/{repo}/compare/{branch}...${bad_origin}`
       const { data: pullRequestCommits } = await octokit.request(bad_origin_request, {
-        owner: pullRequest.data.user.login,
-        repo: repository[1]
+        repo: that_repo.full_name,
+        branch: pullRequest.data.head.ref,
       }).catch(err => { 
         if (err.status == '404') {
           // status 404 means that we did not see a commit so we can move on.
@@ -78,7 +78,7 @@ async function run() {
 
       // If we get the bad commit back, then the PR should be closed and the 
       // author should be encouraged to remove their repository 
-      valid = pullRequestCommits === null;
+      valid = pullRequestCommits.status == "diverged";
       if (!valid) {
         let ref = pullRequest.data.head.ref
         let forkurl = `${pullRequest.data.head.repo.html_url}`
