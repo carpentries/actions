@@ -83,9 +83,7 @@ async function run() {
 
       // If we get the bad commit back, then the PR should be closed and the 
       // author should be encouraged to remove their repository 
-      nothing_compares = typeof comparison === "undefined";
-      to_u             = typeof comparison.status === "undefined";
-      valid = nothing_compares || to_u || comparison.status == "diverged";
+      valid = !comparison || !comparison.status || comparison.status == "diverged";
       if (!valid) {
         let ref = pullRequest.data.head.ref
         let forkurl = `${pullRequest.data.head.repo.html_url}`
