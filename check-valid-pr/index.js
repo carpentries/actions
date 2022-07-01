@@ -58,6 +58,7 @@ async function run() {
       let is_a_fork = this_repo.full_name != that_repo.full_name
       console.log(`THIS REPO: ${this_repo.full_name}\nTHAT REPO: ${that_repo.full_name}`);
       console.log(`IS IT A FORK? ${is_a_fork}`);
+      console.log(`SHOULD WE ALLOW THIS? ${bad_origin != '' && is_a_fork}`);
     }
     if (bad_origin != '' && is_a_fork) {
       let bad_origin_request = `GET /repos/{owner}/{repo}/commits?per_page=1?sha=${bad_origin}`
