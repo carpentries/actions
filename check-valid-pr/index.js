@@ -145,11 +145,11 @@ workflow files:
   if (PR_msg != "") {
     core.setFailed(PR_msg);
   } else {
-    // First-time contributors need their PRs approved.
     PR_msg = `## :ok: Pre-flight checks passed :smiley:
 
 This pull request has been checked and contains no modified workflow files, spoofing, and invalid commits.`;
     if (pullRequest.data.author_association == "NONE") {
+      // First-time contributors need their PRs approved.
       PR_msg = `${PR_msg}\n\nIt should be safe to **Approve and Run** the workflows that need maintainer approval.`;
     } else {
       PR_msg = `${PR_msg}\n\nResults of any additional workflows will appear here when they are done.`;
