@@ -67,7 +67,7 @@ async function run() {
       // bad commit. If the hisotry is divergent, then it is safe to assume that
       // it does not exist on the branch.
       let bad_origin_request = `GET /repos/{repo}/compare/{branch}...${bad_origin}`
-      const { pullRequestCommits } = await octokit.request(bad_origin_request, {
+      const comparison = (await octokit.request(bad_origin_request, {
         repo: that_repo.full_name,
         branch: pullRequest.data.head.ref,
       }).catch(err => { 
@@ -79,11 +79,13 @@ async function run() {
           core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
           process.exit(1);
         }
-      } );
+      } ) || {};
 
       // If we get the bad commit back, then the PR should be closed and the 
       // author should be encouraged to remove their repository 
-      valid = pullRequestCommits.status == "diverged";
+      nothing_compares = typeof comparison === "undefined";
+      to_u             = typeof comparison.status === "undefined";
+      valid = nothing_compares || to_u || comparison.status == "diverged";
       if (!valid) {
         let ref = pullRequest.data.head.ref
         let forkurl = `${pullRequest.data.head.repo.html_url}`
