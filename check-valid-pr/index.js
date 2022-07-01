@@ -11,6 +11,7 @@ async function run() {
   const sha        = core.getInput('sha');
   const repository = core.getInput('repo').split('/');
   const bad_origin = core.getInput('invalid-hash');
+  const allow_self = core.getInput('allow-self');
   const octokit    = github.getOctokit(myToken)
 
   function getFilename(f) {
@@ -45,9 +46,17 @@ async function run() {
   }
 
   if (valid) {
-    // VALIDITY: bad commit does not exist
     core.setOutput("MSG", '');
-    if (bad_origin != '') {
+    // VALIDITY: bad commit does not exist
+    let this_repo = pullRequest.data.base.repo;
+    let that_repo = pullRequest.data.head.repo;
+    // BUT, if we are in a branch in our own repo, then we can allow it because
+    // GitHub keeps track of old refs, even if they have been deleted. 
+    let is_a_fork = true;
+    if (allow_self) {
+      let is_a_fork = !this_repo.full_name === that_repo.full_name
+    }
+    if (bad_origin != '' && is_a_fork) {
       let bad_origin_request = `GET /repos/{owner}/{repo}/commits?per_page=1?sha=${bad_origin}`
       const { data: pullRequestCommits } = await octokit.request(bad_origin_request, {
         owner: pullRequest.data.user.login,

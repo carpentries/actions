@@ -20,6 +20,10 @@ inputs:
     description: 'sha of an invalid commit hash'
     required: false
     default: null
+  allow-self:
+    description: 'a boolean to allow invalid-hash to be present if the head branch is local to the current repository'
+    required: false
+    default: true
 outputs:
   VALID: 
     description: "flag indicating if the PR is valid. 'true' if valid, 'false' otherwise"
