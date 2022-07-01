@@ -54,7 +54,10 @@ async function run() {
     // GitHub keeps track of old refs, even if they have been deleted. 
     let is_a_fork = true;
     if (allow_self) {
-      let is_a_fork = !this_repo.full_name === that_repo.full_name
+      console.log("WE ALLOW THE SELF TO PASS THROUGH");
+      let is_a_fork = this_repo.full_name != that_repo.full_name
+      console.log(`THIS REPO: ${this_repo.full_name}\nTHAT REPO: ${that_repo.full_name}`);
+      console.log(`IS IT A FORK? ${is_a_fork}`);
     }
     if (bad_origin != '' && is_a_fork) {
       let bad_origin_request = `GET /repos/{owner}/{repo}/commits?per_page=1?sha=${bad_origin}`
