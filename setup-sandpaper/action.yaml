@@ -116,7 +116,7 @@ runs:
           cat("::endgroup::\n")
           varnish_version <- '${{ inputs.varnish-version }}'
           sandpaper_version <- '${{ inputs.sandpaper-version }}'
-          cfg <- readLines("config.yaml")
+          cfg <- if (file.exists("config.yaml")) readLines("config.yaml") else character(0)
           get_version <- function(x, key = "varnish") {
             res <- x[grepl(paste0("^", key, "\\s?:"), x)]
             if (length(res)) {
