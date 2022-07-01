@@ -61,6 +61,11 @@ async function run() {
       console.log(`SHOULD WE ALLOW THIS? ${bad_origin != '' && is_a_fork}`);
     }
     if (bad_origin != '' && is_a_fork) {
+      // https://stackoverflow.com/a/23970412/2752888
+      //
+      // Use a strategy of checking the comparison between the branch and the
+      // bad commit. If the hisotry is divergent, then it is safe to assume that
+      // it does not exist on the branch.
       let bad_origin_request = `GET /repos/{repo}/compare/{branch}...${bad_origin}`
       const { data: pullRequestCommits } = await octokit.request(bad_origin_request, {
         repo: that_repo.full_name,
