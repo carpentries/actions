@@ -11,7 +11,6 @@ async function run() {
   const sha        = core.getInput('sha');
   const repository = core.getInput('repo').split('/');
   const bad_origin = core.getInput('invalid-hash');
-  const allow_self = core.getInput('allow-self');
   const octokit    = github.getOctokit(myToken)
 
   function getFilename(f) {
