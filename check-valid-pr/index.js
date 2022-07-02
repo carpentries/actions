@@ -48,25 +48,18 @@ async function run() {
   if (valid) {
     core.setOutput("MSG", '');
     // VALIDITY: bad commit does not exist
-    let this_repo = pullRequest.data.base.repo;
     let that_repo = pullRequest.data.head.repo;
     // BUT, if we are in a branch in our own repo, then we can allow it because
     // GitHub keeps track of old refs, even if they have been deleted. 
-    let is_a_fork = true;
-    if (allow_self) {
-      console.log("WE ALLOW THE SELF TO PASS THROUGH");
-      is_a_fork = this_repo.full_name != that_repo.full_name
-      console.log(`THIS REPO: ${this_repo.full_name}\nTHAT REPO: ${that_repo.full_name}`);
-      console.log(`IS IT A FORK? ${is_a_fork}`);
-      console.log(`SHOULD WE ALLOW THIS? ${bad_origin != '' && is_a_fork}`);
-    }
-    if (bad_origin != '' && is_a_fork) {
+    if (bad_origin != '') {
       // https://stackoverflow.com/a/23970412/2752888
       //
       // Use a strategy of checking the comparison between the branch and the
       // bad commit. If the hisotry is divergent, then it is safe to assume that
       // it does not exist on the branch.
       let bad_origin_request = `GET /repos/{repo}/compare/{branch}...${bad_origin}`
+      // This will return a null if there is no comparison and it will reterun
+      // "diverged" if the commit is in the history. 
       const comparison = await octokit.request(bad_origin_request, {
         repo: that_repo.full_name,
         branch: pullRequest.data.head.ref,
@@ -86,9 +79,9 @@ async function run() {
       valid = !comparison || !comparison.status || comparison.status == "diverged";
       if (!valid) {
         let ref = pullRequest.data.head.ref
-        let forkurl = `${pullRequest.data.head.repo.html_url}`
+        let forkurl = `${that_repo.html_url}`
         let commiturl = `[${bad_origin}](${forkurl}/tree/${bad_origin})`
-        forkurl = `[${pullRequest.data.head.repo.full_name}@${ref}](${forkurl}/tree/${ref})`
+        forkurl = `[${that_repo.full_name}@${ref}](${forkurl}/tree/${ref})`
         PR_msg = `${PR_msg}
 ## :x: DANGER :x:
 
@@ -165,7 +158,7 @@ workflow files:
   } else {
     PR_msg = `## :ok: Pre-flight checks passed :smiley:
 
-This pull request has been checked and contains no modified workflow files, spoofing, and invalid commits.`;
+This pull request has been checked and contains no modified workflow files${(bad_origin=='')?' or spoofing':', spoofing, or invalid commits'}.`;
     if (pullRequest.data.author_association == "NONE") {
       // First-time contributors need their PRs approved.
       PR_msg = `${PR_msg}\n\nIt should be safe to **Approve and Run** the workflows that need maintainer approval.`;
