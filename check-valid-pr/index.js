@@ -59,7 +59,7 @@ async function run() {
       let bad_origin_request = `GET /repos/{owner}/{repo}/compare/{branch}...${bad_origin}`
       // This will return a null if there is no comparison and it will reterun
       // "diverged" if the commit is in the history. 
-      const { status: comparison } = await octokit.request(bad_origin_request, {
+      const { data: comparison } = await octokit.request(bad_origin_request, {
         owner: that_repo.owner.login,
         repo: that_repo.name,
         branch: pullRequest.data.head.ref,
