@@ -59,12 +59,14 @@ async function run() {
       let bad_origin_request = `GET /repos/{repo}/compare/{branch}...${bad_origin}`
       // This will return a null if there is no comparison and it will reterun
       // "diverged" if the commit is in the history. 
-      const comparison = await octokit.request(bad_origin_request, {
+      const { status: comparison } = await octokit.request(bad_origin_request, {
         repo: that_repo.full_name,
         branch: pullRequest.data.head.ref,
       }).catch(err => { 
         if (err.status == '404') {
           // status 404 means that we did not see a commit so we can move on.
+          console.log("404'd");
+          console.log(err);
           return(null);
         } else {
           console.log(err);
