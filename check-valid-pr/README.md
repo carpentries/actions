@@ -21,6 +21,17 @@ is very useful in runs that are triggered from pull request workflow runs.
 
 **Required** The default token for authorization. Defaults to `github.token`
 
+### `invalid-hash`
+
+A commit that should no longer exist on the production branch in the repository.
+An example is a commit that has been removed by [`git-filter-repo`](https://github.com/newren/git-filter-repo/).
+This will compare this hash against the incoming pull request branch. If a 404
+is returned or the status is "diverged", then the invalid hash does not exist in
+the branch and the PR is valid.
+
+If the invalid hash is found within the branch (status "before" or "after"), then
+the process fails. 
+
 ## Outputs
 
 ### `VALID`
@@ -31,54 +42,45 @@ Tells you if the Pull Request is valid (e.g. it exists and does not modify any a
 
 The pull request payload if it's not a spoof or closed pull request. 
 
+### `MSG`
+
+This is a markdown-formatted message that can be used as a pull request comment
+to inform the maintainers about the validity of the pull request to aid them in
+deciding if they should run additional workflows. 
+
 ## Example usage
 
-This example is a bit involved because it also involves a script that downloads the PR artifact first (taken from https://securitylab.github.com/research/github-actions-preventing-pwn-requests).
+Note: This runs on `pull_request_target`, so it can not be modified by the
+pull request author. If you want to run code from the pull request, be sure to
+only run it after this finishes. 
 
 ```yaml
-name: "Validate Pull Request"
+name: "internally receive PR"
 
 on:
-  workflow_run:
-    workflows: ["Receive Pull Request"]
-    types:
-      - completed
+  pull_request_target:
+    branches: [ "main" ]
 
 jobs:
-  upload:
+  test-pr:
+    name: "Test pull request validity"
+    if: ${{ github.event.action != 'closed' }}
     runs-on: ubuntu-latest
-    if: >
-      ${{ github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      is_valid: ${{ steps.check-pr.outputs.VALID }}
+      MSG: ${{ steps.check-pr.outputs.MSG }}
     steps:
-      - name: 'Download artifact'
-        uses: carpentries/actions/download-workflow-artifact@main
-        with:
-          run: ${{ github.event.workflow_run.id }}
-          name: pr
-
-      - name: "Get PR Number"
-        id: get-pr
-        run: |
-          unzip pr.zip
-          echo "::set-output name=NUM::$(<./NUM)"
-      
       - name: "Check PR"
         id: check-pr
-        uses: carpentries/actions/check-valid-pr@main
+        uses: carpentries/actions/check-valid-pr@add-invalid-hash
         with:
-          pr: ${{ steps.get-pr.outputs.NUM }}
-          sha: ${{ github.events.workflow_run.head_commit.sha }}
-          
-      - name: "Run if valid"
-        if: ${{ steps.check-pr.outputs.VALID == 'true'}}
-        run: |
-          echo "It's valid!"
-          echo ${{ steps.check-pr.outputs.payload }}
-
-      - name: "Run if invalid"
-        if: ${{ steps.check-pr.outputs.VALID == 'false'}}
-        run: |
-          echo "It's not valid"
-          echo ${{ steps.check-pr.outputs.payload }}
+          pr: 2
+          invalid-hash: e83e2c9bdeb259fcb7b12ae21da8f6eac8ff34a4
+      - name: "Comment on PR"
+        id: comment-diff
+        if: ${{ always() }}
+        uses: carpentries/actions/comment-diff@main
+        with:
+          pr: ${{ github.event.number }} 
+          body: ${{ steps.check-pr.outputs.MSG }}
 ```
