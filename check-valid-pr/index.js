@@ -56,11 +56,12 @@ async function run() {
       // Use a strategy of checking the comparison between the branch and the
       // bad commit. If the hisotry is divergent, then it is safe to assume that
       // it does not exist on the branch.
-      let bad_origin_request = `GET /repos/{repo}/compare/{branch}...${bad_origin}`
+      let bad_origin_request = `GET /repos/{owner}/{repo}/compare/{branch}...${bad_origin}`
       // This will return a null if there is no comparison and it will reterun
       // "diverged" if the commit is in the history. 
       const { status: comparison } = await octokit.request(bad_origin_request, {
-        repo: that_repo.full_name,
+        owner: that_repo.owner.login,
+        repo: that_repo.name,
         branch: pullRequest.data.head.ref,
       }).catch(err => { 
         if (err.status == '404') {
