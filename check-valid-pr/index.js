@@ -11,7 +11,11 @@ async function run() {
   const sha        = core.getInput('sha');
   const repository = core.getInput('repo').split('/');
   const bad_origin = core.getInput('invalid-hash');
-  const octokit    = github.getOctokit(myToken)
+  const octokit    = github.getOctokit(myToken);
+
+  let valid = true;
+  let pass  = true;
+  let PR_msg = "";
 
   function getFilename(f) {
     return f.filename;
@@ -34,18 +38,27 @@ async function run() {
   });
 
   // VALIDITY: pull request is still open
-  let valid = pullRequest.data.state == 'open';
-  let msg = `Pull Request ${PR} was previously merged`;
-  let PR_msg = "";
+  valid = pullRequest.data.state == 'open';
+  if (!valid) {
+    console.log(`Pull Request ${PR} was previously merged`);
+  }
 
   if (sha) {
     // VALIDITY: pull request is IDENTICAL to the provided sha
     valid = valid && pullRequest.data.head.sha == sha;
-    msg = `PR #${PR} sha (${pullRequest.data.head.sha}) does not equal the expected sha (${sha})`;
+    pass = valid;
+    if (!valid) {
+      PR_msg = `## :X: DANGER :X: 
+
+  **Do not merge this Pull Request**. This PR has been spoofed to look like #${PR} (HEAD @ ${pullRequest.data.head.sha}).`;
+      core.setOutput("VALID", valid);
+      core.setOutput("MSG", PR_msg);
+      core.setFailed(PR_msg);
+      process.exit(1);
+    }
   }
 
   if (valid) {
-    core.setOutput("MSG", '');
     // VALIDITY: bad commit does not exist
     let that_repo = pullRequest.data.head.repo;
     // BUT, if we are in a branch in our own repo, then we can allow it because
@@ -71,7 +84,7 @@ async function run() {
           return(null);
         } else {
           console.log(err);
-          core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
+          core.setFailed(`Failed to request commit comparison (Status ${err.status}). See log.`);
           process.exit(1);
         }
       });
@@ -79,6 +92,7 @@ async function run() {
       // If we get the bad commit back, then the PR should be closed and the 
       // author should be encouraged to remove their repository 
       valid = !comparison || !comparison.status || comparison.status == "diverged";
+      pass = valid;
       if (!valid) {
         let ref = pullRequest.data.head.ref
         let forkurl = `${that_repo.html_url}`
@@ -116,20 +130,13 @@ The fork ${forkurl} has divergent history and contains an invalid commit (${comm
       let valid_files = files.filter(isNotWorkflow);
       // we have a valid PR if the valid file array is unchanged
       valid = valid && valid_files.length == files.length;
+      // NOTE: we will pass this if ONLY workflows are modified (indicate bot
+      // activity).
       if (!valid) {
         let invalid_files = files.filter(e => !isNotWorkflow(e));
         let inv = invalid_files.join("\n - ");
-        PR_msg = `${PR_msg}
-
-## :information_source: Modified Workflows
-
-This pull request contains modified workflow files and no preview will be created.
-
-Workflow files modified: 
- - ${inv}
-
-**If this is not from a trusted source, please inspect the changes for any malicious content.**`;
         if (valid_files.length > 0) {
+          pass = false;
           // If we are not valid, we need to check if there is a mix of files
           let vf = valid_files.join("\n - ");
           PR_msg = `${PR_msg}
@@ -143,6 +150,17 @@ regular files:
 workflow files:    
  - ${inv}
 `;
+        } else {
+          PR_msg = `${PR_msg}
+
+## :information_source: Modified Workflows
+
+This pull request contains modified workflow files and no preview will be created.
+
+Workflow files modified: 
+ - ${inv}
+
+**If this is not from a trusted source, please inspect the changes for any malicious content.**`;
         }
       }
       console.log(`Files in PR: ${files.join(", ")}`);
@@ -155,9 +173,10 @@ workflow files:
   }
   console.log(`Is valid?: ${valid}`);
   core.setOutput("VALID", valid);
-  if (PR_msg != "") {
+  if (!pass) {
     core.setFailed(PR_msg);
-  } else {
+  } 
+  if (PR_msg == "") {
     PR_msg = `## :ok: Pre-flight checks passed :smiley:
 
 This pull request has been checked and contains no modified workflow files${(bad_origin=='')?' or spoofing':', spoofing, or invalid commits'}.`;
@@ -167,7 +186,7 @@ This pull request has been checked and contains no modified workflow files${(bad
     } else {
       PR_msg = `${PR_msg}\n\nResults of any additional workflows will appear here when they are done.`;
     }
-  }
+  } 
   core.setOutput("MSG", PR_msg);
 }
 
