@@ -81,7 +81,7 @@ async function run() {
           // status 404 means that we did not see a commit so we can move on.
           console.log("404'd");
           console.log(err);
-          return(null);
+          return({data: null});
         } else {
           console.log(err);
           core.setFailed(`Failed to request commit comparison (Status ${err.status}). See log.`);
