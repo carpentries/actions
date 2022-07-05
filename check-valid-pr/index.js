@@ -13,9 +13,9 @@ async function run() {
   const bad_origin = core.getInput('invalid-hash');
   const octokit    = github.getOctokit(myToken);
 
-  let valid = true;
-  let pass  = true;
-  let PR_msg = "";
+  let valid = true; // true if valid and no workflow files are modified
+  let pass  = true; // true if modified files are only content OR workflows, but otherwise valid
+  let MSG = "";  // MSG output
 
   function getFilename(f) {
     return f.filename;
@@ -43,17 +43,17 @@ async function run() {
     console.log(`Pull Request ${PR} was previously merged`);
   }
 
+  // VALIDITY: pull request is IDENTICAL to the provided sha
   if (sha) {
-    // VALIDITY: pull request is IDENTICAL to the provided sha
     valid = valid && pullRequest.data.head.sha == sha;
     pass = valid;
     if (!valid) {
-      PR_msg = `## :X: DANGER :X: 
+      MSG = `## :X: DANGER :X: 
 
   **Do not merge this Pull Request**. This PR has been spoofed to look like #${PR} (HEAD @ ${pullRequest.data.head.sha}).`;
       core.setOutput("VALID", valid);
-      core.setOutput("MSG", PR_msg);
-      core.setFailed(PR_msg);
+      core.setOutput("MSG", MSG);
+      core.setFailed(MSG);
       process.exit(1);
     }
   }
@@ -98,7 +98,7 @@ async function run() {
         let forkurl = `${that_repo.html_url}`
         let commiturl = `[${bad_origin}](${forkurl}/tree/${bad_origin})`
         forkurl = `[${that_repo.full_name}@${ref}](${forkurl}/tree/${ref})`
-        PR_msg = `${PR_msg}
+        MSG = `${MSG}
 ## :x: DANGER :x:
 
 ### DO NOT MERGE THIS PULL REQUEST
@@ -110,8 +110,8 @@ The fork ${forkurl} has divergent history and contains an invalid commit (${comm
 @${pullRequest.data.user.login}, if you want to contribute your changes, **you must [delete your fork](https://docs.github.com/en/repositories/creating-and-managing-repositories/deleting-a-repository)** and re-fork this repository.
 `;
         core.setOutput("VALID", valid);
-        core.setOutput("MSG", PR_msg);
-        core.setFailed(PR_msg);
+        core.setOutput("MSG", MSG);
+        core.setFailed(MSG);
         process.exit(1);
       }
     }
@@ -124,6 +124,7 @@ The fork ${forkurl} has divergent history and contains an invalid commit (${comm
       pull_number: Number(PR),
     }).catch(err => { console.log(err); return err; } );
     
+    // VALIDITY: pull request files exist
     if (pullRequestFiles) {
       const files = pullRequestFiles.map(getFilename);
       // filter out the files that are not GHA files
@@ -139,7 +140,7 @@ The fork ${forkurl} has divergent history and contains an invalid commit (${comm
           pass = false;
           // If we are not valid, we need to check if there is a mix of files
           let vf = valid_files.join("\n - ");
-          PR_msg = `${PR_msg}
+          MSG = `${MSG}
 ## :warning: WARNING :warning:
 
 This pull request contains a mix of workflow files and regular files. **This could be malicious.**
@@ -151,7 +152,7 @@ workflow files:
  - ${inv}
 `;
         } else {
-          PR_msg = `${PR_msg}
+          MSG = `${MSG}
 
 ## :information_source: Modified Workflows
 
@@ -165,29 +166,32 @@ Workflow files modified:
       }
       console.log(`Files in PR: ${files.join(", ")}`);
     } else {
-      console.log(`No files found.`);
+      MSG = `${MSG}
+
+## :warning: No files were found in the pull request :warning:
+
+This could mean that this pull request was spoofed, but the details are unclear.`;
       valid = false;
+      pass = valid;
     }
-  } else {
-    console.log(msg);
   }
   console.log(`Is valid?: ${valid}`);
   core.setOutput("VALID", valid);
   if (!pass) {
-    core.setFailed(PR_msg);
+    core.setFailed(MSG);
   } 
-  if (PR_msg == "") {
-    PR_msg = `## :ok: Pre-flight checks passed :smiley:
+  if (MSG == "") {
+    MSG = `## :ok: Pre-flight checks passed :smiley:
 
 This pull request has been checked and contains no modified workflow files${(bad_origin=='')?' or spoofing':', spoofing, or invalid commits'}.`;
     if (pullRequest.data.author_association == "NONE") {
       // First-time contributors need their PRs approved.
-      PR_msg = `${PR_msg}\n\nIt should be safe to **Approve and Run** the workflows that need maintainer approval.`;
+      MSG = `${MSG}\n\nIt should be safe to **Approve and Run** the workflows that need maintainer approval.`;
     } else {
-      PR_msg = `${PR_msg}\n\nResults of any additional workflows will appear here when they are done.`;
+      MSG = `${MSG}\n\nResults of any additional workflows will appear here when they are done.`;
     }
   } 
-  core.setOutput("MSG", PR_msg);
+  core.setOutput("MSG", MSG);
 }
 
 
