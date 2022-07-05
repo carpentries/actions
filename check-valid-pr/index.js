@@ -79,8 +79,6 @@ async function run() {
       }).catch(err => { 
         if (err.status == '404') {
           // status 404 means that we did not see a commit so we can move on.
-          console.log("404'd");
-          console.log(err);
           return({data: null});
         } else {
           console.log(err);
