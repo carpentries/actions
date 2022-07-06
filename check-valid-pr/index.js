@@ -7,13 +7,14 @@ async function run() {
   // myToken: ${{ secrets.GITHUB_TOKEN }}
   // https://help.github.com/en/actions/automating-your-workflow-with-github-actions/authenticating-with-the-github_token#about-the-github_token-secret
   const myToken    = core.getInput('token');
+  const octokit    = github.getOctokit(myToken);
+
   const PR         = core.getInput('pr');
   const sha        = core.getInput('sha');
   const repository = core.getInput('repo').split('/');
   const bad_origin = core.getInput('invalid');
-  const fail_on_error = core.getInput('fail_on_error');
-  console.log(`fail on error: ${fail_on_error}`);
-  const octokit    = github.getOctokit(myToken);
+  const fail_on_error = (core.getInput('fail_on_error') === "true");
+  console.log(`fail on error: ${typeof fail_on_error} ${fail_on_error}`);
 
   let valid = true; // true if valid and no workflow files are modified
   let pass  = true; // true if modified files are only content OR workflows, but otherwise valid
