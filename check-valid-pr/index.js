@@ -45,7 +45,8 @@ async function run() {
   // --- CHECK: pull request is still open 
   valid = pullRequest.data.state == 'open';
   if (!valid) {
-    console.log(`Pull Request ${PR} was previously merged`);
+    MSG = `${MSG} **NOTE:** This Pull Request (#${PR}) was previously merged`);
+    console.log(MSG);
   }
 
   // --- CHECK: pull request is IDENTICAL to the provided sha
