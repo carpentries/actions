@@ -10,7 +10,7 @@ async function run() {
   const PR         = core.getInput('pr');
   const sha        = core.getInput('sha');
   const repository = core.getInput('repo').split('/');
-  const bad_origin = core.getInput('invalid-hash');
+  const bad_origin = core.getInput('invalid');
   const octokit    = github.getOctokit(myToken);
 
   let valid = true; // true if valid and no workflow files are modified
