@@ -12,7 +12,7 @@ async function run() {
   const repository = core.getInput('repo').split('/');
   const bad_origin = core.getInput('invalid');
   const fail_on_error = core.getInput('fail_on_error');
-  consol.log(`fail on error: ${fail_on_error}`);
+  console.log(`fail on error: ${fail_on_error}`);
   const octokit    = github.getOctokit(myToken);
 
   let valid = true; // true if valid and no workflow files are modified
@@ -196,7 +196,7 @@ This could mean that this pull request was spoofed, but the details are unclear.
   console.log(`Is valid?: ${valid}`);
   core.setOutput("VALID", valid);
   if (fail_on_error && !pass) {
-    consol.log(`fail on error: ${fail_on_error}`);
+    console.log(`fail on error: ${fail_on_error}`);
     core.setFailed(MSG);
   } 
   if (MSG == "") {
