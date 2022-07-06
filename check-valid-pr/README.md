@@ -21,7 +21,7 @@ is very useful in runs that are triggered from pull request workflow runs.
 
 **Required** The default token for authorization. Defaults to `github.token`
 
-### `invalid-hash`
+### `invalid`
 
 A commit that should no longer exist on the production branch in the repository.
 An example is a commit that has been removed by [`git-filter-repo`](https://github.com/newren/git-filter-repo/).
@@ -75,7 +75,7 @@ jobs:
         uses: carpentries/actions/check-valid-pr@add-invalid-hash
         with:
           pr: 2
-          invalid-hash: e83e2c9bdeb259fcb7b12ae21da8f6eac8ff34a4
+          invalid: e83e2c9bdeb259fcb7b12ae21da8f6eac8ff34a4
       - name: "Comment on PR"
         id: comment-diff
         if: ${{ always() }}
