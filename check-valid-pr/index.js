@@ -7,11 +7,13 @@ async function run() {
   // myToken: ${{ secrets.GITHUB_TOKEN }}
   // https://help.github.com/en/actions/automating-your-workflow-with-github-actions/authenticating-with-the-github_token#about-the-github_token-secret
   const myToken    = core.getInput('token');
+  const octokit    = github.getOctokit(myToken);
+
   const PR         = core.getInput('pr');
   const sha        = core.getInput('sha');
   const repository = core.getInput('repo').split('/');
   const bad_origin = core.getInput('invalid');
-  const octokit    = github.getOctokit(myToken);
+  const fail_on_error = (core.getInput('fail_on_error') === "true");
 
   let valid = true; // true if valid and no workflow files are modified
   let pass  = true; // true if modified files are only content OR workflows, but otherwise valid
@@ -25,44 +27,55 @@ async function run() {
     return !l.startsWith('.github/');
   }
 
-  // Access Pull Request -------------------------------------------------------
+  // STEP 1: Access Pull Request -----------------------------------------------
   const pullRequest = await octokit.pulls.get({
     owner: repository[0],
     repo: repository[1],
     pull_number: Number(PR),
   }).catch(err => { 
-    // HTTP errors turn into a failed run --------------------------------------
+    // HTTP errors turn into a failed run
     console.log(err);
     core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
     process.exit(1);
   });
 
-  // VALIDITY: pull request is still open
+  let that_repo = pullRequest.data.head.repo;
+
+  // STEP 2: Perform Checks ----------------------------------------------------
+  // --- CHECK: pull request is still open 
   valid = pullRequest.data.state == 'open';
   if (!valid) {
     console.log(`Pull Request ${PR} was previously merged`);
   }
 
-  // VALIDITY: pull request is IDENTICAL to the provided sha
+  // --- CHECK: pull request is IDENTICAL to the provided sha
   if (sha) {
-    valid = valid && pullRequest.data.head.sha == sha;
+    let sha_valid = pullRequest.data.head.sha == sha;
+    valid = valid && sha_valid
     pass = valid;
-    if (!valid) {
-      MSG = `## :X: DANGER :X: 
+    if (!sha_valid) {
+      MSG = `${MSG}
+## :X: DANGER :X: 
 
-  **Do not merge this Pull Request**. This PR has been spoofed to look like #${PR} (HEAD @ ${pullRequest.data.head.sha}).`;
+**Do not merge this Pull Request**. This PR has been spoofed to look like #${PR} (HEAD @ ${pullRequest.data.head.sha}).`;
       core.setOutput("VALID", valid);
       core.setOutput("MSG", MSG);
-      core.setFailed(MSG);
-      process.exit(1);
+      if (fail_on_error) {
+        core.setFailed(MSG);
+        process.exit(1);
+      } else {
+        console.log(MSG);
+      }
     }
   }
-
+  // If it is invalid at this point, it is spoofed, and we can skip the checks
   if (valid) {
-    // VALIDITY: bad commit does not exist
-    let that_repo = pullRequest.data.head.repo;
-    // BUT, if we are in a branch in our own repo, then we can allow it because
-    // GitHub keeps track of old refs, even if they have been deleted. 
+    // create payload output if the PR is not spoofed
+    core.setOutput("payload", JSON.stringify(pullRequest));
+    // --- CHECK: The bad commit does not exist
+    //     BUT, if we are in a branch in our own repo, then we can allow it
+    //     because GitHub keeps track of old refs, even if they have been
+    //     deleted. 
     if (bad_origin != '') {
       // https://stackoverflow.com/a/23970412/2752888
       //
@@ -89,9 +102,10 @@ async function run() {
 
       // If we get the bad commit back, then the PR should be closed and the 
       // author should be encouraged to remove their repository 
-      valid = !comparison || !comparison.status || comparison.status == "diverged";
+      let origin_valid = !comparison || !comparison.status || comparison.status == "diverged";
+      valid = valid && origin_valid;
       pass = valid;
-      if (!valid) {
+      if (!origin_valid) {
         let ref = pullRequest.data.head.ref
         let forkurl = `${that_repo.html_url}`
         let commiturl = `[${bad_origin}](${forkurl}/tree/${bad_origin})`
@@ -109,12 +123,14 @@ The fork ${forkurl} has divergent history and contains an invalid commit (${comm
 `;
         core.setOutput("VALID", valid);
         core.setOutput("MSG", MSG);
-        core.setFailed(MSG);
-        process.exit(1);
+        if (fail_on_error) {
+          core.setFailed(MSG);
+          process.exit(1);
+        } else {
+          console.log(MSG);
+        }
       }
     }
-    // create payload output if the PR is not spoofed
-    core.setOutput("payload", JSON.stringify(pullRequest));
     // What files are associated? ----------------------------------------------
     const { data: pullRequestFiles } = await octokit.pulls.listFiles({
       owner: repository[0],
@@ -122,16 +138,18 @@ The fork ${forkurl} has divergent history and contains an invalid commit (${comm
       pull_number: Number(PR),
     }).catch(err => { console.log(err); return err; } );
     
-    // VALIDITY: pull request files exist
+    // --- CHECK: pull request files exist
     if (pullRequestFiles) {
       const files = pullRequestFiles.map(getFilename);
       // filter out the files that are not GHA files
       let valid_files = files.filter(isNotWorkflow);
-      // we have a valid PR if the valid file array is unchanged
-      valid = valid && valid_files.length == files.length;
-      // NOTE: we will pass this if ONLY workflows are modified (indicate bot
-      // activity).
-      if (!valid) {
+      // --- CHECK: no workflow files exist
+      //     we have a valid PR if the valid file array is unchanged after 
+      //     filtering for .github files.
+      let workflow_valid = valid_files.length == files.length;
+      valid = valid && workflow_valid;
+      // --- CHECK: no mix of workflow and regular files
+      if (!workflow_valid) {
         let invalid_files = files.filter(e => !isNotWorkflow(e));
         let inv = invalid_files.join("\n - ");
         if (valid_files.length > 0) {
@@ -141,7 +159,7 @@ The fork ${forkurl} has divergent history and contains an invalid commit (${comm
           MSG = `${MSG}
 ## :warning: WARNING :warning:
 
-This pull request contains a mix of workflow files and regular files. **This could be malicious.**
+This pull request contains a mix of workflow files and regular files. **This could be malicious.** No preview will be created.
 
 regular files:    
  - ${vf}
@@ -150,6 +168,8 @@ workflow files:
  - ${inv}
 `;
         } else {
+          // NOTE: This does not cause a failure in the build because this could
+          //       legitimate reason for modification of workflows
           MSG = `${MSG}
 
 ## :information_source: Modified Workflows
@@ -175,7 +195,7 @@ This could mean that this pull request was spoofed, but the details are unclear.
   }
   console.log(`Is valid?: ${valid}`);
   core.setOutput("VALID", valid);
-  if (!pass) {
+  if (fail_on_error && !pass) {
     core.setFailed(MSG);
   } 
   if (MSG == "") {

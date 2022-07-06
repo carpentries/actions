@@ -32,6 +32,13 @@ the branch and the PR is valid.
 If the invalid hash is found within the branch (status "before" or "after"), then
 the process fails. 
 
+### `fail_on_error`
+
+The default (`false`) mode of this action is to check all sources of potential
+failure and report a single boolean for use in downstream events.
+If `true` this action will fail when it encounters an invalid pull request, 
+which is useful in a `pull_request_target` context.
+
 ## Outputs
 
 ### `VALID`
