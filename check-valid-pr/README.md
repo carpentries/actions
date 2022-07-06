@@ -34,10 +34,10 @@ the process fails.
 
 ### `fail_on_error`
 
-If `true` (default) this action will fail when it encounters an invalid pull
-request. You would want to set this flag to `false` if this is running in a 
-workflow other than `pull_request` or `pull_request_target` so that downstream
-messages can be deployed
+The default (`false`) mode of this action is to check all sources of potential
+failure and report a single boolean for use in downstream events.
+If `true` this action will fail when it encounters an invalid pull request, 
+which is useful in a `pull_request_target` context.
 
 ## Outputs
 

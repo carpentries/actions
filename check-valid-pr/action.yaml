@@ -23,7 +23,7 @@ inputs:
   fail_on_error: 
     description: 'flag inidicating if this action should set a failed status on error'
     required: false
-    default: true
+    default: false
 outputs:
   VALID: 
     description: "flag indicating if the PR is valid. 'true' if valid, 'false' otherwise"
