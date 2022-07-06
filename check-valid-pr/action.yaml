@@ -16,11 +16,17 @@ inputs:
     description: 'github token'
     required: true
     default: ${{ github.token }}
+  invalid:
+    description: 'sha of an invalid commit hash'
+    required: false
+    default: null
 outputs:
   VALID: 
     description: "flag indicating if the PR is valid. 'true' if valid, 'false' otherwise"
   payload:
     description: "the JSON from the pull request call"
+  MSG:
+    description: "a message that can be sent to the PR in the case of an invalid PR"
 runs:
   using: 'node12'
   main: 'index.js'
