@@ -16,7 +16,7 @@ inputs:
     description: 'github token'
     required: true
     default: ${{ github.token }}
-  invalid-hash:
+  invalid:
     description: 'sha of an invalid commit hash'
     required: false
     default: null
