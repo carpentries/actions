@@ -56,7 +56,7 @@ async function run() {
     pass = valid;
     if (!sha_valid) {
       MSG = `${MSG}
-## :X: DANGER :X: 
+## :x: DANGER :x: 
 
 **Do not merge this Pull Request**. This PR has been spoofed to look like #${PR} (HEAD @ ${pullRequest.data.head.sha}).`;
       core.setOutput("VALID", valid);
