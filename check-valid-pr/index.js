@@ -196,7 +196,8 @@ This could mean that this pull request was spoofed, but the details are unclear.
   console.log(`Is valid?: ${valid}`);
   core.setOutput("VALID", valid);
   if (fail_on_error && !pass) {
-    console.log(`fail on error: ${fail_on_error}`);
+    console.log(`pass and fail: ${fail_on_error && !pass}`);
+    console.log(`fail on error: ${typeof fail_on_error} ${fail_on_error}`);
     core.setFailed(MSG);
   } 
   if (MSG == "") {
