@@ -14,7 +14,6 @@ async function run() {
   const repository = core.getInput('repo').split('/');
   const bad_origin = core.getInput('invalid');
   const fail_on_error = (core.getInput('fail_on_error') === "true");
-  console.log(`fail on error: ${typeof fail_on_error} ${fail_on_error}`);
 
   let valid = true; // true if valid and no workflow files are modified
   let pass  = true; // true if modified files are only content OR workflows, but otherwise valid
@@ -160,7 +159,7 @@ The fork ${forkurl} has divergent history and contains an invalid commit (${comm
           MSG = `${MSG}
 ## :warning: WARNING :warning:
 
-This pull request contains a mix of workflow files and regular files. **This could be malicious.**
+This pull request contains a mix of workflow files and regular files. **This could be malicious.** No preview will be created.
 
 regular files:    
  - ${vf}
@@ -197,8 +196,6 @@ This could mean that this pull request was spoofed, but the details are unclear.
   console.log(`Is valid?: ${valid}`);
   core.setOutput("VALID", valid);
   if (fail_on_error && !pass) {
-    console.log(`pass and fail: ${fail_on_error && !pass}`);
-    console.log(`fail on error: ${typeof fail_on_error} ${fail_on_error}`);
     core.setFailed(MSG);
   } 
   if (MSG == "") {
