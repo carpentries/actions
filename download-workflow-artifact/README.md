@@ -33,8 +33,8 @@ jobs:
   upload:
     runs-on: ubuntu-latest
     if: >
-      ${{ github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.conclusion == 'success' }}
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
     steps:
       - name: 'Download artifact'
         uses: carpentries/actions/download-workflow-artifact@main
