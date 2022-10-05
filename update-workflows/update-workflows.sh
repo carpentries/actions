@@ -42,14 +42,7 @@ elif [[ ${SOURCE} == 'https://carpentries.r-universe.dev' ]]; then
 fi
 
 # Create a temporary directory for the sandpaper resource files to land in
-if [[ -d ${TMPDIR} ]]; then
-  TMP="${TMPDIR}/sandpaper-${RANDOM}"
-elif [[ -d /tmp/ ]]; then
-  TMP="/tmp/sandpaper-${RANDOM}"
-else
-  TMP="../sandpaper-${RANDOM}"
-fi
-mkdir -p ${TMP}
+TMP=$(mktemp -d)
 
 # Show the version inforamtion
 echo "::group::Version Information"
