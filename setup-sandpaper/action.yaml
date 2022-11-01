@@ -47,8 +47,8 @@ runs:
       - name: Get R and OS version
         id: get-version
         run: |
-          R -s -e 'cat(sprintf("os-version=%s\n", sessionInfo()$running))' >> $GITHUB_OUTPUT
-          R -s -e 'cat(sprintf("r-version=%s\n", R.Version()$version.string)' >> $GITHUB_OUTPUT
+          R -s -e 'cat(sprintf("os-version=\"%s\"\n", sessionInfo()$running))' >> $GITHUB_OUTPUT
+          R -s -e 'cat(sprintf("r-version=\"%s\"\n", R.Version()$version.string)' >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Install apt dependencies for Ubuntu
