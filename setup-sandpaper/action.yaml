@@ -77,7 +77,7 @@ runs:
           sudo xargs apt-get install --fix-missing -y < ${{ runner.temp }}/sysdeps.txt || echo "Not on Ubuntu"
 
       - name: Restore R package cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3.0.11
         with:
           path: |
             ${{ env.R_LIBS_USER }}/*
