@@ -41,15 +41,15 @@ runs:
           install.packages('remotes')
           deps <- remotes::package_deps("sandpaper", dependencies = TRUE)
           saveRDS(deps, ".github/r-depends.rds")
+          cat("::group::Install remotes\n")
         shell: Rscript {0}
 
       - name: Get R and OS version
         id: get-version
         run: |
-          cat("::set-output name=os-version::", sessionInfo()$running, "\n", sep = "")
-          cat("::set-output name=r-version::", R.Version()$version.string, "\n", sep = "")
-          cat("::endgroup::\n")
-        shell: Rscript {0}
+          echo "$(R -s -e 'cat(sessionInfo()$running)')" >> $GITHUB_OUTPUT
+          echo "$(R -s -e 'cat(R.Version()$version.string)'" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Install apt dependencies for Ubuntu
         id: run-apt

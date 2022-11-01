@@ -77,7 +77,7 @@ then
   else
     echo "Creating squash commit later"
   fi
-  echo "::set-output name=update::true"
+  echo "update=true" >> $GITHUB_OUTPUT
 else
   echo "Up to date!"
   git branch -D styles-ref
