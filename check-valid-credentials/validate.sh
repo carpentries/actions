@@ -56,13 +56,13 @@ then
 
   if [[ ${WORKFLOW} == 1 ]]
   then
-    echo "::set-output name=wf::true"
+    echo "wf=true" >> $GITHUB_OUTPUT
     rm -f $GITHUB_STEP_SUMMARY
   fi
 
   if [[ ${REPO} == 1 ]]
   then
-    echo "::set-output name=repo::true"
+    echo "repo=true" >> $GITHUB_OUTPUT
     rm -f $GITHUB_STEP_SUMMARY
   fi
 
