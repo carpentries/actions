@@ -9,13 +9,19 @@ inputs:
 runs:
   using: "composite"
   steps:
+      - name: Get R and OS version
+        id: get-version
+        run: |
+          cat("os-version=", sessionInfo()$running, "\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
+          cat("r-version=", if (grepl("development", rv <- R.Version()$version.string)) as.character(getRversion()) else rv, "\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
+        shell: Rscript {0}
+
       - name: "Restore {renv} Cache"
         uses: actions/cache@v3.0.11
         with:
           path: ${{ env.RENV_PATHS_ROOT }}
-          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ hashFiles('**/renv.lock') }}
-          restore-keys:
-            ${{ runner.os }}-${{ inputs.cache-version }}-renv-
+          key: renv-${{ steps.get-version.outputs.os-version }}-${{ steps.get-version.outputs.r-version }}-${{inputs.cache-version }}-${{ hashFiles('**/renv.lock') }}
+          restore-keys: renv-${{ steps.get-version.outputs.os-version }}-${{ steps.get-version.outputs.r-version }}-${{inputs.cache-version }}-
 
       - name: "Setup System Dependencies"
         shell: Rscript {0}
