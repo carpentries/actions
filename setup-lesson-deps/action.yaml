@@ -41,8 +41,14 @@ runs:
           cat("::endgroup::\n")
           # Set up system dependencies
           req <- function(pkg, ...) {
-            if (!requireNamespace(pkg, quietly = TRUE)) 
+            if (!requireNamespace(pkg, quietly = TRUE)) {
               install.packages(pkg, ...)
+            } else {
+              is_remotes <- pkg == "remotes"
+              if (is_remotes && substr(packageDescription(pkg)[["Packaged"]], 1, 4) < 2022) {
+                install.packages(pkg, ...)
+              }
+            }
           }
           wd <- '${{ github.workspace }}'
           has_lock <- file.exists(file.path(wd, 'renv'))
