@@ -40,15 +40,15 @@ runs:
           print(getOption("repos"))
           cat("::endgroup::\n")
           # Set up system dependencies
-          req <- function(pkg) {
+          req <- function(pkg, ...) {
             if (!requireNamespace(pkg, quietly = TRUE)) 
-              install.packages(pkg)
+              install.packages(pkg, ...)
           }
           wd <- '${{ github.workspace }}'
           has_lock <- file.exists(file.path(wd, 'renv'))
           if (Sys.info()[["sysname"]] == "Linux" && has_lock) {
             req("renv")
-            req("remotes")
+            req("remotes", repos = "https://r-lib.r-universe.dev")
             req("desc")
             remotes::install_github("zkamvar/vise")
             if (file.exists("DESCRIPTION")) {
