@@ -62,6 +62,20 @@ runs:
           if (Sys.info()[["sysname"]] == "Linux" && has_lock) {
             req("renv")
             req("remotes")
+            rmts <- asNamespace("remotes")
+            # extract the function 
+            sov <- rmts$supported_os_versions 
+            # if 22.04 is not present, we need to modify the function
+            if (!grepl("22.04", body(sov)[2])) {
+              unlockBinding("supported_os_versions", rmts)
+              # modify the list in the body to include 22.04
+              vers <- eval(parse(text = as.character(body(sov)[2])))
+              vers$ubuntu <- c(vers$ubuntu, "22.04")
+              # replace the body
+              body(sov)[2] <- list(str2lang(paste(capture.output(dput(vers)), collapse = "")))
+              # replace the function in the namespace
+              rmts$supported_os_versions <- sov
+            }
             req("desc")
             remotes::install_github("zkamvar/vise")
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
