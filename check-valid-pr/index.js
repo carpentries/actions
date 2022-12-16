@@ -65,7 +65,7 @@ async function run() {
     console.log(headroom > 1);
     console.log(headroom);
     if (!sha_valid && headroom > 1) {
-      const { data: commits } = await octokit.graphql(
+      const { commits } = await octokit.graphql(
         `
         query lastCommits($owner: String!, $repo: String!, $pull_number: Int!, $n: Int = 1){
           repository(owner: $owner, name: $repo) {
@@ -95,6 +95,7 @@ async function run() {
         core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
         process.exit(1);
       });
+      console.log(commits);
       console.log(commits.data.repository.pullRequest.commits.edges.map(getSHA));
       console.log(commits.data.repository.pullRequest.commits.edges.map(getSHA).includes(sha));
       sha_valid = commits.data.repository.pullRequest.commits.edges.map(getSHA).includes(sha);
