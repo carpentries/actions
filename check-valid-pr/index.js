@@ -96,9 +96,9 @@ async function run() {
         process.exit(1);
       });
       console.log(commits);
-      console.log(commits.data.repository.pullRequest.commits.edges.map(getSHA));
-      console.log(commits.data.repository.pullRequest.commits.edges.map(getSHA).includes(sha));
-      sha_valid = commits.data.repository.pullRequest.commits.edges.map(getSHA).includes(sha);
+      console.log(commits.repository.pullRequest.commits.edges.map(getSHA));
+      console.log(commits.repository.pullRequest.commits.edges.map(getSHA).includes(sha));
+      sha_valid = commits.repository.pullRequest.commits.edges.map(getSHA).includes(sha);
       console.log(sha_valid);
     }
     valid = valid && sha_valid
