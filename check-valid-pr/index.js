@@ -48,7 +48,7 @@ async function run() {
 
   // STEP 2: Perform Checks ----------------------------------------------------
   // --- CHECK: pull request is still open 
-  console.log(`checking if PR (#${PR}) was previously merged`);
+  console.log(`checking if PR #${PR} was previously merged`);
   valid = pullRequest.data.state == 'open';
   if (!valid) {
     MSG = `${MSG} **NOTE:** This Pull Request (#${PR}) was previously merged`;
@@ -64,8 +64,6 @@ async function run() {
     //
     // Right now, my strategy is not working. because the request I am using
     // returns the number of commits starting with the oldest commit. 
-    console.log(headroom > 1);
-    console.log(headroom);
     if (!sha_valid && headroom > 1) {
       console.log(`checking if ${sha} is within last ${headroom} commits`);
       const commits = await octokit.graphql(
@@ -98,8 +96,8 @@ async function run() {
         core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
         process.exit(1);
       });
+      // the commit is valid if sha is included within the last n commits
       sha_valid = commits.repository.pullRequest.commits.edges.map(getSHA).includes(sha);
-      console.log(sha_valid);
     }
     valid = valid && sha_valid
     pass = valid;
