@@ -11,6 +11,7 @@ async function run() {
 
   const PR         = core.getInput('pr');
   const sha        = core.getInput('sha');
+  const headroom   = Number(core.getInput('headroom'));
   const repository = core.getInput('repo').split('/');
   const bad_origin = core.getInput('invalid');
   const fail_on_error = (core.getInput('fail_on_error') === "true");
@@ -21,6 +22,10 @@ async function run() {
 
   function getFilename(f) {
     return f.filename;
+  }
+  
+  function getSHA(c) {
+    return c.node.commit.oid;
   }
 
   function isNotWorkflow(l) {
@@ -43,6 +48,7 @@ async function run() {
 
   // STEP 2: Perform Checks ----------------------------------------------------
   // --- CHECK: pull request is still open 
+  console.log(`checking if PR #${PR} was previously merged`);
   valid = pullRequest.data.state == 'open';
   if (!valid) {
     MSG = `${MSG} **NOTE:** This Pull Request (#${PR}) was previously merged`;
@@ -51,7 +57,48 @@ async function run() {
 
   // --- CHECK: pull request is IDENTICAL to the provided sha
   if (sha) {
+    console.log(`checking if ${sha} is HEAD commit`);
     let sha_valid = pullRequest.data.head.sha == sha;
+    // Here, we want to check if the commits that we are testing is in the last
+    // number of commits as indicated by 'headroom'. 
+    //
+    // Right now, my strategy is not working. because the request I am using
+    // returns the number of commits starting with the oldest commit. 
+    if (!sha_valid && headroom > 1) {
+      console.log(`checking if ${sha} is within last ${headroom} commits`);
+      const commits = await octokit.graphql(
+        `
+        query lastCommits($owner: String!, $repo: String!, $pull_number: Int = 1, $n: Int = 1) {
+          repository(owner: $owner, name: $repo) {
+            pullRequest(number: $pull_number) {
+              commits(last: $n) {
+                edges {
+                  node {
+                    commit {
+                      oid
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        `,
+        {
+          owner: repository[0],
+          repo: repository[1],
+          pull_number: Number(PR),
+          n: headroom
+        }
+      ).catch(err => {
+        // HTTP errors turn into a failed run
+        console.log(err);
+        core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
+        process.exit(1);
+      });
+      // the commit is valid if sha is included within the last n commits
+      sha_valid = commits.repository.pullRequest.commits.edges.map(getSHA).includes(sha);
+    }
     valid = valid && sha_valid
     pass = valid;
     if (!sha_valid) {
@@ -78,6 +125,7 @@ async function run() {
     //     because GitHub keeps track of old refs, even if they have been
     //     deleted. 
     if (bad_origin != '') {
+      console.log(`checking for the invalid commit ${bad_origin}`);
       // https://stackoverflow.com/a/23970412/2752888
       //
       // Use a strategy of checking the comparison between the branch and the
@@ -132,6 +180,7 @@ The fork ${forkurl} has divergent history and contains an invalid commit (${comm
         }
       }
     }
+    console.log(`checking files in the pull request`);
     // What files are associated? ----------------------------------------------
     const { data: pullRequestFiles } = await octokit.pulls.listFiles({
       owner: repository[0],
