@@ -48,6 +48,7 @@ async function run() {
 
   // STEP 2: Perform Checks ----------------------------------------------------
   // --- CHECK: pull request is still open 
+  console.log(`checking if PR (#${PR}) was previously merged`);
   valid = pullRequest.data.state == 'open';
   if (!valid) {
     MSG = `${MSG} **NOTE:** This Pull Request (#${PR}) was previously merged`;
@@ -56,6 +57,7 @@ async function run() {
 
   // --- CHECK: pull request is IDENTICAL to the provided sha
   if (sha) {
+    console.log(`checking if ${sha} is HEAD commit`);
     let sha_valid = pullRequest.data.head.sha == sha;
     // Here, we want to check if the commits that we are testing is in the last
     // number of commits as indicated by 'headroom'. 
@@ -65,6 +67,7 @@ async function run() {
     console.log(headroom > 1);
     console.log(headroom);
     if (!sha_valid && headroom > 1) {
+      console.log(`checking if ${sha} is within last ${headroom} commits`);
       const commits = await octokit.graphql(
         `
         query lastCommits($owner: String!, $repo: String!, $pull_number: Int = 1, $n: Int = 1) {
@@ -95,9 +98,6 @@ async function run() {
         core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
         process.exit(1);
       });
-      console.log(commits);
-      console.log(commits.repository.pullRequest.commits.edges.map(getSHA));
-      console.log(commits.repository.pullRequest.commits.edges.map(getSHA).includes(sha));
       sha_valid = commits.repository.pullRequest.commits.edges.map(getSHA).includes(sha);
       console.log(sha_valid);
     }
@@ -127,6 +127,7 @@ async function run() {
     //     because GitHub keeps track of old refs, even if they have been
     //     deleted. 
     if (bad_origin != '') {
+      console.log(`checking for the invalid commit ${bad_origin}`);
       // https://stackoverflow.com/a/23970412/2752888
       //
       // Use a strategy of checking the comparison between the branch and the
@@ -181,6 +182,7 @@ The fork ${forkurl} has divergent history and contains an invalid commit (${comm
         }
       }
     }
+    console.log(`checking files in the pull request`);
     // What files are associated? ----------------------------------------------
     const { data: pullRequestFiles } = await octokit.pulls.listFiles({
       owner: repository[0],
