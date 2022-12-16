@@ -25,7 +25,7 @@ async function run() {
   }
   
   function getSHA(c) {
-    return c.sha;
+    return c.node.commit.oid;
   }
 
   function isNotWorkflow(l) {
@@ -65,24 +65,39 @@ async function run() {
     console.log(headroom > 1);
     console.log(headroom);
     if (!sha_valid && headroom > 1) {
-      let fork_name = pullRequest.data.repo.full_name;
-      let ref = pullRequest.data.ref
-      let crqs = 'GET /repos/{owner}/{repo}/pulls/{pull_number}/commits{?per_page,page}';
-      const { data: commits } = await octokit.request(crqs, {
-        owner: repository[0],
-        repo: repository[1],
-        pull_number: Number(PR),
-        per_page: headroom
-      }).catch(err => { 
+      const { commits } = await octokit.graphql(
+        `
+        query lastCommits($owner: String!, $repo: String!, $pull_number: Int!, $n: Int = 1){
+          repository(owner: $owner, name: $repo) {
+            pullRequest(number: $pull_number) {
+              commits(last: $n) {
+                edges {
+                  node {
+                    commit {
+                      oid
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        `,
+        {
+          owner: repository[0],
+          repo: repository[1],
+          pull_number: Number(PR),
+          n: headroom
+        }
+      ).catch(err => {
         // HTTP errors turn into a failed run
         console.log(err);
         core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
         process.exit(1);
       });
-      console.log(commits.map(getSHA));
-      console.log(sha);
-      console.log(commits.map(getSHA).includes(sha));
-      sha_valid = commits.map(getSHA).includes(sha);
+      console.log(commits.data.repository.pullRequest.commits.edges.map(getSHA));
+      console.log(commits.data.repository.pullRequest.commits.edges.map(getSHA).includes(sha));
+      sha_valid = commits.data.repository.pullRequest.commits.edges.map(getSHA).includes(sha);
       console.log(sha_valid);
     }
     valid = valid && sha_valid
