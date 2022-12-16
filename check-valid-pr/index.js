@@ -67,7 +67,7 @@ async function run() {
     if (!sha_valid && headroom > 1) {
       const { commits } = await octokit.graphql(
         `
-        query lastCommits($owner: String!, $repo: String!, $pull_number: Int!, $n: Int = 1){
+        query lastCommits($owner: String!, $repo: String!, $pull_number: Int = 1, $n: Int = 1) {
           repository(owner: $owner, name: $repo) {
             pullRequest(number: $pull_number) {
               commits(last: $n) {
