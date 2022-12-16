@@ -70,7 +70,9 @@ async function run() {
         core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
         process.exit(1);
       });
+      console.log(commits.map(getSHA));
       sha_valid = commits.map(getSHA).includes(sha);
+      console.log(sha_valid);
     }
     valid = valid && sha_valid
     pass = valid;
