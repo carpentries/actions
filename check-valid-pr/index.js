@@ -57,6 +57,8 @@ async function run() {
   // --- CHECK: pull request is IDENTICAL to the provided sha
   if (sha) {
     let sha_valid = pullRequest.data.head.sha == sha;
+    console.log(headroom > 1);
+    console.log(headroom);
     if (!sha_valid && headroom > 1) {
       let crqs = 'GET /repos/{owner}/{repo}/pulls/{pull_number}/commits{?per_page,page}';
       const { data: commits } = await octokit.request(crqs, {
