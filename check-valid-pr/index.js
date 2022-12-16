@@ -57,9 +57,16 @@ async function run() {
   // --- CHECK: pull request is IDENTICAL to the provided sha
   if (sha) {
     let sha_valid = pullRequest.data.head.sha == sha;
+    // Here, we want to check if the commits that we are testing is in the last
+    // number of commits as indicated by 'headroom'. 
+    //
+    // Right now, my strategy is not working. because the request I am using
+    // returns the number of commits starting with the oldest commit. 
     console.log(headroom > 1);
     console.log(headroom);
     if (!sha_valid && headroom > 1) {
+      let fork_name = pullRequest.data.repo.full_name;
+      let ref = pullRequest.data.ref
       let crqs = 'GET /repos/{owner}/{repo}/pulls/{pull_number}/commits{?per_page,page}';
       const { data: commits } = await octokit.request(crqs, {
         owner: repository[0],
