@@ -11,6 +11,7 @@ async function run() {
 
   const PR         = core.getInput('pr');
   const sha        = core.getInput('sha');
+  const headroom   = Number(core.getInput('headroom'));
   const repository = core.getInput('repo').split('/');
   const bad_origin = core.getInput('invalid');
   const fail_on_error = (core.getInput('fail_on_error') === "true");
@@ -21,6 +22,10 @@ async function run() {
 
   function getFilename(f) {
     return f.filename;
+  }
+  
+  function getSHA(c) {
+    return c.sha;
   }
 
   function isNotWorkflow(l) {
@@ -52,6 +57,21 @@ async function run() {
   // --- CHECK: pull request is IDENTICAL to the provided sha
   if (sha) {
     let sha_valid = pullRequest.data.head.sha == sha;
+    if (!sha_valid && headroom > 1) {
+      let crqs = 'GET /repos/{owner}/{repo}/pulls/{pull_number}/commits{?per_page,page}';
+      const { data: commits } = await octokit.request(crqs, {
+        owner: repository[0],
+        repo: repository[1],
+        pull_number: Number(PR),
+        per_page: headroom
+      }).catch(err => { 
+        // HTTP errors turn into a failed run
+        console.log(err);
+        core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
+        process.exit(1);
+      });
+      sha_valid = commits.map(getSHA).includes(sha);
+    }
     valid = valid && sha_valid
     pass = valid;
     if (!sha_valid) {

@@ -8,6 +8,10 @@ inputs:
     description: 'sha of the latest head'
     required: false
     default: null
+  headroom:
+    description: 'number of commits for sha to be found'
+    required: false
+    default: 1
   repo:
     description: 'github repository (default: current repository)'
     required: true
