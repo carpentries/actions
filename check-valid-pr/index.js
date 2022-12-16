@@ -73,6 +73,8 @@ async function run() {
         process.exit(1);
       });
       console.log(commits.map(getSHA));
+      console.log(sha);
+      console.log(commits.map(getSHA).includes(sha));
       sha_valid = commits.map(getSHA).includes(sha);
       console.log(sha_valid);
     }
