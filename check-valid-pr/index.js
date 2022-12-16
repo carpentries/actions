@@ -65,7 +65,7 @@ async function run() {
     console.log(headroom > 1);
     console.log(headroom);
     if (!sha_valid && headroom > 1) {
-      const { repository.pullRequest.commits: commits } = await octokit.graphql(
+      const { repository { pullRequest { commits: commits } } } = await octokit.graphql(
         `
         query lastCommits($owner: String!, $repo: String!, $pull_number: Int = 1, $n: Int = 1) {
           repository(owner: $owner, name: $repo) {
