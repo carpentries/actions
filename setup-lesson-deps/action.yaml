@@ -47,6 +47,13 @@ runs:
           cat("::endgroup::\n")
           # Set up system dependencies
           req <- function(pkg, ...) {
+            if (pkg == "renv") {
+              # quickfix for https://github.com/carpentries-incubator/bioc-intro/pull/82
+              # renv 0.17.0 is currently experiencing problems with bioconductor repos, so this will
+              # downgrade
+              install.packages("https://cran.r-project.org/src/contrib/Archive/renv/renv_0.16.0.tar.gz")
+              requireNamespace(pkg, quietly = TRUE)
+            }
             if (!requireNamespace(pkg, quietly = TRUE)) {
               install.packages(pkg, ...)
             }
