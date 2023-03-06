@@ -78,7 +78,7 @@ runs:
               rmts$supported_os_versions <- sov
             }
             req("desc")
-            remotes::install_github("zkamvar/vise")
+            remotes::install_github("zkamvar/vise", upgrade = "never")
             if (file.exists("DESCRIPTION")) {
               file.rename("DESCRIPTION", "DESCRIPTION.bak")
             }
