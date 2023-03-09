@@ -55,7 +55,7 @@ runs:
         run: |
           req <- function(pkg) {
             if (!requireNamespace(pkg, quietly = TRUE)) 
-              install.packages(pkg, repos = "https://cran.rstudio.com")
+            install.packages(pkg, repos = c("https://carpentries.r-universe.dev", "https://cran.rstudio.com"))
           }
           wd <- '${{ github.workspace }}'
           has_lock <- file.exists(file.path(wd, 'renv'))
