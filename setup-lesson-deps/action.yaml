@@ -99,6 +99,7 @@ runs:
             archive     = "https://carpentries.github.io/drat/",
             CRAN        = "https://cran.rstudio.com"
           )
+          Sys.unsetenv("RENV_CONFIG_REPOS_OVERRIDE")
           options(pak.no_extra_messages = TRUE, repos = repos)
           cat("Repositories Used")
           print(getOption("repos"))
