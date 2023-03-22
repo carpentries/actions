@@ -124,7 +124,8 @@ runs:
             } else {
               try(file.remove("DESCRIPTION"), silent = TRUE)
             }
-            req("renv")
+            # install renv 0.16.0 to avoid https://github.com/carpentries/lesson-transition/issues/18
+            install.packages("https://cran.r-project.org/src/contrib/Archive/renv/renv_0.16.0.tar.gz")
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
             sandpaper::manage_deps(path = wd, quiet = FALSE)
             cat("::endgroup::\n")
