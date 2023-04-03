@@ -126,7 +126,12 @@ runs:
             }
             req("renv")
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
-            sandpaper::manage_deps(path = wd, quiet = FALSE)
+            tryCatch(sandpaper::manage_deps(path = wd, quiet = FALSE),
+              error = function(e) {
+                iss <- "https://github.com/rstudio/renv/issues/1184"
+                cli::cli_alert_danger("run failed... attempting to re-run (see {.url {iss}} for details.")
+                sandpaper::manage_deps(path = wd, quiet = FALSE)
+            })
             cat("::endgroup::\n")
           } else {
             writeLines("Package cache not used")
