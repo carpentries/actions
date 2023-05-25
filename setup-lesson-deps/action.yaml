@@ -39,7 +39,7 @@ runs:
             RSPM        = Sys.getenv("RSPM"),
             carpentries = "https://carpentries.r-universe.dev/",
             archive     = "https://carpentries.github.io/drat/",
-            CRAN        = "https://cran.posit.co"
+            CRAN        = "https://cran.rstudio.com"
           )
           options(pak.no_extra_messages = TRUE, repos = repos)
           cat("Repositories Used")
@@ -98,7 +98,7 @@ runs:
             RSPM        = Sys.getenv("RSPM"),
             carpentries = "https://carpentries.r-universe.dev/",
             archive     = "https://carpentries.github.io/drat/",
-            CRAN        = "https://cran.posit.co"
+            CRAN        = "https://cran.rstudio.com"
           )
           Sys.unsetenv("RENV_CONFIG_REPOS_OVERRIDE")
           options(pak.no_extra_messages = TRUE, repos = repos)
