@@ -84,6 +84,8 @@ runs:
 
       - name: "Update {renv} deps and determine if a PR is needed"
         id: update
+        env:
+          RSPM_ROOT: "https://packagemanager.posit.co"
         shell: Rscript {0}
         run: |
           # Verify inputs ------------------------------------------------------
