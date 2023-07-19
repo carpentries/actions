@@ -55,7 +55,7 @@ runs:
             # simple fallback for remotes::install_github if it stops working
             URL <- paste0("https://api.github.com/repos/", pkg, "/tarball")
             tmp <- tempfile(fileext = ".tar.gz")
-            download.file(URL, tmp)
+            download.file(URL, tmp, method = "wget")
             install.packages(tmp, type = "source")
           }
           wd <- '${{ github.workspace }}'
