@@ -129,6 +129,7 @@ runs:
             }
             res
           }
+          options(download.file.method = "wget")
           varnish_version <- get_version(cfg, key = "varnish")
           sandpaper_version <- get_version(cfg, key = "sandpaper")
           if (varnish_version != "latest") {
