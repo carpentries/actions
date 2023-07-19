@@ -90,6 +90,7 @@ runs:
           cat("::group::Register Repositories\n")
           on_linux <- Sys.info()[["sysname"]] == "Linux"
           if (on_linux) {
+            options(download.file.method = "wget")
             if (Sys.getenv("RSPM") == "") {
               release <- system("lsb_release -c | awk '{print $2}'", intern = TRUE)
               Sys.setenv("RSPM" = 
@@ -129,7 +130,6 @@ runs:
             }
             res
           }
-          options(download.file.method = "wget")
           varnish_version <- get_version(cfg, key = "varnish")
           sandpaper_version <- get_version(cfg, key = "sandpaper")
           if (varnish_version != "latest") {
