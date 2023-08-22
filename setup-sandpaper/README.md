@@ -16,13 +16,15 @@ It uses the following process:
 
 Inputs available
 
-- `cache-version` - default `1`. If you need to invalidate the existing cache pass any other number and a new cache will be used. You can use a secret called `CACHE_VERSION` set to a date for to reset the cache without needing to commit it. 
-- `sandpaper-version` the version of sandpaper to use (for testing) in the remotes syntax (e.g. `'carpentries/sandpaper@branch'` will use a branch from the carpentries repo). This can be used to try alternate versions of sandpaper.
+- `cache-version` - (superseded by the ability to manage the cache via GUI or CLI) default `1`. If you need to invalidate the existing cache pass any other number and a new cache will be used. You can use a secret called `CACHE_VERSION` set to a date for to reset the cache without needing to commit it.
+- `*-version` (e.g. `sandpaper-version`) the version of either sandpaper, pegboard, or varnish to use (for testing) in the remotes syntax (e.g. `'carpentries/sandpaper@branch'` will use a branch from the carpentries repo). This can be used to try alternate versions of sandpaper.
+
 Basic:
+
 ```yaml
 steps:
-- uses: actions/checkout@master
-- uses: r-lib/actions/setup-r@v1
+- uses: actions/checkout@v3
+- uses: r-lib/actions/setup-r@v2
 - uses: carpentries/actions/setup-sandpaper@main
   with:
     cache-version: ${{ secrets.CACHE_VERSION }}
@@ -37,6 +39,10 @@ The scripts and documentation in this project are released under the [MIT Licens
 Contributions are welcome!
 
 # LOG
+
+## 2023-08-22
+
+ - added pegboard-version option and updated README after forgetting for a while.
 
 ## 2021-09-28
 
