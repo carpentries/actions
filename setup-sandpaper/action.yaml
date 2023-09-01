@@ -42,7 +42,11 @@ runs:
 
           cat("::group::Install remotes\n")
           install.packages('remotes')
-          deps <- remotes::package_deps("sandpaper", dependencies = TRUE)
+          sand_deps <- remotes::package_deps("sandpaper")
+          varn_deps <- remotes::package_deps("varnish")
+          sess_deps <- remotes::package_deps("sessioninfo")
+          with_deps <- remotes::package_deps("withr")
+          deps      <- rbind(sand_deps, varn_deps, sess_deps, with_deps)
           saveRDS(deps, ".github/r-depends.rds")
           cat("::group::Install remotes\n")
         shell: Rscript {0}
@@ -85,8 +89,8 @@ runs:
           path: |
             ${{ env.R_LIBS_USER }}/*
             !${{ env.R_LIBS_USER }}/pak
-          key: ${{ steps.get-version.outputs.os-version }}-${{ steps.get-version.outputs.r-version }}-${{inputs.cache-version }}-${{ hashFiles('.github/r-depends.rds') }}
-          restore-keys: ${{ steps.get-version.outputs.os-version }}-${{ steps.get-version.outputs.r-version }}-${{inputs.cache-version }}-
+          key: WORKBENCH-${{ steps.get-version.outputs.os-version }}-${{ steps.get-version.outputs.r-version }}-${{inputs.cache-version }}-${{ hashFiles('.github/r-depends.rds') }}
+          restore-keys: WORKBENCH-${{ steps.get-version.outputs.os-version }}-${{ steps.get-version.outputs.r-version }}-${{inputs.cache-version }}-
 
       - name: Install dependencies
         run: |
@@ -113,13 +117,17 @@ runs:
           cat("::group::Install dependencies\n")
           on_linux <- Sys.info()[["sysname"]] == "Linux"
           library("remotes")
-          pkgs <- package_deps('sandpaper', dependencies = TRUE)
+          sand_deps <- remotes::package_deps("sandpaper")
+          varn_deps <- remotes::package_deps("varnish")
+          sess_deps <- remotes::package_deps("sessioninfo")
+          with_deps <- remotes::package_deps("withr")
+          pkgs      <- rbind(sand_deps, varn_deps, sess_deps, with_deps)
           print(pkgs)
           update(pkgs, upgrade = "always")
           cat("::endgroup::\n")
-          varnish_version <- '${{ inputs.varnish-version }}'
+          varnish_version   <- '${{ inputs.varnish-version }}'
           sandpaper_version <- '${{ inputs.sandpaper-version }}'
-          pegboard_version <- '${{ inputs.pegboard-version }}'
+          pegboard_version  <- '${{ inputs.pegboard-version }}'
           cfg <- if (file.exists("config.yaml")) readLines("config.yaml") else character(0)
           get_version <- function(x, key = "varnish") {
             res <- x[grepl(paste0("^", key, "\\s?:"), x)]
