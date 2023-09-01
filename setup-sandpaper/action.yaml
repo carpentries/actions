@@ -32,7 +32,6 @@ runs:
           repos <- list(
             RSPM        = Sys.getenv("RSPM"),
             carpentries = "https://carpentries.r-universe.dev/",
-            archive     = "https://carpentries.github.io/drat/",
             CRAN        = "https://cran.rstudio.com"
           )
           options(pak.no_extra_messages = TRUE, repos = repos)
@@ -102,7 +101,6 @@ runs:
           repos <- list(
             RSPM        = Sys.getenv("RSPM"),
             carpentries = "https://carpentries.r-universe.dev/",
-            archive     = "https://carpentries.github.io/drat/",
             CRAN        = "https://cran.rstudio.com"
           )
           options(pak.no_extra_messages = TRUE, repos = repos)
