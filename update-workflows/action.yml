@@ -20,6 +20,9 @@ outputs:
   new:
     description: "new version of {sandpaper}"
     value: "${{ steps.update.outputs.new }}"
+  date:
+    description: "date of the most recent update attempt"
+    value: "${{ steps.update.outputs.date }}"
 runs:
   using: "composite"
   steps:
