@@ -119,11 +119,16 @@ runs:
             repos = "${{ inputs.repos }}")
           cat("::endgroup::\n")
 
-      - name: "Upload Lockfile"
+      - name: "Upload renv folder"
         uses: actions/upload-artifact@v3
         with:
-          name: lockfile 
-          path: "${{ github.workspace }}/renv/profiles/${{ inputs.profile }}/renv.lock"
+          name: renv-lock
+          path: 
+            ${{ github.workspace }}/renv/
+            !${{ github.workspace }}/renv/profiles/${{ inputs.profile }}/renv/library
+            !${{ github.workspace }}/renv/profiles/${{ inputs.profile }}/renv/staging
+
+
           retention-days: 30
 
       - name: Don't use tar 1.30 from Rtools35 to store the cache
