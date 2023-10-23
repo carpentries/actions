@@ -77,7 +77,7 @@ runs:
               rmts$supported_os_versions <- sov
             }
             req("desc")
-            remotes::install_github("zkamvar/vise")
+            remotes::install_github("carpentries/vise")
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
             Sys.setenv("RSPM_ROOT" = "https://packagemanager.posit.co")
             vise::ci_sysreqs(renv::paths$lockfile(), execute = TRUE)
@@ -118,6 +118,18 @@ runs:
             update = "${{ inputs.update }}",
             repos = "${{ inputs.repos }}")
           cat("::endgroup::\n")
+
+      - name: "Upload renv folder as artifact (extract as renv/)"
+        uses: actions/upload-artifact@v3
+        with:
+          name: renv
+          path: |
+            ${{ github.workspace }}/renv/
+            !${{ github.workspace }}/renv/profiles/${{ inputs.profile }}/renv/library
+            !${{ github.workspace }}/renv/profiles/${{ inputs.profile }}/renv/staging
+
+
+          retention-days: 30
 
       - name: Don't use tar 1.30 from Rtools35 to store the cache
         shell: bash
