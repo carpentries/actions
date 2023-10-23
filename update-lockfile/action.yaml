@@ -119,10 +119,10 @@ runs:
             repos = "${{ inputs.repos }}")
           cat("::endgroup::\n")
 
-      - name: "Upload renv folder"
+      - name: "Upload renv folder as artifact (extract as renv/)"
         uses: actions/upload-artifact@v3
         with:
-          name: renv-lock
+          name: ${{ github.repository}}/renv
           path: |
             ${{ github.workspace }}/renv/
             !${{ github.workspace }}/renv/profiles/${{ inputs.profile }}/renv/library
