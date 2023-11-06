@@ -127,6 +127,7 @@ runs:
             req("renv")
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
             Sys.setenv("RSPM_ROOT" = "https://packagemanager.posit.co")
+            options(ppm.enabled = TRUE)
             tryCatch(sandpaper::manage_deps(path = wd, quiet = FALSE),
               error = function(e) {
                 iss <- "https://github.com/rstudio/renv/issues/1184"
