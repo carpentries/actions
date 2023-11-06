@@ -32,7 +32,7 @@ runs:
             if (Sys.getenv("RSPM") == "") {
               release <- system("lsb_release -c | awk '{print $2}'", intern = TRUE)
               Sys.setenv("RSPM" =
-                paste0("https://packagemanager.posit.co/all/__linux__/", release, "/latest"))
+                paste0("https://packagemanager.posit.co/cran/__linux__/", release, "/latest"))
             }
           }
           repos <- list(
@@ -91,7 +91,7 @@ runs:
             if (Sys.getenv("RSPM") == "") {
               release <- system("lsb_release -c | awk '{print $2}'", intern = TRUE)
               Sys.setenv("RSPM" =
-                paste0("https://packagemanager.posit.co/all/__linux__/", release, "/latest"))
+                paste0("https://packagemanager.posit.co/cran/__linux__/", release, "/latest"))
             }
           }
           repos <- list(
