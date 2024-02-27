@@ -23,5 +23,5 @@ outputs:
   success:
     description: "a boolean variable if the download was successful (true) or not (false)"
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'index.js'

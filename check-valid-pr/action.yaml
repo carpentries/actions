@@ -36,5 +36,5 @@ outputs:
   MSG:
     description: "a message that can be sent to the PR in the case of an invalid PR"
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'index.js'
