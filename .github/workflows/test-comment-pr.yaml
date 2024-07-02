@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-20.04
     name: Testing Comment on PR
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: |
           printf "### Test Comment\n" > ${{ github.workspace }}/body.txt
           printf ":heavy_check_mark: The ID for this run is ${{ github.run_id }}" >> ${{ github.workspace }}/body.txt
