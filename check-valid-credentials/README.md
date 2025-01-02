@@ -59,7 +59,7 @@ jobs:
       - name: Create Pull Request
         id: cpr
         if: "${{ steps.update.outputs.new }}"
-        uses: peter-evans/create-pull-request@v3.10.0
+        uses: peter-evans/create-pull-request@v4
         with:
           token: ${{ secrets.SANDPAPER_WORKFLOW }}
           delete-branch: true

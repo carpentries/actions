@@ -3,12 +3,12 @@ set -eo pipefail
 
 # Download and update sandpaper workflow files from an upstream repository
 #
-# usage: 
+# usage:
 #   bash update-workflows.sh [UPSTREAM] [SOURCE] [CLEAN]
 #
 # args:
 #   UPSTREAM - a version number from which to fetch the workflows. By default,
-#     this is fetched from https://carpentries.r-universe.dev/packages/sandpaper
+#     this is fetched from https://carpentries.r-universe.dev/api/packages/sandpaper
 #   SOURCE - a CRAN-like repository from which to fetch a tarball of sandpaper
 #     By default this is fetched from https://carpentries.r-universe.dev/
 #   CLEAN files to clean as a pattern. Example: *.yaml will clean all the yaml
@@ -35,8 +35,8 @@ CURRENT=$(cat .github/workflows/sandpaper-version.txt)
 
 # Fetch upstream version from the API if we don't have that information
 if [[ ${UPSTREAM} == 'current' ]]; then
-  UPSTREAM=$(curl -L ${SOURCE}/packages/sandpaper/)
-  UPSTREAM=$(echo ${UPSTREAM} | jq -r .[1].Version)
+  UPSTREAM=$(curl -L ${SOURCE}/api/packages/sandpaper/)
+  UPSTREAM=$(echo ${UPSTREAM} | jq -r .Version)
 elif [[ ${SOURCE} == 'https://carpentries.r-universe.dev' ]]; then
   SOURCE=https://carpentries.github.io/drat
 fi
