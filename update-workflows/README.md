@@ -1,6 +1,6 @@
 # Update Sandpaper Workflows
 
-This action will update the workflow files from {sandopaper} and is designed to
+This action will update the workflow files from {sandpaper} and is designed to
 be triggered periodically or manually. 
 
 ## Inputs
@@ -22,11 +22,11 @@ Globbing pattern of files to remove before updating workflows
 
 ### `new`
 
-The new version of {sandpaper} the workflows have come from
+The new version of {sandpaper} the workflows have come from.
 
 ### `old`
 
-The previous version of {sandpaper} the workflows were at. 
+The previous version of {sandpaper} the workflows were at.
 
 ## Example usage
 
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Repository"
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Update Workflows
         id: update
@@ -54,7 +54,7 @@ jobs:
       - name: Create Pull Request
         id: cpr
         if: "${{ steps.update.outputs.new }}"
-        uses: peter-evans/create-pull-request@v3.10.0
+        uses: peter-evans/create-pull-request@v4
         with:
           token: ${{ secrets.SANDPAPER_WORKFLOW }}
           delete-branch: true
