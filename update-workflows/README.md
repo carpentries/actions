@@ -1,34 +1,21 @@
 # Update Sandpaper Workflows
 
-This action will update the workflow files from {sandpaper} and is designed to
-be triggered periodically or manually. 
+This action will update the workflow files from {sandpaper} and is designed to be triggered periodically or manually. 
 
-## Inputs
+# Usage
 
-### `version`
+Inputs available:
 
-The version of {sandpaper} to use. Defaults to the latest version.
-
-### `repo`
-
-The CRAN-like repository where the version of {sandpaper} lives. Defaults to
-`https://carpentries.r-universe.dev/`
-
-### `clean`
-
-Globbing pattern of files to remove before updating workflows
+- `version` : The version of {sandpaper} to use. Defaults to the latest version
+- `repo` : The CRAN-like repository where the version of {sandpaper} lives. Defaults to `https://carpentries.r-universe.dev/`
+- `clean` : Globbing pattern of files to remove before updating workflows
 
 ## Outputs
 
-### `new`
+- `new` : The new version of {sandpaper} the workflows have come from.
+- `old` : The previous version of {sandpaper} the workflows were at.
 
-The new version of {sandpaper} the workflows have come from.
-
-### `old`
-
-The previous version of {sandpaper} the workflows were at.
-
-## Example usage
+## Example
 
 ```yaml
 on:
