@@ -59,12 +59,12 @@ runs:
             rmts <- asNamespace("remotes")
             # extract the function
             sov <- rmts$supported_os_versions
-            # if 22.04 is not present, we need to modify the function
-            if (!grepl("22.04", body(sov)[2])) {
+            # if 24.04 is not present, we need to modify the function
+            if (!grepl("24.04", body(sov)[2])) {
               unlockBinding("supported_os_versions", rmts)
-              # modify the list in the body to include 22.04
+              # modify the list in the body to include 24.04
               vers <- eval(parse(text = as.character(body(sov)[2])))
-              vers$ubuntu <- c(vers$ubuntu, "22.04")
+              vers$ubuntu <- c(vers$ubuntu, "24.04")
               # replace the body
               body(sov)[2] <- list(str2lang(paste(capture.output(dput(vers)), collapse = "")))
               # replace the function in the namespace
