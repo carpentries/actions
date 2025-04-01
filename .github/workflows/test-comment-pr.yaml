@@ -7,6 +7,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write    
     name: Testing Comment on PR
     steps:
       - uses: actions/checkout@v4
