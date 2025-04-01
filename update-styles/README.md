@@ -1,35 +1,30 @@
 # Update Carpentries Lesson to the latest version of styles
 
-This action will fetch the changes upstream of your lesson and merges them into
-the gh-pages or PR branch of your repository. This can be combined with 
-integration tests or other actions that create pull requests on your behalf. 
+This action will fetch the changes upstream of a `styles`-format lesson and merges them into the gh-pages or PR branch of your repository. 
+This can be combined with integration tests or other actions that create pull requests on your behalf. 
 
-## Inputs
+# Usage
 
-### `commit`
+Inputs available:
 
-This is a boolean field that indicates if a commit should be created after merge.
-If `true`, a commit will be created, if `false`, the merge will remain uncommited
-and a downstream action will need to perform that task.
+- `commit` : A boolean field that indicates if a commit should be created after merge. If `true`, a commit will be created, if `false`, the merge will remain uncommited and a downstream action will need to perform that task.
 
-### Environment Variables
+## Environment Variables
 
-Because I don't want to wrap my head around getopt for BASH, I'm using 
-environment variables to pass in user parameters. These parameters are 
-`PR`, which is the pull request number, if any, and `LESSON`, which is the 
-human-readable name of the lesson. The `REF` environment variable can be set to
-`${{ github.ref }}`, but if it's unset, it will default to `gh-pages`
+For simplicity, environment variables are used to pass in user parameters.
+These parameters are:
+
+- `PR` : the pull request number, if any
+- `LESSON` : the human-readable name of the lesson
+- `REF` : the branch reference to use, e.g. `${{ github.ref }}`. If unset, it will default to `gh-pages`
 
 ## Outputs
 
-### `update`
-
-If there were changes, this value will be `true`, otherwise, it will be empty
-
+- `update` : If there were changes, this value will be `true`, otherwise, it will be empty
 
 ## Example
 
-This example is truncated from the update-styles action proposed in the lesson
+This example is truncated from the update-styles action proposed in the lesson-
 example repository. Note that because this action creates a pull request, it 
 should only ever use `workflow_dispatch` and `schedule`. Here, you can see us
 setting the `LESSON` environment variable and the `REF` environment variable.
@@ -59,7 +54,7 @@ jobs:
       - name: Create Pull Request
         id: cpr
         if: ${{ steps.update.outputs.update == 'true' }}
-        uses: peter-evans/create-pull-request@v3.10.0
+        uses: peter-evans/create-pull-request@v4
         with:
           token: ${{ secrets.STYLES_WORKFLOW }}
           commit-message: "[actions] Sync lesson with carpentries/styles"
@@ -78,19 +73,19 @@ jobs:
 
 ## Justification
 
-This action attempts to remove the pain of updating the styles repository for
+This action attempts to remove the pain of updating the `styles` repository for
 Carpentries lessons developed before {sandpaper}.
 
-These lessons were created directly on the back of the [styles template], which
-invloved importing the repository from The Carpentries github account to a new
-repository (not the same as templating or forking).
+This type of lessons were created directly from the [styles template], which
+invloved importing the repository from The Carpentries GitHub account to a new
+repository (note, not the same as templating or forking).
 
-Because all of the styles and tools lived inside of the repository, the lesson
-would rapidly fall out of date from the styles repository. The process for 
-updating it always required the maintainer to pull changes from the styles
-repository and merge them.
+Importing means that all of the styles and tools lived inside the "copied" repository.
+As such, as time went on, the lesson would rapidly fall out of date from the 
+styles repository. The process for updating it always required the maintainer 
+to pull changes from the styles repository and merge them.
 
-This action consists of a BASH script developed by Maxim Belkin that was
+This action consists of a `bash` script developed by Maxim Belkin that was
 originally meant to perform [integration tests on the styles repository][orig].
 
 [styles template]: https://carpentries.github.io/lesson-template

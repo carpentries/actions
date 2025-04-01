@@ -1,29 +1,128 @@
-## Rationale
+# Summary:
 
-The idea for these originated with from an article on the GitHub security blog:
-https://securitylab.github.com/research/github-actions-preventing-pwn-requests.
+The Workbench framework separates the lesson content (based on a template) from the tooling needed to render the eventual lesson website (the Workbench packages, i.e. pegboard, sandpaper and varnish).
+In order for updates to be applied universally across all Workbench lessons on GitHub, the workflows that manage the updates, pull requests, and comments need to live inside each lesson repository.
 
-My use-case is to create a staging area for generated content so that we can
-have a single source of truth for RMarkdown (and maybe Jupyter) documents 
-without needing to rely on users to compile the documents on their own 
-machines. If you are accepting pull requests from people all over the world for
-your website that hosts generated content, you want to make it difficult for
-anyone to insert malicious code in your publishing workflow. **This set of
-actions provides tools to validate, download artifacts from, and create
-comments on pull requests from forked repositories**. 
+Therefore, these actions are reused in each lesson repository to enable automated processes shared across all and any Workbench lesson.
 
-In the end, the workflow looks like this:
+## Why are these workflows required?
+
+The Workbench needs to provide tools to validate, download artifacts from, and create comments on pull requests from forked lesson repositories.
+
+## Real World Usage
+
+Examples of real world usage of these workflows can be found in Carpentries lessons built by the Workbench, e.g.:
+
+- Software Carpentry [git-novice](https://github.com/swcarpentry/git-novice/tree/main/.github/workflows)
+
+# Details:
+
+GitHub Actions are "privileged contexts", where it is down to the user to typically assure that any content coming in to a repository via Pull Requests (PRs) are safe.
+
+PRs can include both code artifacts and pre-built (binary) artifacts.
+
+**Incoming artifacts resulting from untrusted PR data are themselves untrusted and should be treated as such when handled in the privileged GitHub Action context..**
+
+If the artifacts were, for example, binaries built from an untrusted PR, it would be a security vulnerability to run them in the privileged `workflow_run` workflow context.
+
+These workflows provide a consistent and secure mechanism for incoming updates to be made to repositories that use these workflows, e.g. lessons that are built using the Workbench.
+
+## History and Rationale
+
+The idea for these actions originated from an article on the GitHub security blog: https://securitylab.github.com/research/github-actions-preventing-pwn-requests.
+
+This article suggests to use a `pull_request` trigger for running potentially unsafe code and passing textual artifacts to a workflow triggered by `workflow_run`.
+
+This ensures that malicious code cannot be inserted into a PR and automatically run by a workflow:
+
+### Why are artifacts inherently unsafe?
+
+[It is possible to modify a pull request workflow file](https://github.community/t/prevent-actions-from-running-if-actions-yaml-files-are-modified/152604?u=zkamvar), which means that someone who wanted to insert malicious code could modify the workflow file to spoof a different PR number.
+
+## What is the solution? 
+
+Each action in this repository performs a specific lesson management task so that users do not have to develop and manually perform these common housekeeping workflows themselves.
+
+### check-valid-credentials
+
+The `check-valid-credentials` action takes a GitHub authentication token (PAT, either fine-grained or classic) and checks that it has the right permissions to be used in subsequent Carpentries actions.
+
+Please see the [check-valid-credentials documentation](check-valid-credentials/README.md)
+
+### check-valid-pr
+
+The `check-valid-pr` action takes a PR number and an expected hashed checksum (SHA), and will tell you the PR is valid on three conditions:
+
+1. the PR head SHA matches the expected SHA
+2. the PR is open
+3. none of the files in the PR are a (modified) workflow
+
+Please see the [check-valid-pr documentation](check-valid-pr/README.md)
+
+### comment-diff
+
+The `comment-diff` action takes a PR number and will comment on the PR when changes are made.
+
+Please see the [comment-diff documentation](comment-diff/README.md)
+
+### download-workflow-artifact
+
+The `download-workflow-artifact` action takes a workflow number and will download an named artifact from that workflow.
+
+Please see the [download-workflow-artifact documentation](download-workflow-artifact/README.md)
+
+### remove-branch
+
+The `remove-branch` action removes the staging branch generated from an incoming PR once that PR is closed.
+
+Please see the [remove-branch documentation](remove-branch/README.md)
+
+### setup-lesson-deps
+
+The `setup-lesson-deps` action takes a Workbench-compatible repository (typically Carpentries-format lessons) and installs R packages required for the building and functioning of that lesson.
+
+Please see the [setup-lesson-deps documentation](setup-lesson-deps/README.md)
+
+### setup-sandpaper
+
+The `setup-sandpaper` action provides a self-contained mechanism for installing required system dependencies for the {sandpaper} package.
+
+Please see the [setup-sandpaper documentation](setup-sandpaper/README.md)
+
+### update-lockfile
+
+The `update-lockfile` action provides self-contained mechanism for updating an {renv} lockfile to document a given set of R packages in use at a particular point in time by a repository.
+
+Please see the [update-lockfile documentation](update-lockfile/README.md)
+
+### update-styles
+
+** This action is DEPRECATED and no longer in use **
+
+### update-workflows
+
+The update-workflows` action checks for newer {sandpaper} versions and raises a PR to update if required.
+
+Please see the [update-workflows documentation](update-workflows/README.md)
+
+
+## Workflow Implementation
+
+These actions act as a centralised and transparent pipeline to process Markdown and RMarkdown via automated means on GitHub.
+
+This creates a staging area for generated content without needing to rely on users to compile the documents on their own machines.
+
+This also makes it difficult for anyone to insert malicious code in the publishing workflow provided by these actions.
+
+The workflow looks like this:
 
 ![Workflow of a Pull Request](https://raw.githubusercontent.com/zkamvar/stunning-barnacle/main/img/pr-flow.dot.svg)
 
-Workflows created from these actions can be found in [The {sandpaper} 
-package](https://github.com/carpentries/sandpaper/tree/main/inst/workflows/).
+Workflows created from these actions can be found in [The {sandpaper} package](https://github.com/carpentries/sandpaper/tree/main/inst/workflows/).
 
 ## Example
 
-Assuming you have a workflow called "Receive Pull Request" that stores a text
-artifact of the PR number in a file called `pr/NUM`, the resulting workflow to
-check the pull request and comment on it would look like this: 
+Assuming you have a workflow called "Receive Pull Request" that stores a text artifact of the PR number in a file called `pr/NUM`, the resulting workflow to check the pull request and comment on it would look like this: 
 
 ```yaml
 name: "Validate and Comment on A Pull Request"
@@ -74,25 +173,4 @@ jobs:
         with:
           pr: ${{ steps.get-pr.outputs.NUM }}
           body: ":see_no_evil: This PR is not valid!"
-
 ```
-
-The [GitHub Security Lab Article](https://securitylab.github.com/research/github-actions-preventing-pwn-requests) suggests to use `pull_request` trigger for running potentially unsafe code and passing textual artifacts to a workflow triggered by `workflow_run`. Much of it was written using the github-script action, which allows you to write JavaScript inside of the YAML file, but there were a few caveats pointed out in the article, namely:
-
-> **Incoming data from artifacts is potentially untrusted.** When used in a safe manner, like reading PR numbers or reading a code coverage text to comment on the PR, it is safe to use such untrusted data in the privileged workflow context. However if the artifacts were, for example, binaries built from an untrusted PR, it would be a security vulnerability to run them in the privileged `workflow_run` workflow context. Artifacts resulting from untrusted PR data are themselves untrusted and should be treated as such when handled in privileged contexts.
-
-### Unsafe artifacts
-
-The reason why incoming data from artifacts is potentially untrusted is because [It is possible to modify a pull request workflow file](https://github.community/t/prevent-actions-from-running-if-actions-yaml-files-are-modified/152604?u=zkamvar), which means that someone who wanted to insert malicious code could just modify the workflow file to spoof a different PR number. The code in the article left it as an exercise for the reader to figure out how to ensure that the PR artifact was genuine.
-
-This is why I created `check-valid-pr`, which will take a PR number and expected SHA and tell you it's valid on three conditions:
-
-1. the PR head SHA matches the expected SHA
-2. the PR is open
-3. none of the files in the PR are a workflow
-
-### JavaScript in YAML? :see_no_evil:
-
-I understand that the article was mostly for demonstration purposes, but I am interested in creating managable workflows for a semi-captive audience of hundreds who may or may not be experienced with git and are likely not to be experience with JavaScript. At the moment, The Carpentries stack is embedded within each lesson repository, and it's a bit of a pain to make sure they are up-to-date because we rely on a shared git history between the original lesson template and the lesson repository to make pull requests. When the pull request does come in, it involves several commits and a lot of file changes that are incomprehensible unless you are deeply embedded in Jekyll. Effectively, it's frustrating for maintainers to handle these updates because a lot of the time, they involve merge conflicts. 
-
-The new lesson template will separate the content from the tooling needed to render the website so that updates will be applied universally, but the workflows still need to live inside each repository, and updating JavaScript inside of YAML is... madness. This is why I've decided to convert all of the github-script action code into stand-alone actions. 

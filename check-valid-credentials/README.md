@@ -1,16 +1,14 @@
 # Check valid token credentials
 
-This action will check that a token is properly scoped for repo/workflow access
-so that runs can be conditioned on the presence of a token. 
+This action will check that a token is properly scoped for repo/workflow access so that runs can be initiated on the presence of a token. 
 
+# Usage
 
-## Inputs
+Inputs available:
 
-### `token`
+- `token` : A github token to use for validation
 
-A github token to use for validation
-
-## Example usage
+## Example
 
 ```yaml
 on:
@@ -50,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Repository"
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Update Workflows
         id: update

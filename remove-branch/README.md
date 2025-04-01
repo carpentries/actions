@@ -1,6 +1,10 @@
 # Remove branch created via PR
 
-The workflow in the main README shows that a staging branch is created from the PR. The branch name is `{prefix}-{pr}` (which at the moment is `md-outputs-PR-{pr}`) so that it's unique and tied to the PR. This branch is only relevant for the life of the PR, so it needs to be deleted once the PR is closed to avoid cluttering the repository. 
+The workflow in the main README shows that a staging branch is created from the PR.
+
+The branch name is `{prefix}-{pr}` (which at the moment is `md-outputs-PR-{pr}`) so that it's unique and tied to the PR.
+
+This branch is only relevant for the life of the PR, so it needs to be deleted once the PR is closed to avoid cluttering the repository. 
 
 ## Inputs
 

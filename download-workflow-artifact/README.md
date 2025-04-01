@@ -1,5 +1,7 @@
 # Download workflow artifact
 
+This action will download an named artifact from a given workflow number.
+
 ## Inputs
 
 ### `run`
