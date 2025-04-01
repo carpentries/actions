@@ -1,11 +1,6 @@
 # update-lockfile
 
-This will update the dependencies for Carpentries lessons using {renv}.
-It is important to note that this action is not independent.
-It requires the following items:
-
-- R must be set up
-- `RENV_PATHS_ROOT` must be defined in the job environment
+This will catalogue the dependencies for Carpentries lessons using {renv} and store them in a lockfile for later reuse (typically by the `setup-lesson-deps` action).
 
 # Usage
 
@@ -20,9 +15,9 @@ Inputs available:
 
 ```yaml
 steps:
-- uses: actions/checkout@master
+- uses: actions/checkout@v4
 - uses: r-lib/actions/setup-r@v2
-- uses: carpentries/actions/update-lesson-deps@main
+- uses: carpentries/actions/update-lockfile@main
   with:
     cache-version: ${{ secrets.CACHE_VERSION }}
     repos: |

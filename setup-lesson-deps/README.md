@@ -17,7 +17,7 @@ Inputs available:
 
 ```yaml
 steps:
-- uses: actions/checkout@master
+- uses: actions/checkout@v4
 - uses: r-lib/actions/setup-r@v2
 - uses: carpentries/actions/setup-sandpaper@main
   with:

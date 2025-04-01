@@ -12,9 +12,8 @@ development by the Carpentries community and beyond.
 
 ## Why do we need these actions?
 
-For a rationale of why these actions were created, see [the rationale document](rationale.md).
+For a summary description and rationale of why these actions were created, see [the rationale document](rationale.md).
 
 ## Where are these actions used?
 
-Several workflows created from these actions can be found in [The {sandpaper} 
-package](https://github.com/carpentries/sandpaper/tree/main/inst/workflows/).
+Several workflows created from these actions can be found in [the {sandpaper} package](https://github.com/carpentries/sandpaper/tree/main/inst/workflows/).

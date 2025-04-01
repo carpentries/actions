@@ -1,5 +1,5 @@
 name: 'download a workflow artifact'
-description: 'This does what it says. It download a specific artifact given a workflow number'
+description: 'This does what it says. It downloads a specific artifact given a workflow number'
 inputs:
   run:  # id of input
     description: 'workflow run number'
