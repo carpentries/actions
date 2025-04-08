@@ -44,7 +44,7 @@ runs:
       - name: "Check for and/or update renv/sandbox ignore"
         shell: bash
         run: |
-          if [ $(grep 'renv/sandbox' .gitignore) ]; then
+          if grep -q 'renv/sandbox' .gitignore; then
             :
           else
             printf 'renv/sandbox\n' >> .gitignore
