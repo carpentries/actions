@@ -71,7 +71,7 @@ if [[ ${CURRENT} != ${UPSTREAM} ]]; then
   fi
   echo "::group::Copying files"
   curl -L ${SOURCE} | \
-    tar -C ${TMP} --strip-components=1 --wildcards -xzv inst/workflows/*
+    tar -C ${TMP} --strip-components=1 --wildcards -xzv */inst/workflows/*
   cp -v ${TMP}/inst/workflows/* .github/workflows/
   echo "::endgroup::"
   NEEDS_UPDATE=$(git status --porcelain)
