@@ -37,7 +37,7 @@ runs:
         uses: actions/cache@v4
         with:
           path: ${{ env.RENV_PATHS_ROOT }}
-          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ hashFiles('**/renv.lock') }}
+          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ hashFiles('renv/profiles/${{ inputs.profile }}/renv.lock') }}
           restore-keys:
             ${{ runner.os }}-${{ inputs.cache-version }}-renv-
 
