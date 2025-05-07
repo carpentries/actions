@@ -33,13 +33,13 @@ outputs:
 runs:
   using: "composite"
   steps:
-      - name: "Restore {renv} Cache"
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.RENV_PATHS_ROOT }}
-          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ hashFiles('renv/profiles/${{ inputs.profile }}/renv.lock') }}
-          restore-keys:
-            ${{ runner.os }}-${{ inputs.cache-version }}-renv-
+      # - name: "Restore {renv} Cache"
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: ${{ env.RENV_PATHS_ROOT }}
+      #     key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ hashFiles('renv/profiles/${{ inputs.profile }}/renv.lock') }}
+      #     restore-keys:
+      #       ${{ runner.os }}-${{ inputs.cache-version }}-renv-
 
       - name: "Check for and/or update renv/sandbox ignore"
         shell: bash
