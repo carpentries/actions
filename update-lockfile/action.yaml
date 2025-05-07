@@ -20,6 +20,10 @@ inputs:
   profile:
     description: 'the {renv} profile to update (defaults to lesson-requirements)'
     default: 'lesson-requirements'
+  generate-cache:
+    description: 'Generate package cache?'
+    default: true
+    type: boolean
 outputs:
   n:
     description: the number of packages to be updated
@@ -34,6 +38,7 @@ runs:
   using: "composite"
   steps:
       - name: "Restore {renv} Cache"
+        if: ${{ inputs.generate-cache }}
         uses: actions/cache@v4
         with:
           path: ${{ env.RENV_PATHS_ROOT }}
