@@ -20,6 +20,10 @@ inputs:
   profile:
     description: 'the {renv} profile to update (defaults to lesson-requirements)'
     default: 'lesson-requirements'
+  generate-cache:
+    description: 'Generate package cache?'
+    default: true
+    type: boolean    
 outputs:
   n:
     description: the number of packages to be updated
@@ -30,17 +34,10 @@ outputs:
   report:
     description: the report of packages to be updated in the lesson
     value: ${{ steps.update.outputs.report }}
+
 runs:
   using: "composite"
   steps:
-      # - name: "Restore {renv} Cache"
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: ${{ env.RENV_PATHS_ROOT }}
-      #     key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ hashFiles('renv/profiles/${{ inputs.profile }}/renv.lock') }}
-      #     restore-keys:
-      #       ${{ runner.os }}-${{ inputs.cache-version }}-renv-
-
       - name: "Check for and/or update renv/sandbox ignore"
         shell: bash
         run: |
@@ -49,6 +46,13 @@ runs:
           else
             printf 'renv/sandbox\n' >> .gitignore
           fi
+
+      - name: "Restore {renv} Cache"
+        uses: actions/cache/restore@v4
+        id: restore-cache
+        with:
+          path: ${{ env.RENV_PATHS_ROOT }}
+          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ hashFiles('renv/profiles/${{ inputs.profile }}/renv.lock') }}
 
       - name: "Setup System Dependencies"
         shell: Rscript {0}
@@ -127,9 +131,15 @@ runs:
             ${{ github.workspace }}/renv/
             !${{ github.workspace }}/renv/profiles/${{ inputs.profile }}/renv/library
             !${{ github.workspace }}/renv/profiles/${{ inputs.profile }}/renv/staging
-
-
           retention-days: 30
+
+      - name: "Save {renv} Cache"
+        uses: actions/cache/save@v4
+        id: save-cache
+        if: ${{ inputs.generate-cache }}
+        with:
+          path: ${{ env.RENV_PATHS_ROOT }}
+          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ hashFiles('renv/profiles/${{ inputs.profile }}/renv.lock') }}
 
       - name: Don't use tar 1.30 from Rtools35 to store the cache
         shell: bash
