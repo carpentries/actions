@@ -52,7 +52,7 @@ runs:
         id: restore-cache
         with:
           path: ${{ env.RENV_PATHS_ROOT }}
-          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ hashFiles('renv/profiles/${{ inputs.profile }}/renv.lock') }}
+          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ hashFiles('**/renv.lock') }}
 
       - name: "Setup System Dependencies"
         shell: Rscript {0}
@@ -139,7 +139,7 @@ runs:
         if: ${{ inputs.generate-cache }}
         with:
           path: ${{ env.RENV_PATHS_ROOT }}
-          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ hashFiles('renv/profiles/${{ inputs.profile }}/renv.lock') }}
+          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ hashFiles('**/renv.lock') }}
 
       - name: Don't use tar 1.30 from Rtools35 to store the cache
         shell: bash
