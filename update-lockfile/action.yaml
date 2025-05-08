@@ -138,12 +138,11 @@ runs:
         shell: bash
 
       - name: "Save {renv} Cache"
-        if: ${{ inputs.generate-cache }}
         uses: actions/cache/save@v4
         id: save-cache
         with:
           path: ${{ env.RENV_PATHS_ROOT }}
-          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ hashFiles('**/renv.lock') }}
+          key: ${{ runner.os }}-tmp-renv-${{ hashFiles('**/renv.lock') }}
 
       - name: Don't use tar 1.30 from Rtools35 to store the cache
         shell: bash
