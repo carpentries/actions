@@ -23,7 +23,11 @@ inputs:
   generate-cache:
     description: 'Generate package cache?'
     default: true
-    type: boolean    
+    type: boolean
+  skip-restore:
+    description: 'Skip renv restore?'
+    default: false
+    type: boolean
 outputs:
   n:
     description: the number of packages to be updated
@@ -120,6 +124,7 @@ runs:
           }
           vise:::ci_update(profile = "${{ inputs.profile }}",
             update = "${{ inputs.update }}",
+            skip_restore = "${{ inputs.skip-restore }}",
             repos = "${{ inputs.repos }}")
           cat("::endgroup::\n")
 
