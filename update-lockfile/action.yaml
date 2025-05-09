@@ -85,7 +85,7 @@ runs:
               rmts$supported_os_versions <- sov
             }
             req("desc")
-            remotes::install_github("carpentries/vise")
+            remotes::install_github("froggleston/vise")
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
             Sys.setenv("RSPM_ROOT" = "https://packagemanager.posit.co")
             vise::ci_sysreqs(renv::paths$lockfile(), execute = TRUE)
