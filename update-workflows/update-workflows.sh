@@ -33,9 +33,17 @@ SOURCE="${2:-https://carpentries.r-universe.dev}"
 CLEAN="${3:-}"
 CURRENT=$(cat .github/workflows/sandpaper-version.txt)
 
+# Show the version inforamtion
+echo "::group::Inputs"
+echo "Source:          ${SOURCE}"
+echo "This version:    ${CURRENT}"
+echo "Current version: ${UPSTREAM}"
+echo "Clean:           ${CLEAN}"
+echo "::endgroup::"
+
 # if the SOURCE URL ends in zip or tar.gz
 if [[ ${SOURCE} =~ \.zip$ || ${SOURCE} =~ \.tar\.gz$ ]]; then
-  echo "Using the provided source URL: ${SOURCE}"
+  # echo "Using the provided source URL: ${SOURCE}"
   UPSTREAM=${SOURCE}
 fi
 
@@ -43,7 +51,7 @@ fi
 if [[ ${UPSTREAM} == 'current' ]]; then
   UPSTREAM=$(curl -L ${SOURCE}/api/packages/sandpaper/)
   UPSTREAM=$(echo ${UPSTREAM} | jq -r .Version)
-  SOURCE=https://carpentries.r-universe.dev/src/contrib/sandpaper_${UPSTREAM}.tar.gz
+  SOURCE="https://carpentries.r-universe.dev/src/contrib/sandpaper_${UPSTREAM}.tar.gz"
 elif [[ ${SOURCE} == 'https://carpentries.r-universe.dev' ]]; then
   SOURCE=https://carpentries.github.io/drat
 fi
@@ -53,6 +61,7 @@ TMP=$(mktemp -d)
 
 # Show the version inforamtion
 echo "::group::Version Information"
+echo "Source:          ${SOURCE}"
 echo "This version:    ${CURRENT}"
 echo "Current version: ${UPSTREAM}"
 echo "::endgroup::"
