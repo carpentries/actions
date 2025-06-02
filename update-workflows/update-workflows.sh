@@ -33,10 +33,25 @@ SOURCE="${2:-https://carpentries.r-universe.dev}"
 CLEAN="${3:-}"
 CURRENT=$(cat .github/workflows/sandpaper-version.txt)
 
+# Show the version inforamtion
+echo "::group::Inputs"
+echo "Source:          ${SOURCE}"
+echo "This version:    ${CURRENT}"
+echo "Current version: ${UPSTREAM}"
+echo "Clean:           ${CLEAN}"
+echo "::endgroup::"
+
+# if the SOURCE URL ends in zip or tar.gz
+if [[ ${SOURCE} =~ \.zip$ || ${SOURCE} =~ \.tar\.gz$ ]]; then
+  # echo "Using the provided source URL: ${SOURCE}"
+  UPSTREAM=${SOURCE}
+fi
+
 # Fetch upstream version from the API if we don't have that information
 if [[ ${UPSTREAM} == 'current' ]]; then
   UPSTREAM=$(curl -L ${SOURCE}/api/packages/sandpaper/)
   UPSTREAM=$(echo ${UPSTREAM} | jq -r .Version)
+  SOURCE="https://carpentries.r-universe.dev/src/contrib/sandpaper_${UPSTREAM}.tar.gz"
 elif [[ ${SOURCE} == 'https://carpentries.r-universe.dev' ]]; then
   SOURCE=https://carpentries.github.io/drat
 fi
@@ -46,6 +61,7 @@ TMP=$(mktemp -d)
 
 # Show the version inforamtion
 echo "::group::Version Information"
+echo "Source:          ${SOURCE}"
 echo "This version:    ${CURRENT}"
 echo "Current version: ${UPSTREAM}"
 echo "::endgroup::"
@@ -63,9 +79,9 @@ if [[ ${CURRENT} != ${UPSTREAM} ]]; then
     echo "::endgroup::"
   fi
   echo "::group::Copying files"
-  curl -L ${SOURCE}/src/contrib/sandpaper_${UPSTREAM}.tar.gz | \
-    tar -C ${TMP} --wildcards -xzv sandpaper/inst/workflows/*
-  cp -v ${TMP}/sandpaper/inst/workflows/* .github/workflows/
+  curl -L ${SOURCE} | \
+    tar -C ${TMP} --strip-components=1 --wildcards -xzv */inst/workflows/*
+  cp -v ${TMP}/inst/workflows/* .github/workflows/
   echo "::endgroup::"
   NEEDS_UPDATE=$(git status --porcelain)
   if [[ ${NEEDS_UPDATE} ]]; then
@@ -81,4 +97,3 @@ if [[ ${CURRENT} != ${UPSTREAM} ]]; then
 else
   echo "Nothing to update!"
 fi
-

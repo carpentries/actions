@@ -14,11 +14,11 @@ inputs:
     required: false
     default: ''
 outputs:
-  old: 
-    description: "old version of {sandpaper}"
+  old:
+    description: "old version of workflows"
     value: "${{ steps.update.outputs.old }}"
   new:
-    description: "new version of {sandpaper}"
+    description: "new version of workflows"
     value: "${{ steps.update.outputs.new }}"
   date:
     description: "date of the most recent update attempt"

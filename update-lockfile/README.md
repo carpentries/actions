@@ -10,6 +10,8 @@ Inputs available:
 - `update` : Update any out-of-date packages, default `true`. If you want to use this for discovering new packages and not updating the packages that you already have, then this will be used strictly for discovery.
 - `repos` : The repositories to use in {renv}, default the three carpentries package repositories. You can use any valid R vector, but it must not contain any functions other than `c()` to prevent malicious code insertions.
 - `profile` : The {renv} profile to use, default `'lesson-requirements'`. You can set this to an empty string (`''`) to use the default profile.
+- `skip-restore`: Skip restoring packages before hydrating them, default `false`. This can be useful to fix broken builds where packages are out of date and cannot be installed.
+- `generate-cache`: Save the final packaged renv environment as a GitHub Action cache object, default `true`.
 
 ## Example
 
