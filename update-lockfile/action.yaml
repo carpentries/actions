@@ -59,13 +59,6 @@ runs:
             printf 'renv/sandbox\n' >> .gitignore
           fi
 
-      - name: "Restore {renv} Cache"
-        uses: actions/cache/restore@v4
-        id: restore-cache
-        with:
-          path: ${{ env.RENV_PATHS_ROOT }}
-          key: ${{ runner.os }}-${{ inputs.cache-version }}-renv-${{ hashFiles('**/renv.lock') }}
-
       - name: "Setup System Dependencies"
         shell: Rscript {0}
         run: |
