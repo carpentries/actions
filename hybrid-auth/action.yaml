@@ -53,9 +53,3 @@ runs:
         PAT=$(echo "$SECRET" | jq -r .github-pat)
         echo "::add-mask::$PAT"
         echo "pat=$PAT" >> "$GITHUB_OUTPUT"
-
-    - name: Export PAT for use in later steps
-      shell: bash
-      if: steps.fork.outputs.fork == 'false'
-      run: |
-        echo "SANDPAPER_WORKFLOW=${{ steps.set-pat.outputs.pat }}" >> "$GITHUB_ENV"
