@@ -59,7 +59,8 @@ runs:
       if: steps.fork.outputs.fork == 'true'
       shell: bash
       run: |
-        echo "pat=${{ secrets[inputs.fallback-secret] }}" >> "$GITHUB_OUTPUT"
+        FALLBACK=${{ secrets[inputs.fallback-secret] }}
+        echo "pat=$FALLBACK" >> "$GITHUB_OUTPUT"
         echo "::add-mask::$pat"
 
     - name: Export PAT for use in later steps
