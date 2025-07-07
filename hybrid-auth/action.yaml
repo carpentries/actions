@@ -38,6 +38,7 @@ runs:
       if: steps.fork.outputs.fork == 'false'
       uses: aws-actions/configure-aws-credentials@v4
       with:
+        role-skip-session-tagging: true
         role-to-assume: arn:aws:iam::860325783027:role/carpentries-github-oidc-auth
         aws-region: ${{ inputs.aws-region }}
 
