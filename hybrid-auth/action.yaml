@@ -6,6 +6,7 @@ inputs:
   org:
     description: 'GitHub organization name'
     required: true
+    default: 'carpentries'
   aws-region:
     description: 'AWS region where the secret lives'
     required: false
@@ -14,10 +15,6 @@ inputs:
     description: 'Secret name in AWS Secrets Manager'
     required: false
     default: 'carpentries-bot/github-pat'
-  fallback-secret:
-    description: 'Fallback repo secret for forks'
-    required: false
-    default: 'SANDPAPER_WORKFLOW'
 
 outputs:
   pat:
@@ -54,16 +51,8 @@ runs:
                     --query SecretString --output text)" >> "$GITHUB_OUTPUT"
         echo "::add-mask::$pat"
 
-    - name: Set PAT from fallback secret (forks only)
-      id: set-pat-fork
-      if: steps.fork.outputs.fork == 'true'
-      shell: bash
-      run: |
-        FALLBACK=${{ secrets[inputs.fallback-secret] }}
-        echo "pat=$FALLBACK" >> "$GITHUB_OUTPUT"
-        echo "::add-mask::$pat"
-
     - name: Export PAT for use in later steps
       shell: bash
+      if: steps.fork.outputs.fork == 'false'
       run: |
-        echo "SANDPAPER_WORKFLOW=${{ steps.set-pat.outputs.pat || steps.set-pat-fork.outputs.pat }}" >> "$GITHUB_ENV"
+        echo "SANDPAPER_WORKFLOW=${{ steps.set-pat.outputs.pat }}" >> "$GITHUB_ENV"
