@@ -2,10 +2,6 @@ name: 'Hybrid GitHub Auth'
 description: >
   Sets the SANDPAPER_WORKFLOW environment variable based on internal (OIDC+SecretsManager) or fork (repo secret) context.
 
-permissions:
-  id-token: write # OIDC permission required
-  contents: read
-
 inputs:
   org:
     description: 'GitHub organization name'
