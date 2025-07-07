@@ -36,7 +36,7 @@ runs:
 
     - name: Configure AWS credentials via OIDC (internal only)
       if: steps.fork.outputs.fork == 'false'
-      uses: aws-actions/configure-aws-credentials@v4
+      uses: aws-actions/configure-aws-credentials@v4.1.0
       with:
         role-skip-session-tagging: true
         role-to-assume: arn:aws:iam::860325783027:role/carpentries-github-oidc-auth
@@ -47,9 +47,11 @@ runs:
       if: steps.fork.outputs.fork == 'false'
       shell: bash
       run: |
-        echo "pat=$(aws secretsmanager get-secret-value \
-                    --secret-id ${{ inputs.aws-secret-id }} \
-                    --query SecretString --output text)" >> "$GITHUB_OUTPUT"
+        SECRET=$(aws secretsmanager get-secret-value \
+                 --secret-id ${{ inputs.aws-secret-id }} \
+                 --query SecretString --output text)
+        PAT=$(echo "$SECRET" | jq -r .github-pat)
+        echo "pat=$PAT" >> "$GITHUB_OUTPUT"
         echo "::add-mask::$pat"
 
     - name: Export PAT for use in later steps
