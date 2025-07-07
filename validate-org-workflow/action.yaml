@@ -26,6 +26,7 @@ runs:
           "datacarpentry"
           "librarycarpentry"
           "carpentries-incubator"
+          "froggleston"
         )
 
         ALLOWED_WORKFLOWS=(
