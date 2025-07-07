@@ -9,47 +9,48 @@ inputs:
     type: string
 
 outputs:
-  is_valid: ${{ steps.validate-org-workflow.outputs.is_valid }}
+  is_valid:
+    description: 'Is the organisation and workflow valid?'
+    value: ${{ steps.validate-org-workflow.outputs.is_valid }}
 
-jobs:
-  validate:
-    runs-on: ubuntu-latest
+runs:
+  using: "composite"
+  steps:
+    - name: "Validate Organisation and Workflow"
+      id: validate-org-workflow
+      run: |
+        ALLOWED_ORGS=(
+          "carpentries"
+          "swcarpentry"
+          "datacarpentry"
+          "librarycarpentry"
+          "carpentries-incubator"
+        )
 
-    steps:
-      - id: validate-org-workflow
-        run: |
-          ALLOWED_ORGS=(
-            "carpentries"
-            "swcarpentry"
-            "datacarpentry"
-            "librarycarpentry"
-            "carpentries-incubator"
-          )
+        ALLOWED_WORKFLOWS=(
+          "02 Maintain: Check for Updated Packages"
+        )
 
-          ALLOWED_WORKFLOWS=(
-            "02 Maintain: Check for Updated Packages"
-          )
+        REPO="${{ inputs.repo }}"
+        WORKFLOW="${{ inputs.workflow }}"
 
-          REPO="${{ inputs.repo }}"
-          WORKFLOW="${{ inputs.workflow }}"
-
-          ORG=$(echo "$REPO" | cut -d/ -f1)
-          for o in "${ALLOWED_ORGS[@]}"; do
-            if [[ "$ORG" == "$o" ]]; then
-              org_found=1
-              break
-            fi
-          done
-
-          for w in "${ALLOWED_WORKFLOWS[@]}"; do
-            if [[ "$WORKFLOW" == "$w" ]]; then
-              wf_found=1
-              break
-            fi
-          done
-
-          if [[ $org_found && $wf_found ]]; then
-            echo "is_valid=true" >> $GITHUB_OUTPUT
-          else
-            echo "is_valid=false" >> $GITHUB_OUTPUT
+        ORG=$(echo "$REPO" | cut -d/ -f1)
+        for o in "${ALLOWED_ORGS[@]}"; do
+          if [[ "$ORG" == "$o" ]]; then
+            org_found=1
+            break
           fi
+        done
+
+        for w in "${ALLOWED_WORKFLOWS[@]}"; do
+          if [[ "$WORKFLOW" == "$w" ]]; then
+            wf_found=1
+            break
+          fi
+        done
+
+        if [[ $org_found && $wf_found ]]; then
+          echo "is_valid=true" >> $GITHUB_OUTPUT
+        else
+          echo "is_valid=false" >> $GITHUB_OUTPUT
+        fi
