@@ -18,6 +18,7 @@ runs:
   steps:
     - name: "Validate Organisation and Workflow"
       id: validate-org-workflow
+      shell: bash
       run: |
         ALLOWED_ORGS=(
           "carpentries"
