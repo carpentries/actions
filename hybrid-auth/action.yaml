@@ -51,8 +51,8 @@ runs:
                  --secret-id ${{ inputs.aws-secret-id }} \
                  --query SecretString --output text)
         PAT=$(echo "$SECRET" | jq -r .github-pat)
+        echo "::add-mask::$PAT"
         echo "pat=$PAT" >> "$GITHUB_OUTPUT"
-        echo "::add-mask::$pat"
 
     - name: Export PAT for use in later steps
       shell: bash
