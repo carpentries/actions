@@ -1,20 +1,20 @@
 name: Validate Org and Workflow
 
-on:
-  workflow_call:
-    inputs:
-      repo:
-        required: true
-        type: string
-      workflow:
-        required: true
-        type: string
+inputs:
+  repo:
+    required: true
+    type: string
+  workflow:
+    required: true
+    type: string
+
+outputs:
+  is_valid: ${{ steps.validate-org-workflow.outputs.is_valid }}
 
 jobs:
   validate:
     runs-on: ubuntu-latest
-    outputs:
-      is_valid: ${{ steps.validate-org-workflow.outputs.is_valid }}
+
     steps:
       - id: validate-org-workflow
         run: |
