@@ -1,0 +1,55 @@
+name: 'Hybrid GitHub Auth'
+description: >
+  Sets the SANDPAPER_WORKFLOW environment variable based on internal (OIDC+SecretsManager) or fork (repo secret) context.
+
+inputs:
+  org:
+    description: 'GitHub organization name'
+    required: true
+    default: 'carpentries'
+  aws-region:
+    description: 'AWS region where the secret lives'
+    required: false
+    default: 'us-east-1'
+  aws-secret-id:
+    description: 'Secret name in AWS Secrets Manager'
+    required: false
+    default: 'carpentries-bot/github-pat'
+
+outputs:
+  pat:
+    description: 'The resolved PAT for use in other steps'
+    value: ${{ steps.set-pat.outputs.pat }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check if this is a fork
+      id: fork
+      shell: bash
+      run: |
+        if [[ "${{ github.repository_owner }}" != "${{ inputs.org }}" ]]; then
+          echo "fork=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "fork=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Configure AWS credentials via OIDC (internal only)
+      if: steps.fork.outputs.fork == 'false'
+      uses: aws-actions/configure-aws-credentials@v4.1.0
+      with:
+        role-skip-session-tagging: true
+        role-to-assume: arn:aws:iam::860325783027:role/carpentries-github-oidc-auth
+        aws-region: ${{ inputs.aws-region }}
+
+    - name: Set PAT from AWS Secrets Manager (internal only)
+      id: set-pat
+      if: steps.fork.outputs.fork == 'false'
+      shell: bash
+      run: |
+        SECRET=$(aws secretsmanager get-secret-value \
+                 --secret-id ${{ inputs.aws-secret-id }} \
+                 --query SecretString --output text)
+        PAT=$(echo "$SECRET" | jq -r .[])
+        echo "::add-mask::$PAT"
+        echo "pat=$PAT" >> "$GITHUB_OUTPUT"
