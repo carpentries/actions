@@ -1,66 +1,73 @@
 name: "OIDC: Validate Org and Workflow"
 
-inputs:
-  repo:
-    required: true
-    type: string
-  workflow:
-    required: true
-    type: string
+on:
+  workflow_call:
+    inputs:
+      repo:
+        required: true
+        type: string
+      workflow:
+        required: true
+        type: string
+    outputs:
+      is_valid:
+        description: 'Is the organisation and workflow valid?'
+        value: ${{ jobs.validate.outputs.is_valid }}
 
-outputs:
-  is_valid:
-    description: 'Is the organisation and workflow valid?'
-    value: ${{ steps.validate-org-workflow.outputs.is_valid }}
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      is_valid: ${{ steps.validate-org-workflow.outputs.is_valid }}
+    steps:
+      - name: "Validate Organisation and Workflow"
+        id: validate-org-workflow
+        shell: bash
+        run: |
+          ALLOWED_ORGS=(
+            "carpentries"
+            "swcarpentry"
+            "datacarpentry"
+            "librarycarpentry"
+            "carpentries-incubator"
+            "froggleston"
+          )
 
-runs:
-  using: "composite"
-  steps:
-    - name: "Validate Organisation and Workflow"
-      id: validate-org-workflow
-      shell: bash
-      run: |
-        ALLOWED_ORGS=(
-          "carpentries"
-          "swcarpentry"
-          "datacarpentry"
-          "librarycarpentry"
-          "carpentries-incubator"
-          "froggleston"
-        )
+          ALLOWED_WORKFLOWS=(
+            "02 Maintain: Check for Updated Packages"
+            "04 Maintain: Update Workflow Files"
+          )
 
-        ALLOWED_WORKFLOWS=(
-          "02 Maintain: Check for Updated Packages"
-          "04 Maintain: Update Workflow Files"
-        )
+          REPO="${{ inputs.repo }}"
+          WORKFLOW="${{ inputs.workflow }}"
 
-        REPO="${{ inputs.repo }}"
-        WORKFLOW="${{ inputs.workflow }}"
+          ORG=$(echo "$REPO" | cut -d/ -f1)
+          for o in "${ALLOWED_ORGS[@]}"; do
+            if [[ "$ORG" == "$o" ]]; then
+              org_found=1
+              break
+            fi
+          done
 
-        ORG=$(echo "$REPO" | cut -d/ -f1)
-        for o in "${ALLOWED_ORGS[@]}"; do
-          if [[ "$ORG" == "$o" ]]; then
-            org_found=1
-            break
+          for w in "${ALLOWED_WORKFLOWS[@]}"; do
+            if [[ "$WORKFLOW" == "$w" ]]; then
+              wf_found=1
+              break
+            fi
+          done
+
+          if [[ $org_found && $wf_found ]]; then
+            echo "is_valid=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_valid=false" >> $GITHUB_OUTPUT
           fi
-        done
 
-        for w in "${ALLOWED_WORKFLOWS[@]}"; do
-          if [[ "$WORKFLOW" == "$w" ]]; then
-            wf_found=1
-            break
-          fi
-        done
-
-        if [[ $org_found && $wf_found ]]; then
-          echo "is_valid=true" >> $GITHUB_OUTPUT
-        else
-          echo "is_valid=false" >> $GITHUB_OUTPUT
-        fi
-
-    - name: Configure AWS credentials via OIDC
-      if: steps.validate-org-workflow.outputs.is_valid == 'true'
-      uses: aws-actions/configure-aws-credentials@v4.1.0
-      with:
-        role-to-assume: ${{ secrets.AWS_GH_OIDC_ARN }}
-        aws-region: ${{ secrets.AWS_GH_OIDC_REGION }}
+      - name: Configure AWS credentials via OIDC
+        if: steps.validate-org-workflow.outputs.is_valid == 'true'
+        uses: aws-actions/configure-aws-credentials@v4.1.0
+        with:
+          role-to-assume: ${{ secrets.AWS_GH_OIDC_ARN }}
+          aws-region: ${{ secrets.AWS_GH_OIDC_REGION }}
