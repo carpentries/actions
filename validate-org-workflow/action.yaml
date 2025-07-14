@@ -1,4 +1,4 @@
-name: OIDC: Validate Org and Workflow
+name: "OIDC: Validate Org and Workflow"
 
 inputs:
   repo:
