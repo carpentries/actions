@@ -1,4 +1,4 @@
-name: "OIDC: Validate Org and Workflow"
+name: "Validate Org and Workflow"
 
 inputs:
   repo:
@@ -7,21 +7,10 @@ inputs:
   workflow:
     required: true
     type: string
-secrets:
-  aws_gh_oidc_arn:
-    required: false
-    type: string
-  aws_gh_oidc_region:
-    required: false
-    type: string
 outputs:
   is_valid:
     description: 'Is the organisation and workflow valid?'
     value: ${{ steps.validate-org-workflow.outputs.is_valid }}
-
-permissions:
-  id-token: write
-  contents: read
 
 runs:
   using: "composite"
@@ -67,10 +56,3 @@ runs:
         else
           echo "is_valid=false" >> $GITHUB_OUTPUT
         fi
-
-    - name: Configure AWS credentials via OIDC
-      if: steps.validate-org-workflow.outputs.is_valid == 'true'
-      uses: aws-actions/configure-aws-credentials@v4.1.0
-      with:
-        role-to-assume: ${{ secrets.aws_gh_oidc_arn }}
-        aws-region: ${{ secrets.aws_gh_oidc_region }}
