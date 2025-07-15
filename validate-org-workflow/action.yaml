@@ -17,15 +17,14 @@ secrets:
 outputs:
   is_valid:
     description: 'Is the organisation and workflow valid?'
-    value: ${{ jobs.validate.outputs.is_valid }}
+    value: ${{ steps.validate-org-workflow.outputs.is_valid }}
+
+permissions:
+  id-token: write
+  contents: read
 
 runs:
   using: "composite"
-  permissions:
-    id-token: write
-    contents: read
-  outputs:
-    is_valid: ${{ steps.validate-org-workflow.outputs.is_valid }}
   steps:
     - name: "Validate Organisation and Workflow"
       id: validate-org-workflow
