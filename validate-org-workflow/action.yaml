@@ -11,10 +11,10 @@ on:
         type: string
     secrets:
       aws_gh_oidc_arn:
-        required: true
+        required: false
         type: string
       aws_gh_oidc_region:
-        required: true
+        required: false
         type: string
     outputs:
       is_valid:
