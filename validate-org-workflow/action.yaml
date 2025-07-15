@@ -9,6 +9,7 @@ on:
       workflow:
         required: true
         type: string
+    secrets:
       aws_gh_oidc_arn:
         required: true
         type: string
@@ -72,8 +73,8 @@ jobs:
           fi
 
       - name: Configure AWS credentials via OIDC
-        if: steps.validate-org-workflow.outputs.is_valid == 'true' && inputs.aws_gh_oidc_arn != ''
+        if: steps.validate-org-workflow.outputs.is_valid == 'true'
         uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
-          role-to-assume: ${{ inputs.aws_gh_oidc_arn }}
-          aws-region: ${{ inputs.aws_gh_oidc_region }}
+          role-to-assume: ${{ secrets.aws_gh_oidc_arn }}
+          aws-region: ${{ secrets.aws_gh_oidc_region }}
