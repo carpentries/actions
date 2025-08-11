@@ -20,7 +20,7 @@ runs:
 
     - name: Get Container Version Used
       id: wb-vers
-      uses: froggleston/actions/container-version@docker_composites
+      uses: carpentries/actions/container-version@main
       with:
         WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG }}
 
