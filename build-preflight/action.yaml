@@ -112,7 +112,7 @@ runs:
       id: set-renv-hash
       if: ${{ steps.check-for-renv.outputs.renv_exists == 'true' }}
       run: |
-        CACHE_VERSION_INPUT="${{ inputs.CACHE_VERSION || vars.CACHE_VERSION }}"
+        CACHE_VERSION_INPUT="${{ inputs.CACHE_VERSION }}"
         if [ -z "$CACHE_VERSION_INPUT" ]; then
           echo "renv-cache-hashsum=${{ hashFiles('renv/profiles/lesson-requirements/renv.lock') }}" >> $GITHUB_OUTPUT
         else
