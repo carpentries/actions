@@ -1,0 +1,29 @@
+name: 'container-version'
+description: 'Action to get the Docker container version from Docker Hub'
+author: 'Robert P. Davey'
+inputs:
+  WORKBENCH_TAG:
+    description: 'Override Workbench version tag, e.g. "v0.15.0" or "latest". Defaults to "latest".'
+    required: false
+    default: 'latest'
+outputs:
+  container-version:
+    description: 'Docker Container Version'
+    value: ${{ steps.wb-vers.outputs.container-version }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get Container Version Used
+      id: wb-vers
+      run: |
+        tag=${{ inputs.WORKBENCH_TAG || 'latest' }}
+        digest=$(curl -s "https://hub.docker.com/v2/repositories/carpentries/workbench-docker/tags?name=$tag" | jq -r '.results[] | select(.name == "'$tag'") | .digest')
+        if [[ "$tag" == "latest" ]]; then
+          vers=$(curl -s "https://hub.docker.com/v2/repositories/carpentries/workbench-docker/tags" | jq -r '.results[] | select(.digest == "'$digest'") | .name')
+          VER=$(echo "$vers" | grep -Po "^v.*")
+        else
+          VER="$tag"
+        fi
+        echo "container-version=$VER" >> $GITHUB_OUTPUT
+      shell: bash

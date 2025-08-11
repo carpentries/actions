@@ -1,0 +1,45 @@
+name: 'renv-checks'
+description: 'Action to check if a repository is using renv and to generate a hashsum of the lockfile'
+author: 'Robert P. Davey'
+inputs:
+  CACHE_VERSION:
+    description: 'Optional renv cache version override'
+    required: false
+    default: ''
+outputs:
+  renv-needed:
+    description: 'Is renv needed?'
+    value: ${{ steps.check-for-renv.outputs.renv_exists }}
+  renv-cache-hashsum:
+    description: 'renv cache hashsum'
+    value: ${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Checkout Lesson"
+      uses: actions/checkout@v4
+
+    - name: "Check for renv"
+      id: check-for-renv
+      run: |
+        if [[ -d renv ]]; then
+          echo "✅ renv requirement found."
+          echo "renv_exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "❗No renv requirement found. Skipping..."
+          echo "renv_exists=false" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
+
+    - name: Calculate renv hash
+      id: set-renv-hash
+      if: ${{ steps.check-for-renv.outputs.renv_exists == 'true' }}
+      run: |
+        CACHE_VERSION_INPUT="${{ inputs.CACHE_VERSION }}"
+        if [ -z "$CACHE_VERSION_INPUT" ]; then
+          echo "renv-cache-hashsum=${{ hashFiles('renv/profiles/lesson-requirements/renv.lock') }}" >> $GITHUB_OUTPUT
+        else
+          echo "renv-cache-hashsum=$CACHE_VERSION_INPUT" >> $GITHUB_OUTPUT
+        fi
+      shell: bash

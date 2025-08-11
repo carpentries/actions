@@ -19,17 +19,10 @@ runs:
       shell: bash
 
     - name: Get Container Version Used
-      run: |
-        tag=${{ inputs.WORKBENCH_TAG || 'latest' }}
-        digest=$(curl -s "https://hub.docker.com/v2/repositories/carpentries/workbench-docker/tags?name=$tag" | jq -r '.results[] | select(.name == "'$tag'") | .digest')
-        if [[ "$tag" == "latest" ]]; then
-          vers=$(curl -s "https://hub.docker.com/v2/repositories/carpentries/workbench-docker/tags" | jq -r '.results[] | select(.digest == "'$digest'") | .name')
-          ver=$(echo "$vers" | grep -Po "^v.*")
-        else
-          ver="$tag"
-        fi
-        echo "CONTAINER_VER=$ver" >> $GITHUB_ENV
-      shell: bash
+      id: wb-vers
+      uses: froggleston/actions/container-version@docker_composites
+      with:
+        WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG }}
 
     - name: Restore renv from cache
       id: restore-renv-cache
