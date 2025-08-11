@@ -25,7 +25,6 @@ outputs:
   renv-cache-hashsum:
     description: 'renv cache hashsum'
     value: ${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}
-    default: ''
   varnish-version-override:
     description: 'Varnish version override'
     value: ${{ steps.input-wb-vers.outputs.varnish-version-override }}
@@ -90,6 +89,7 @@ runs:
           echo "❗This was not a schedule or valid trigger. No build will run."
           echo "push_or_pr=false" >> $GITHUB_OUTPUT
         fi
+      shell: bash
 
     - name: "Checkout Lesson"
       uses: actions/checkout@v4
@@ -106,6 +106,7 @@ runs:
           echo "❗No renv requirement found. Skipping..."
           echo "renv_exists=false" >> $GITHUB_OUTPUT
         fi
+      shell: bash
 
     - name: Calculate renv hash
       id: set-renv-hash
@@ -117,6 +118,7 @@ runs:
         else
           echo "renv-cache-hashsum=$CACHE_VERSION_INPUT" >> $GITHUB_OUTPUT
         fi
+      shell: bash
 
     - name: "Get var/input Workbench package versions"
       id: input-wb-vers
@@ -133,3 +135,4 @@ runs:
         if [ ! -z "$PEGBOARD_VERSION_INPUT" ]; then
           echo "pegboard-version-override=$PEGBOARD_VERSION_INPUT" >> $GITHUB_OUTPUT
         fi
+      shell: bash

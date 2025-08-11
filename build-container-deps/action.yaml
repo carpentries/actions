@@ -16,6 +16,7 @@ runs:
     - name: Setup Lesson Dependencies
       run: |
         Rscript /home/rstudio/.workbench/setup_lesson_deps.R
+      shell: bash
 
     - name: Get Container Version Used
       run: |
@@ -45,6 +46,7 @@ runs:
       run: |
         echo "❌ renv cache required but none available. Please run the "02 Maintain: Check for Updated Packages" then the "03 Maintain: Apply Package Cache" workflows."
         exit 1
+      shell: bash
 
     - name: Restore renv Dependencies
       if: env.RENV_EXISTS == 'true' && steps.restore-renv-cache.outputs.cache-hit == 'true'
