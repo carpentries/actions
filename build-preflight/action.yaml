@@ -93,7 +93,7 @@ runs:
 
     - name: "Is renv required?"
       id: renv-check
-      uses: carpentries/actions/renv-checks@main
+      uses: froggleston/actions/renv-checks@docker_composites
       with:
         CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
 
