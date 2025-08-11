@@ -1,4 +1,4 @@
-name: Validate Org and Workflow
+name: "Validate Org and Workflow"
 
 inputs:
   repo:
@@ -7,7 +7,6 @@ inputs:
   workflow:
     required: true
     type: string
-
 outputs:
   is_valid:
     description: 'Is the organisation and workflow valid?'
@@ -26,6 +25,8 @@ runs:
           "datacarpentry"
           "librarycarpentry"
           "carpentries-incubator"
+          "carpentries-lab"
+          "fishtree-attempt"
           "froggleston"
         )
 
