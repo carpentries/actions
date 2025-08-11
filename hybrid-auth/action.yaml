@@ -39,7 +39,7 @@ runs:
       uses: aws-actions/configure-aws-credentials@v4.1.0
       with:
         role-skip-session-tagging: true
-        role-to-assume: arn:aws:iam::860325783027:role/carpentries-github-oidc-auth
+        role-to-assume: ${{ inputs.aws-secret-id }}
         aws-region: ${{ inputs.aws-region }}
 
     - name: Set PAT from AWS Secrets Manager (internal only)
