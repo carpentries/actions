@@ -30,9 +30,9 @@ runs:
       if: env.RENV_EXISTS == 'true'
       with:
         path: ${{ inputs.LESSON_PATH }}/renv
-        key: ${{ env.CONTAINER_VER }}-${{ inputs.cache-version }}-renv-${{ env.RENV_HASH }}
+        key: ${{ steps.wb-vers.outputs.container-version }}-${{ inputs.cache-version }}-renv-${{ env.RENV_HASH }}
         restore-keys:
-          ${{ env.CONTAINER_VER }}-${{ inputs.cache-version }}-renv-
+          ${{ steps.wb-vers.outputs.container-version }}-${{ inputs.cache-version }}-renv-
 
     - name: Fail on renv cache miss
       if: env.RENV_EXISTS == 'true' && steps.restore-renv-cache.outputs.cache-hit != 'true'
