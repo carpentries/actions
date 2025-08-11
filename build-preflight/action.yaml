@@ -1,0 +1,135 @@
+name: 'build-prefilght'
+description: 'Action to perform all prefilght checks before building a lesson'
+author: 'Robert P. Davey'
+inputs:
+  CACHE_VERSION:
+    description: 'Optional renv cache version override'
+    required: false
+    default: ''
+  varnish-version:
+    description: 'Optional Varnish version override'
+    default: 'latest'
+  sandpaper-version:
+    description: 'Optional Sandpaper version override'
+    default: 'latest'
+  pegboard-version:
+    description: 'Optional Pegboard version override'
+    default: 'latest'
+outputs:
+  do-build:
+    description: 'Do build?'
+    value: ${{ steps.build-check.outputs.push_or_pr }}
+  renv-needed:
+    description: 'Is renv needed?'
+    value: ${{ steps.check-for-renv.outputs.renv_exists }}
+  renv-cache-hashsum:
+    description: 'renv cache hashsum'
+    value: ${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}
+    default: ''
+  varnish-version-override:
+    description: 'Varnish version override'
+    value: ${{ steps.input-wb-vers.outputs.varnish-version-override }}
+  sandpaper-version-override:
+    description: 'Sandpaper version override'
+    value: ${{ steps.input-wb-vers.outputs.sandpaper-version-override }}
+  pegboard-version-override:
+    description: 'Pegboard version override'
+    value: ${{ steps.input-wb-vers.outputs.pegboard-version-override }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Should we run build and deploy?"
+      id: build-check
+      run: |
+        if [[ "${{ github.event_name }}" == "schedule" ||
+              "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          echo "✅ Scheduled or manual trigger. Build will run."
+          echo "push_or_pr=true" >> $GITHUB_OUTPUT
+        elif [[ "${{ github.event_name }}" == "workflow_run" &&
+                "${{ github.event.workflow_run.conclusion }}" == "success" ]]; then
+          if [[ "${{ github.event.workflow_run.event }}" == "pull_request" ]] ; then
+            PRE_PR="${{ github.event.workflow_run.pull_requests[0].number }}"
+            if [[ -n "$PRE_PR" ]]; then
+              PR_DATA=$(gh pr view "$PRE_PR" --repo "${{ github.repository }}" --json merged,state)
+              MERGED=$(echo "$PR_DATA" | jq -r '.merged')
+              STATE=$(echo "$PR_DATA" | jq -r '.state')
+
+              if [[ "$MERGED" == "false" || "$STATE" != "MERGED" ]]; then
+                echo "❗PR not merged or in an invalid state. No build will run."
+                echo "push_or_pr=false" >> $GITHUB_OUTPUT
+              else
+                echo "✅ PR merged successfully. Build will run."
+                echo "push_or_pr=true" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "✅ PR merged successfully. Build will run."
+              echo "push_or_pr=true" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "✅ PR merged successfully. Build will run."
+            echo "push_or_pr=true" >> $GITHUB_OUTPUT
+          fi
+        elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
+          PRE_PR=$(gh pr list --repo "${{ github.repository }}" --state merged --search "${{ github.sha }}" --json number -q ".[0].number") >> $GITHUB_ENV
+
+          if [[ -n "$PRE_PR" ]]; then
+            LABELS=$(gh pr view "$PRE_PR" --repo "${{ github.repository }}" --json labels -q ".labels[].name")
+            if echo "$LABELS" | grep -q "type: package cache"; then
+              echo "❗Package cache update PR merged. Build will not run."
+              echo "push_or_pr=false" >> $GITHUB_OUTPUT
+            else
+              echo "✅ Valid PR merged. Build will run."
+              echo "push_or_pr=true" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "✅ Direct push to main. Build will run."
+            echo "push_or_pr=true" >> $GITHUB_OUTPUT
+          fi
+        else
+          echo "❗This was not a schedule or valid trigger. No build will run."
+          echo "push_or_pr=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: "Checkout Lesson"
+      uses: actions/checkout@v4
+      if: ${{ steps.build-check.outputs.push_or_pr == 'true' }}
+
+    - name: "Check for renv"
+      id: check-for-renv
+      if: ${{ steps.build-check.outputs.push_or_pr == 'true' }}
+      run: |
+        if [[ -d renv ]]; then
+          echo "✅ renv requirement found."
+          echo "renv_exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "❗No renv requirement found. Skipping..."
+          echo "renv_exists=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Calculate renv hash
+      id: set-renv-hash
+      if: ${{ steps.check-for-renv.outputs.renv_exists == 'true' }}
+      run: |
+        CACHE_VERSION_INPUT="${{ inputs.CACHE_VERSION || vars.CACHE_VERSION }}"
+        if [ -z "$CACHE_VERSION_INPUT" ]; then
+          echo "renv-cache-hashsum=${{ hashFiles('renv/profiles/lesson-requirements/renv.lock') }}" >> $GITHUB_OUTPUT
+        else
+          echo "renv-cache-hashsum=$CACHE_VERSION_INPUT" >> $GITHUB_OUTPUT
+        fi
+
+    - name: "Get var/input Workbench package versions"
+      id: input-wb-vers
+      run: |
+        VARNISH_VERSION_INPUT="${{ inputs.varnish-version || 'latest' }}"
+        if [ ! -z "$VARNISH_VERSION_INPUT" ]; then
+          echo "varnish-version-override=$VARNISH_VERSION_INPUT" >> $GITHUB_OUTPUT
+        fi
+        SANDPAPER_VERSION_INPUT="${{ inputs.sandpaper-version || 'latest' }}"
+        if [ ! -z "$SANDPAPER_VERSION_INPUT" ]; then
+          echo "sandpaper-version-override=$SANDPAPER_VERSION_INPUT" >> $GITHUB_OUTPUT
+        fi
+        PEGBOARD_VERSION_INPUT="${{ inputs.pegboard-version || 'latest' }}"
+        if [ ! -z "$PEGBOARD_VERSION_INPUT" ]; then
+          echo "pegboard-version-override=$PEGBOARD_VERSION_INPUT" >> $GITHUB_OUTPUT
+        fi

@@ -25,6 +25,8 @@ runs:
           "datacarpentry"
           "librarycarpentry"
           "carpentries-incubator"
+          "carpentries-lab"
+          "fishtree-attempt"
           "froggleston"
         )
 
