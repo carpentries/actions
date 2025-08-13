@@ -61,4 +61,4 @@ runs:
       if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
       with:
         path: ${{ inputs.LESSON_PATH }}/renv
-        key: ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-${{ steps.set-renv-hash.outputs.renv-exists }}
+        key: ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}
