@@ -20,7 +20,7 @@ runs:
 
     - name: Check renv status
       id: check-renv
-      uses: carpentries/actions/renv-checks@main
+      uses: carpentries/actions/renv-checks@frog-renv-apply-1
 
     - name: Fail on renv cache miss
       if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available != 'true'
