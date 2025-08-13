@@ -6,13 +6,19 @@ inputs:
     description: 'Optional renv cache version override'
     required: false
     default: ''
+  LESSON_PATH:
+    description: 'Path to the lesson directory within the container. Defaults to "/home/rstudio/lesson".'
+    default: '/home/rstudio/lesson'
 outputs:
   renv-needed:
     description: 'Is renv needed?'
-    value: ${{ steps.check-for-renv.outputs.renv_exists }}
+    value: ${{ steps.check-for-renv.outputs.renv-exists }}
   renv-cache-hashsum:
     description: 'renv cache hashsum'
     value: ${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}
+  renv-cache-available:
+    description: 'Is the renv cache available?'
+    value: ${{ steps.restore-renv-cache.outputs.cache-hit }}
 
 runs:
   using: "composite"
@@ -25,16 +31,16 @@ runs:
       run: |
         if [[ -d renv ]]; then
           echo "✅ renv requirement found."
-          echo "renv_exists=true" >> $GITHUB_OUTPUT
+          echo "renv-exists=true" >> $GITHUB_OUTPUT
         else
           echo "❗No renv requirement found. Skipping..."
-          echo "renv_exists=false" >> $GITHUB_OUTPUT
+          echo "renv-exists=false" >> $GITHUB_OUTPUT
         fi
       shell: bash
 
     - name: Calculate renv hash
       id: set-renv-hash
-      if: ${{ steps.check-for-renv.outputs.renv_exists == 'true' }}
+      if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
       run: |
         CACHE_VERSION_INPUT="${{ inputs.CACHE_VERSION }}"
         if [ -z "$CACHE_VERSION_INPUT" ]; then
@@ -43,3 +49,16 @@ runs:
           echo "renv-cache-hashsum=$CACHE_VERSION_INPUT" >> $GITHUB_OUTPUT
         fi
       shell: bash
+
+    - name: Get Container Version Used
+      if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
+      id: wb-vers
+      uses: carpentries/actions/container-version@main
+
+    - name: Restore renv from cache
+      id: restore-renv-cache
+      uses: actions/cache/restore@v4
+      if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
+      with:
+        path: ${{ inputs.LESSON_PATH }}/renv
+        key: ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-${{ steps.set-renv-hash.outputs.renv-exists }}
