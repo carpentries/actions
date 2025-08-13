@@ -18,31 +18,19 @@ runs:
         Rscript /home/rstudio/.workbench/setup_lesson_deps.R
       shell: bash
 
-    - name: Get Container Version Used
-      id: wb-vers
-      uses: carpentries/actions/container-version@main
-      with:
-        WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG }}
-
-    - name: Restore renv from cache
-      id: restore-renv-cache
-      uses: actions/cache@v4
-      if: env.RENV_EXISTS == 'true'
-      with:
-        path: ${{ inputs.LESSON_PATH }}/renv
-        key: ${{ steps.wb-vers.outputs.container-version }}-${{ inputs.cache-version }}-renv-${{ env.RENV_HASH }}
-        restore-keys:
-          ${{ steps.wb-vers.outputs.container-version }}-${{ inputs.cache-version }}-renv-
+    - name: Check renv status
+      id: check-renv
+      uses: carpentries/actions/renv-checks@main
 
     - name: Fail on renv cache miss
-      if: env.RENV_EXISTS == 'true' && steps.restore-renv-cache.outputs.cache-hit != 'true'
+      if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available != 'true'
       run: |
         echo "❌ renv cache required but none available. Please run the "02 Maintain: Check for Updated Packages" then the "03 Maintain: Apply Package Cache" workflows."
         exit 1
       shell: bash
 
     - name: Restore renv Dependencies
-      if: env.RENV_EXISTS == 'true' && steps.restore-renv-cache.outputs.cache-hit == 'true'
+      if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available == 'true'
       run: |
         lsn_path <- fs::path("${{ inputs.LESSON_PATH }}")
         renv::load(project = lsn_path)
