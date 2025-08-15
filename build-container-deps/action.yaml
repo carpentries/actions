@@ -33,9 +33,15 @@ runs:
       if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available == 'true'
       run: |
         lsn_path <- fs::path("${{ inputs.LESSON_PATH }}")
-        renv::load(project = lsn_path)
+
+        site_libs <- strsplit(Sys.getenv("R_LIBS_SITE"), ":")[[1]]
+        site_libs <- site_libs[site_libs != ""]
+        options(renv.settings.external.libraries = site_libs)
+        .libPaths(c(site_libs, .libPaths()))
+
         renv_lib  <- renv::paths$library(project = lsn_path)
         renv_lock <- renv::paths$lockfile(project = lsn_path)
+        renv::load(project = lsn_path, profile = "lesson-requirements")
         renv::restore(project = lsn_path, library = renv_lib, lockfile = renv_lock, prompt = FALSE)
       shell: Rscript {0}
 
