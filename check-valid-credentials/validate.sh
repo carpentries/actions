@@ -48,7 +48,7 @@ then
 
   headerfile=${TMP}/${RANDOM}
   curl --dump-header ${headerfile} --head -H "Authorization: token ${PAT}" \
-    https://api.github.com/user/ > /dev/null
+    https://api.github.com/user > /dev/null
 
   WORKFLOW=$(grep -ic 'x-oauth-scopes: .*workflow' ${headerfile} || echo '0')
   REPO=$(grep -ic 'x-oauth-scopes: .*repo' ${headerfile} || echo '0')
