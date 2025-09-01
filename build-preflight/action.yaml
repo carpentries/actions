@@ -2,6 +2,10 @@ name: 'build-prefilght'
 description: 'Action to perform all prefilght checks before building a lesson'
 author: 'Robert P. Davey'
 inputs:
+  WORKBENCH_TAG:
+    description: 'Override Workbench version tag, e.g. "v0.15.0" or "latest". Defaults to "latest".'
+    required: false
+    default: 'latest'
   CACHE_VERSION:
     description: 'Optional renv cache version override'
     required: false
@@ -96,6 +100,7 @@ runs:
       uses: carpentries/actions/renv-checks@main
       with:
         CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
+        WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
 
     - name: "Get var/input Workbench package versions"
       id: input-wb-vers

@@ -2,6 +2,10 @@ name: 'renv-checks'
 description: 'Action to check if a repository is using renv and to generate a hashsum of the lockfile'
 author: 'Robert P. Davey'
 inputs:
+  WORKBENCH_TAG:
+    description: 'Override Workbench version tag, e.g. "v0.15.0" or "latest". Defaults to "latest".'
+    required: false
+    default: 'latest'
   CACHE_VERSION:
     description: 'Optional renv cache version override'
     required: false
@@ -54,6 +58,8 @@ runs:
       if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
       id: wb-vers
       uses: carpentries/actions/container-version@main
+      with:
+        WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
 
     - name: Restore renv from cache
       id: restore-renv-cache
