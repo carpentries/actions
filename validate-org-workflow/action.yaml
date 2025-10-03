@@ -31,6 +31,7 @@ runs:
         )
 
         ALLOWED_WORKFLOWS=(
+          "01 Maintain: Build and Deploy Site"
           "02 Maintain: Check for Updated Packages"
           "04 Maintain: Update Workflow Files"
         )
