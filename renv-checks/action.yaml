@@ -30,8 +30,6 @@ outputs:
 
 runs:
   using: "composite"
-  permissions:
-    id-token: write # OIDC permission required
   steps:
     - name: "Checkout Lesson"
       uses: actions/checkout@v4
