@@ -81,11 +81,13 @@ runs:
         workflow: ${{ github.workflow }}
 
     - name: Configure AWS credentials via OIDC
+      id: aws-creds
       if: ${{ steps.validate-org-workflow.outputs.is_valid == 'true' }}
       uses: aws-actions/configure-aws-credentials@v4.1.0
       with:
         role-to-assume: ${{ inputs.role-to-assume }}
         aws-region: ${{ inputs.aws-region }}
+        output-credentials: true
 
     - name: Restore renv from cache
       id: restore-renv-cache
@@ -93,6 +95,9 @@ runs:
       if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
       with:
         # insecure: false # optional, use http instead of https. default false
+        accessKey: ${{ steps.aws-creds.outputs.aws-access-key-id }}
+        secretKey: ${{ steps.aws-creds.outputs.aws-secret-access-key }}
+        sessionToken: ${{ steps.aws-creds.outputs.aws-session-token }}
         bucket: workbench-docker-caches
         path: |
           /home/rstudio/lesson/renv
