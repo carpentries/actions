@@ -13,6 +13,10 @@ inputs:
   LESSON_PATH:
     description: 'Path to the lesson directory within the container. Defaults to "/home/rstudio/lesson".'
     default: '/home/rstudio/lesson'
+  role-to-assume:
+    required: false
+  aws-region:
+    required: false
 outputs:
   renv-needed:
     description: 'Is renv needed?'
@@ -80,8 +84,8 @@ runs:
       if: ${{ steps.validate-org-workflow.outputs.is_valid == 'true' }}
       uses: aws-actions/configure-aws-credentials@v4.1.0
       with:
-        role-to-assume: ${{ secrets.AWS_GH_OIDC_ARN }}
-        aws-region: ${{ secrets.AWS_GH_OIDC_REGION }}
+        role-to-assume: ${{ inputs.role-to-assume }}
+        aws-region: ${{ inputs.aws-region }}
 
     - name: Restore renv from cache
       uses: tespkg/actions-cache/restore@v1.9.0
