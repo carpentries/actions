@@ -61,10 +61,35 @@ runs:
       with:
         WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
 
+    # - name: Restore renv from cache
+    #   id: restore-renv-cache
+    #   uses: actions/cache/restore@v4
+    #   if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
+    #   with:
+    #     path: ${{ inputs.LESSON_PATH }}/renv
+    #     key: ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}
+
+    - name: "Validate Current Org and Workflow"
+      id: validate-org-workflow
+      uses: carpentries/actions/validate-org-workflow@main
+      with:
+        repo: ${{ github.repository }}
+        workflow: ${{ github.workflow }}
+
+    - name: Configure AWS credentials via OIDC
+      if: ${{ steps.validate-org-workflow.outputs.is_valid == 'true' }}
+      uses: aws-actions/configure-aws-credentials@v4.1.0
+      with:
+        role-to-assume: ${{ secrets.AWS_GH_OIDC_ARN }}
+        aws-region: ${{ secrets.AWS_GH_OIDC_REGION }}
+
     - name: Restore renv from cache
-      id: restore-renv-cache
-      uses: actions/cache/restore@v4
+      uses: tespkg/actions-cache/restore@v1.9.0
       if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
       with:
-        path: ${{ inputs.LESSON_PATH }}/renv
-        key: ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}
+        # insecure: false # optional, use http instead of https. default false
+        bucket: workbench-docker-caches
+        path: |
+          /home/rstudio/lesson/renv
+          /usr/local/lib/R/site-library
+        key: ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-${{ needs.check-renv.outputs.renv-cache-hashsum }}

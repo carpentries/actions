@@ -20,7 +20,7 @@ runs:
 
     - name: Check renv status
       id: check-renv
-      uses: carpentries/actions/renv-checks@main
+      uses: carpentries/actions/renv-checks@frog-s3-test-1
       with:
         WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
         LESSON_PATH: ${{ inputs.LESSON_PATH || '/home/rstudio/lesson' }}
