@@ -33,6 +33,7 @@ runs:
         ALLOWED_WORKFLOWS=(
           "01 Maintain: Build and Deploy Site"
           "02 Maintain: Check for Updated Packages"
+          "03 Maintain: Apply Package Cache"
           "04 Maintain: Update Workflow Files"
           "Test s3 caching"
         )
