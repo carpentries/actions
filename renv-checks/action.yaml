@@ -95,10 +95,3 @@ runs:
           /home/rstudio/lesson/renv
           /usr/local/lib/R/site-library
         key: ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}
-
-    - name: Fail on renv cache miss
-      if: steps.check-for-renv.outputs.renv-exists == 'true' && steps.restore-renv-cache.outputs.cache-hit != 'true'
-      run: |
-        echo "❌ renv cache required but none available. Please run the '02 Maintain: Check for Updated Packages' workflow, merge the package update PR if raised, and then run the '03: Maintain: Apply Package Cache' workflow."
-        exit 1
-      shell: bash

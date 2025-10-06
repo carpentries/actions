@@ -31,12 +31,12 @@ runs:
         role-to-assume: ${{ inputs.role-to-assume }}
         aws-region: ${{ inputs.aws-region }}
 
-    # - name: Fail on renv cache miss
-    #   if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available != 'true'
-    #   run: |
-    #     echo "❌ renv cache required but none available. Please run the "02 Maintain: Check for Updated Packages" then the "03 Maintain: Apply Package Cache" workflows."
-    #     exit 1
-    #   shell: bash
+    - name: Fail on renv cache miss
+      if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available != 'true'
+      run: |
+        echo "❌ renv cache required but none available. Please run the "02 Maintain: Check for Updated Packages" then the "03 Maintain: Apply Package Cache" workflows."
+        exit 1
+      shell: bash
 
     - name: Restore renv Dependencies
       if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available == 'true'
