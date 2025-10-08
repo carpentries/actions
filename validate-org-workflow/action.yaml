@@ -35,7 +35,6 @@ runs:
           "02 Maintain: Check for Updated Packages"
           "03 Maintain: Apply Package Cache"
           "04 Maintain: Update Workflow Files"
-          "Test s3 caching"
         )
 
         REPO="${{ inputs.repo }}"
