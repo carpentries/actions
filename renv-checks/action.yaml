@@ -39,7 +39,7 @@ outputs:
     value: ${{ steps.restore-renv-cache.outputs.cache-matched-key }}
   backup-cache-used:
     description: 'Was a previous cache version retrieved?'
-    value: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && steps.restore-renv-cache.outputs.cache-matched-key != '' }}
+    value: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && ((steps.restore-renv-cache.outputs.cache-matched-key || '') != '') }}
 
 runs:
   using: "composite"
