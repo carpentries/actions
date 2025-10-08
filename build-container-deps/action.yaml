@@ -42,6 +42,7 @@ runs:
         echo "renv-needed: ${{ steps.check-renv.outputs.renv-needed }}"
         echo "renv-cache-hashsum: ${{ steps.check-renv.outputs.renv-cache-hashsum }}"
         echo "renv-cache-available: ${{ steps.check-renv.outputs.renv-cache-available }}"
+        echo "cache-matched-key: ${{ steps.check-renv.outputs.cache-matched-key }}"
         echo "backup-cache-used: ${{ steps.check-renv.outputs.backup-cache-used }}"
         echo "::endgroup::"
       shell: bash

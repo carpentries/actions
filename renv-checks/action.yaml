@@ -34,6 +34,9 @@ outputs:
   renv-cache-available:
     description: 'Is the renv cache available?'
     value: ${{ steps.restore-renv-cache.outputs.cache-hit }}
+  cache-matched-key:
+    description: 'The matched cache key, if any'
+    value: ${{ steps.restore-renv-cache.outputs.cache-matched-key }}
   backup-cache-used:
     description: 'Was a previous cache version retrieved?'
     value: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && steps.restore-renv-cache.outputs.cache-matched-key != '' }}
