@@ -36,10 +36,10 @@ outputs:
     value: ${{ steps.restore-renv-cache.outputs.cache-hit }}
   cache-matched-key:
     description: 'The matched cache key, if any'
-    value: ${{ steps.restore-renv-cache.outputs.cache-matched-key }}
+    value: ${{ steps.restore-renv-cache.outputs.matched-key }}
   backup-cache-used:
     description: 'Was a previous cache version retrieved?'
-    value: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && steps.restore-renv-cache.outputs.cache-matched-key && steps.restore-renv-cache.outputs.cache-matched-key != '' }}
+    value: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && ((steps.restore-renv-cache.outputs.matched-key || '') != '') }}
 
 runs:
   using: "composite"
@@ -111,6 +111,6 @@ runs:
         path: |
           /home/rstudio/lesson/renv
           /usr/local/lib/R/site-library
+        key: ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}
         restore-keys: |
-          ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}
           ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-
