@@ -79,7 +79,7 @@ runs:
         renv_lock <- renv::paths$lockfile(project = lsn_path)
         renv::load(project = lsn_path, profile = "lesson-requirements")
         renv::restore(project = lsn_path, library = renv_lib, lockfile = renv_lock, prompt = FALSE)
-        cat("::endgroup::\n)
+        cat("::endgroup::\n")
       shell: Rscript {0}
 
     - name: Override any Workbench packages
