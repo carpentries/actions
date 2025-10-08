@@ -108,7 +108,7 @@ runs:
     - name: "Get var/input Workbench package versions"
       id: input-wb-vers
       run: |
-        echo "::group::Checking Workbench package versions"
+        # Checking Workbench package versions
         VARNISH_VERSION_INPUT="${{ inputs.varnish-version || 'latest' }}"
         if [ ! -z "$VARNISH_VERSION_INPUT" ]; then
           echo "varnish-version-override=$VARNISH_VERSION_INPUT" >> $GITHUB_OUTPUT
@@ -121,5 +121,4 @@ runs:
         if [ ! -z "$PEGBOARD_VERSION_INPUT" ]; then
           echo "pegboard-version-override=$PEGBOARD_VERSION_INPUT" >> $GITHUB_OUTPUT
         fi
-        echo "::endgroup::"
       shell: bash
