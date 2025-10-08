@@ -51,7 +51,7 @@ runs:
     - name: "Check for renv"
       id: check-for-renv
       run: |
-        echo "::group::Checking if renv is used"
+        # Checking if renv is used #
         if [[ -d renv ]]; then
           echo "✅ renv requirement found."
           echo "renv-exists=true" >> $GITHUB_OUTPUT
@@ -59,21 +59,19 @@ runs:
           echo "❗No renv requirement found. Skipping..."
           echo "renv-exists=false" >> $GITHUB_OUTPUT
         fi
-        echo "::endgroup::"
       shell: bash
 
     - name: Calculate renv hash
       id: set-renv-hash
       if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
       run: |
-        echo "::group::Calculate renv cache hashsum"
+        # Calculating renv cache hashsum #
         CACHE_VERSION_INPUT="${{ inputs.CACHE_VERSION }}"
         if [ -z "$CACHE_VERSION_INPUT" ]; then
           echo "renv-cache-hashsum=${{ hashFiles('renv/profiles/lesson-requirements/renv.lock') }}" >> $GITHUB_OUTPUT
         else
           echo "renv-cache-hashsum=$CACHE_VERSION_INPUT" >> $GITHUB_OUTPUT
         fi
-        echo "::endgroup::"
       shell: bash
 
     - name: Get Container Version Used

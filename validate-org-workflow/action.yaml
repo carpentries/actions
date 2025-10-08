@@ -17,9 +17,8 @@ runs:
   steps:
     - name: "Validate Organisation and Workflow"
       id: validate-org-workflow
-      shell: bash
       run: |
-        echo "::group::Validating organisation and workflow"
+        # Validating organisation and workflow #
         ALLOWED_ORGS=(
           "carpentries"
           "swcarpentry"
@@ -61,4 +60,4 @@ runs:
         else
           echo "is_valid=false" >> $GITHUB_OUTPUT
         fi
-        echo "::endgroup::"
+      shell: bash

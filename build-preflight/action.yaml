@@ -45,7 +45,7 @@ runs:
     - name: "Should we run build and deploy?"
       id: build-check
       run: |
-        echo "::group::Running pre-build checks"
+        # Pre-build checks #
         if [[ "${{ github.event_name }}" == "schedule" ||
               "${{ github.event_name }}" == "workflow_dispatch" ]]; then
           echo "✅ Scheduled or manual trigger. Build will run."
@@ -94,7 +94,6 @@ runs:
           echo "❗This was not a schedule or valid trigger. No build will run."
           echo "push_or_pr=false" >> $GITHUB_OUTPUT
         fi
-        echo "::endgroup::"
       shell: bash
 
     - name: "Is renv required?"
@@ -108,7 +107,7 @@ runs:
     - name: "Get var/input Workbench package versions"
       id: input-wb-vers
       run: |
-        # Checking Workbench package versions
+        # Checking Workbench package versions #
         VARNISH_VERSION_INPUT="${{ inputs.varnish-version || 'latest' }}"
         if [ ! -z "$VARNISH_VERSION_INPUT" ]; then
           echo "varnish-version-override=$VARNISH_VERSION_INPUT" >> $GITHUB_OUTPUT
