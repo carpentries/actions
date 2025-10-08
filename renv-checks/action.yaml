@@ -34,12 +34,13 @@ outputs:
   renv-cache-available:
     description: 'Is the renv cache available?'
     value: ${{ steps.restore-renv-cache.outputs.cache-hit }}
-  cache-matched-key:
-    description: 'The matched cache key, if any'
-    value: ${{ steps.restore-renv-cache.outputs.matched-key }}
+  cache-matched-size:
+    description: 'The matched cache size, if any'
+    value: ${{ steps.restore-renv-cache.outputs.cache-size }}
   backup-cache-used:
     description: 'Was a previous cache version retrieved?'
-    value: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && ((steps.restore-renv-cache.outputs.matched-key || '') != '') }}
+    # value: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && ((steps.restore-renv-cache.outputs.matched-key || '') != '') }}
+    value: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && ((steps.restore-renv-cache.outputs.cache-size || 0) > 0) }}
 
 runs:
   using: "composite"
