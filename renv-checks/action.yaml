@@ -13,10 +13,17 @@ inputs:
   LESSON_PATH:
     description: 'Path to the lesson directory within the container. Defaults to "/home/rstudio/lesson".'
     default: '/home/rstudio/lesson'
+  skip-cache-check:
+    description: 'Skip checking for cache availability and just report if renv is needed'
+    required: false
+    default: false
+    type: boolean
   role-to-assume:
     required: false
+    type: string
   aws-region:
     required: false
+    type: string
 outputs:
   renv-needed:
     description: 'Is renv needed?'
@@ -29,7 +36,7 @@ outputs:
     value: ${{ steps.restore-renv-cache.outputs.cache-hit }}
   backup-cache-used:
     description: 'Was a previous cache version retrieved?'
-    value: ${{ steps.restore-renv-cache.outputs.cache-hit == 'false' && steps.restore-renv-cache.outputs.cache-matched-key != '' }}
+    value: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && steps.restore-renv-cache.outputs.cache-matched-key != '' }}
 
 runs:
   using: "composite"
@@ -40,6 +47,7 @@ runs:
     - name: "Check for renv"
       id: check-for-renv
       run: |
+        echo "::group::Checking if renv is used"
         if [[ -d renv ]]; then
           echo "✅ renv requirement found."
           echo "renv-exists=true" >> $GITHUB_OUTPUT
@@ -47,18 +55,21 @@ runs:
           echo "❗No renv requirement found. Skipping..."
           echo "renv-exists=false" >> $GITHUB_OUTPUT
         fi
+        echo "::endgroup::"
       shell: bash
 
     - name: Calculate renv hash
       id: set-renv-hash
       if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
       run: |
+        echo "::group::Calculate renv cache hashsum"
         CACHE_VERSION_INPUT="${{ inputs.CACHE_VERSION }}"
         if [ -z "$CACHE_VERSION_INPUT" ]; then
           echo "renv-cache-hashsum=${{ hashFiles('renv/profiles/lesson-requirements/renv.lock') }}" >> $GITHUB_OUTPUT
         else
           echo "renv-cache-hashsum=$CACHE_VERSION_INPUT" >> $GITHUB_OUTPUT
         fi
+        echo "::endgroup::"
       shell: bash
 
     - name: Get Container Version Used
@@ -77,7 +88,7 @@ runs:
 
     - name: Configure AWS credentials via OIDC
       id: aws-creds
-      if: ${{ steps.validate-org-workflow.outputs.is_valid == 'true' }}
+      if: ${{ steps.validate-org-workflow.outputs.is_valid == 'true'  && inputs.skip-cache-check != 'true' }}
       uses: aws-actions/configure-aws-credentials@v5.0.0
       with:
         role-to-assume: ${{ inputs.role-to-assume }}
@@ -87,7 +98,7 @@ runs:
     - name: Restore renv from cache
       id: restore-renv-cache
       uses: tespkg/actions-cache/restore@v1.9.0
-      if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
+      if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' && inputs.skip-cache-check != 'true' }}
       with:
         # insecure: false # optional, use http instead of https. default false
         accessKey: ${{ steps.aws-creds.outputs.aws-access-key-id }}

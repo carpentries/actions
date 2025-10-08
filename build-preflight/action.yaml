@@ -45,6 +45,7 @@ runs:
     - name: "Should we run build and deploy?"
       id: build-check
       run: |
+        echo "::group::Running pre-build checks"
         if [[ "${{ github.event_name }}" == "schedule" ||
               "${{ github.event_name }}" == "workflow_dispatch" ]]; then
           echo "✅ Scheduled or manual trigger. Build will run."
@@ -93,18 +94,21 @@ runs:
           echo "❗This was not a schedule or valid trigger. No build will run."
           echo "push_or_pr=false" >> $GITHUB_OUTPUT
         fi
+        echo "::endgroup::"
       shell: bash
 
     - name: "Is renv required?"
       id: renv-check
-      uses: carpentries/actions/renv-checks@main
+      uses: carpentries/actions/renv-checks@frog-s3-test-1
       with:
         CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
         WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
+        skip-cache-check: true
 
     - name: "Get var/input Workbench package versions"
       id: input-wb-vers
       run: |
+        echo "::group::Checking Workbench package versions"
         VARNISH_VERSION_INPUT="${{ inputs.varnish-version || 'latest' }}"
         if [ ! -z "$VARNISH_VERSION_INPUT" ]; then
           echo "varnish-version-override=$VARNISH_VERSION_INPUT" >> $GITHUB_OUTPUT
@@ -117,4 +121,5 @@ runs:
         if [ ! -z "$PEGBOARD_VERSION_INPUT" ]; then
           echo "pegboard-version-override=$PEGBOARD_VERSION_INPUT" >> $GITHUB_OUTPUT
         fi
+        echo "::endgroup::"
       shell: bash
