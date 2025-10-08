@@ -6,6 +6,10 @@ inputs:
     description: 'Override Workbench version tag, e.g. "v0.15.0" or "latest". Defaults to "latest".'
     required: false
     default: 'latest'
+  CACHE_VERSION:
+    description: 'Optional renv cache version override'
+    required: false
+    default: ''
   LESSON_PATH:
     description: 'Path to the lesson directory within the container. Defaults to "/home/rstudio/lesson".'
     default: '/home/rstudio/lesson'
@@ -26,6 +30,7 @@ runs:
       id: check-renv
       uses: carpentries/actions/renv-checks@frog-s3-test-1
       with:
+        CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
         WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
         LESSON_PATH: ${{ inputs.LESSON_PATH || '/home/rstudio/lesson' }}
         role-to-assume: ${{ inputs.role-to-assume }}
@@ -34,14 +39,14 @@ runs:
     - name: Fail on renv cache miss
       if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available != 'true' && steps.check-renv.outputs.backup-cache-used != 'true'
       run: |
-        echo "::error:: renv cache required but none available. Please run the '02 Maintain: Check for Updated Packages' then the '03 Maintain: Apply Package Cache' workflows."
+        echo "❌ renv cache required but none available. Please run the '02 Maintain: Check for Updated Packages' then the '03 Maintain: Apply Package Cache' workflows."
         exit 1
       shell: bash
 
     - name: Warn on previous cache used
       if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available != 'true' && steps.check-renv.outputs.backup-cache-used == 'true'
       run: |
-        echo "::warning:: up to date renv cache not available, but previous cache was found and used. We recommend running the '02 Maintain: Check for Updated Packages' and '03 Maintain: Apply Package Cache' workflows to update the cache."
+        echo "⚠️ up to date renv cache not available, but previous cache was found and used. We recommend running the '02 Maintain: Check for Updated Packages' and '03 Maintain: Apply Package Cache' workflows to update the cache."
       shell: bash
 
     - name: Restore renv Dependencies
