@@ -48,8 +48,7 @@ runs:
       if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available != 'true' && steps.check-renv.outputs.backup-cache-used == 'true'
       run: |
         # ⚠️ WARNING: previous cache used #
-        echo "⚠️ up to date renv cache not available, but previous cache was found and used. We recommend running the '02 Maintain: Check for Updated Packages' and '03 Maintain: Apply Package Cache' workflows to update the cache."
-        echo "::endgroup::"
+        echo "⚠️ Requested renv cache not available, but a previous cache was found and used. It is recommended to run the '02 Maintain: Check for Updated Packages' and '03 Maintain: Apply Package Cache' workflows to update the cache."
       shell: bash
 
     - name: Restore renv Dependencies
