@@ -34,13 +34,16 @@ outputs:
   renv-cache-available:
     description: 'Is the renv cache available?'
     value: ${{ steps.restore-renv-cache.outputs.cache-hit }}
+  cache-matched-key:
+    description: 'The matched cache key, if any'
+    value: ${{ steps.restore-renv-cache.outputs.cache-matched-key }}
   cache-matched-size:
     description: 'The matched cache size, if any'
     value: ${{ steps.restore-renv-cache.outputs.cache-size }}
   backup-cache-used:
     description: 'Was a previous cache version retrieved?'
-    # value: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && ((steps.restore-renv-cache.outputs.matched-key || '') != '') }}
-    value: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && ((steps.restore-renv-cache.outputs.cache-size || 0) > 0) }}
+    value: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && ((steps.restore-renv-cache.outputs.cache-matched-key || '') != '') }}
+    # value: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && ((steps.restore-renv-cache.outputs.cache-size || 0) > 0) }}
 
 runs:
   using: "composite"
@@ -114,3 +117,14 @@ runs:
         key: ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}
         restore-keys: |
           ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-
+
+    - name: "Debug output"
+      run: |
+        # Debug renv cache output #
+        echo "renv-needed: ${{ steps.check-for-renv.outputs.renv-exists }}"
+        echo "renv-cache-hashsum: ${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}"
+        echo "renv-cache-available: ${{ steps.restore-renv-cache.outputs.cache-hit }}"
+        echo "cache-matched-key: ${{ steps.restore-renv-cache.outputs.cache-matched-key }}"
+        echo "cache-matched-size: ${{ steps.restore-renv-cache.outputs.cache-size }}"
+        echo "backup-cache-used: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && ((steps.restore-renv-cache.outputs.cache-matched-key || '') != '') }}"
+      shell: bash
