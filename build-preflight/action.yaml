@@ -101,7 +101,6 @@ runs:
       uses: carpentries/actions/renv-checks@frog-s3-test-1
       with:
         CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
-        WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
         skip-cache-check: true
 
     - name: "Get var/input Workbench package versions"
