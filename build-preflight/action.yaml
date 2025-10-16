@@ -108,15 +108,15 @@ runs:
       run: |
         # Checking Workbench package versions #
         VARNISH_VERSION_INPUT="${{ inputs.varnish-version || 'latest' }}"
-        if [ ! -z "$VARNISH_VERSION_INPUT" ]; then
+        if [[ ! -z "$VARNISH_VERSION_INPUT" ]]; then
           echo "varnish-version-override=$VARNISH_VERSION_INPUT" >> $GITHUB_OUTPUT
         fi
         SANDPAPER_VERSION_INPUT="${{ inputs.sandpaper-version || 'latest' }}"
-        if [ ! -z "$SANDPAPER_VERSION_INPUT" ]; then
+        if [[ ! -z "$SANDPAPER_VERSION_INPUT" ]]; then
           echo "sandpaper-version-override=$SANDPAPER_VERSION_INPUT" >> $GITHUB_OUTPUT
         fi
         PEGBOARD_VERSION_INPUT="${{ inputs.pegboard-version || 'latest' }}"
-        if [ ! -z "$PEGBOARD_VERSION_INPUT" ]; then
+        if [[ ! -z "$PEGBOARD_VERSION_INPUT" ]]; then
           echo "pegboard-version-override=$PEGBOARD_VERSION_INPUT" >> $GITHUB_OUTPUT
         fi
       shell: bash

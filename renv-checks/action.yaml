@@ -69,7 +69,7 @@ runs:
       run: |
         # Calculating renv cache hashsum #
         CACHE_VERSION_INPUT="${{ inputs.CACHE_VERSION }}"
-        if [ -z "$CACHE_VERSION_INPUT" ]; then
+        if [[ -z "$CACHE_VERSION_INPUT" ]]; then
           echo "renv-cache-hashsum=${{ hashFiles('renv/profiles/lesson-requirements/renv.lock') }}" >> $GITHUB_OUTPUT
         else
           echo "renv-cache-hashsum=$CACHE_VERSION_INPUT" >> $GITHUB_OUTPUT

@@ -34,6 +34,13 @@ runs:
     - name: Get Previous Container Version Used
       id: prev-wb-vers
       run: |
-        VER=$(cat .github/workflows/workbench-docker-version.txt || echo "")
-        echo "last-build-container-version=$VER" >> $GITHUB_OUTPUT
+        # Getting last successful build container version #
+        # if the file doesn't exist, default to empty string
+        LAST_VER_FILE=".github/workflows/workbench-docker-version.txt"
+        if [[ -f "$LAST_VER_FILE" ]]; then
+          LAST_VER=$(cat "$LAST_VER_FILE")
+        else
+          LAST_VER=""
+        fi
+        echo "last-build-container-version=$LAST_VER" >> $GITHUB_OUTPUT
       shell: bash
