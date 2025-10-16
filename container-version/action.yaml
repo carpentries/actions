@@ -7,8 +7,11 @@ inputs:
     required: false
     default: 'latest'
 outputs:
+  last-container-version:
+    description: 'Previous successful build Docker container version'
+    value: ${{ steps.wb-vers.outputs.last-build-container-version }}
   container-version:
-    description: 'Docker Container Version'
+    description: 'Docker container version'
     value: ${{ steps.wb-vers.outputs.container-version }}
 
 runs:
@@ -26,4 +29,11 @@ runs:
           VER="$tag"
         fi
         echo "container-version=$VER" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Get Previous Container Version Used
+      id: prev-wb-vers
+      run: |
+        VER=$(cat .github/workflows/workbench-docker-version.txt || echo "")
+        echo "last-build-container-version=$VER" >> $GITHUB_OUTPUT
       shell: bash
