@@ -7,12 +7,12 @@ inputs:
     required: false
     default: 'latest'
 outputs:
-  last-container-version:
-    description: 'Previous successful build Docker container version'
-    value: ${{ steps.wb-vers.outputs.last-build-container-version }}
   container-version:
     description: 'Docker container version'
     value: ${{ steps.wb-vers.outputs.container-version }}
+  last-container-version:
+    description: 'Previous successful build Docker container version'
+    value: ${{ steps.prev-wb-vers.outputs.last-build-container-version }}
 
 runs:
   using: "composite"
