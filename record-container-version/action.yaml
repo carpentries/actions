@@ -1,0 +1,27 @@
+name: 'record-container-version'
+description: 'Action to record the Docker container version in workbench-docker-version.txt'
+author: 'Robert P. Davey'
+inputs:
+  CONTAINER_VER:
+    description: 'Docker container version used'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Checkout Lesson"
+      uses: actions/checkout@v4
+
+    - name: Record Container Version Used
+      id: record-wb-vers
+      run: |
+        # Recording container version to .github/workbench-docker-version.txt #
+        echo "${{ inputs.CONTAINER_VER }}" > .github/workbench-docker-version.txt
+        git config --local user.name "GitHub Actions"
+        git config --local user.email "actions@github.com"
+        git add .github/workbench-docker-version.txt
+        if [ ! -z "$(git status --porcelain)" ]; then
+          git commit -m "Update workbench-docker-version.txt to ${{ inputs.CONTAINER_VER }}"
+          git push origin ${{ github.ref_name }}
+        fi
+      shell: bash
