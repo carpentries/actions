@@ -13,13 +13,20 @@ outputs:
   last-container-version:
     description: 'Previous successful build Docker container version'
     value: ${{ steps.prev-wb-vers.outputs.last-build-container-version }}
+  workbench-container-file-exists:
+    description: 'Does the workbench-docker-version.txt file exist?'
+    value: ${{ steps.check-ver-file.outputs.version-file-exists }}
 
 runs:
   using: "composite"
   steps:
+    - name: "Checkout Lesson"
+      uses: actions/checkout@v4
+
     - name: Get Container Version Used
       id: wb-vers
       run: |
+        # Getting version tag from DockerHub metadata #
         tag=${{ inputs.WORKBENCH_TAG || 'latest' }}
         digest=$(curl -s "https://hub.docker.com/v2/repositories/carpentries/workbench-docker/tags?name=$tag" | jq -r '.results[] | select(.name == "'$tag'") | .digest')
         if [[ "$tag" == "latest" ]]; then
@@ -31,11 +38,22 @@ runs:
         echo "container-version=$VER" >> $GITHUB_OUTPUT
       shell: bash
 
+    - name: Check version file exists
+      id: check-ver-file
+      run: |
+        # Checking last successful build container version file #
+        LAST_VER_FILE=".github/workflows/workbench-docker-version.txt"
+        if [[ -f "$LAST_VER_FILE" ]]; then
+          echo "version-file-exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "version-file-exists=false" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
+
     - name: Get Previous Container Version Used
       id: prev-wb-vers
       run: |
         # Getting last successful build container version #
-        # if the file doesn't exist, default to empty string
         LAST_VER_FILE=".github/workflows/workbench-docker-version.txt"
         if [[ -f "$LAST_VER_FILE" ]]; then
           LAST_VER=$(cat "$LAST_VER_FILE")
