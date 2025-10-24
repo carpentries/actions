@@ -18,11 +18,11 @@ runs:
     - name: Record Container Version Used
       id: record-wb-vers
       run: |
-        # Recording container version to .github/workflows/workbench-docker-version.txt #
-        echo "${{ inputs.CONTAINER_VER }}" > .github/workflows/workbench-docker-version.txt
+        # Recording container version to .github/workbench-docker-version.txt #
+        echo "${{ inputs.CONTAINER_VER }}" > .github/workbench-docker-version.txt
         git config --local user.name "GitHub Actions"
         git config --local user.email "actions@github.com"
-        git add .github/workflows/workbench-docker-version.txt
+        git add .github/workbench-docker-version.txt
         if [ ! -z "$(git status --porcelain)" ]; then
           # git commit -m "Update workbench-docker-version.txt to ${{ inputs.CONTAINER_VER }}"
           # git push origin ${{ github.ref_name }}
