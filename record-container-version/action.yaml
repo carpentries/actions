@@ -34,7 +34,7 @@ runs:
       uses: peter-evans/create-pull-request@v7.0.8
       id: create-pr
       if: |
-        steps.record-wb-vers.outputs.create-pr == 'true' && github.event.pull_request.head.repo.full_name == github.repository
+        steps.record-wb-vers.outputs.create-pr == 'true'
       with:
         token: ${{ inputs.token }}
         branch: "update/workbench-docker-version"
