@@ -40,7 +40,9 @@ runs:
       if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available != 'true' && steps.check-renv.outputs.backup-cache-used != 'true'
       run: |
         # ❌ ERROR: renv cache miss #
-        echo "❌ renv cache required but none available. Please run the '02 Maintain: Check for Updated Packages' then the '03 Maintain: Apply Package Cache' workflows."
+        echo "## ❌ ERROR: renv Cache Miss" >> $GITHUB_STEP_SUMMARY
+        echo "A cached renv environment is required to build this lesson but none is available in the cache." >> $GITHUB_STEP_SUMMARY
+        echo "Please run the '02 Maintain: Check for Updated Packages' then the '03 Maintain: Apply Package Cache' workflows." >> $GITHUB_STEP_SUMMARY
         exit 1
       shell: bash
 
@@ -48,7 +50,9 @@ runs:
       if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available != 'true' && steps.check-renv.outputs.backup-cache-used == 'true'
       run: |
         # ⚠️ WARNING: previous cache used #
-        echo "⚠️ Requested renv cache not available, but a previous cache was found and used. It is recommended to run the '02 Maintain: Check for Updated Packages' and '03 Maintain: Apply Package Cache' workflows to update the cache."
+        echo "## ⚠️ WARNING: previous cache used" >> $GITHUB_STEP_SUMMARY
+        echo "Requested renv cache not available, but a previous cache was found and used." >> $GITHUB_STEP_SUMMARY
+        echo "Whilst this will work, it is recommended to run the '02 Maintain: Check for Updated Packages' and '03 Maintain: Apply Package Cache' workflows to update the cache." >> $GITHUB_STEP_SUMMARY
       shell: bash
 
     - name: Restore renv Dependencies

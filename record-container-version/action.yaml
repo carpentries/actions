@@ -5,6 +5,9 @@ inputs:
   CONTAINER_VER:
     description: 'Docker container version used'
     required: true
+  token:
+    description: "Token to validate"
+    required: true
 
 runs:
   using: "composite"
@@ -15,13 +18,42 @@ runs:
     - name: Record Container Version Used
       id: record-wb-vers
       run: |
-        # Recording container version to .github/workbench-docker-version.txt #
-        echo "${{ inputs.CONTAINER_VER }}" > .github/workbench-docker-version.txt
+        # Recording container version to .github/workflows/workbench-docker-version.txt #
+        echo "${{ inputs.CONTAINER_VER }}" > .github/workflows/workbench-docker-version.txt
         git config --local user.name "GitHub Actions"
         git config --local user.email "actions@github.com"
-        git add .github/workbench-docker-version.txt
+        git add .github/workflows/workbench-docker-version.txt
         if [ ! -z "$(git status --porcelain)" ]; then
-          git commit -m "Update workbench-docker-version.txt to ${{ inputs.CONTAINER_VER }}"
-          git push origin ${{ github.ref_name }}
+          # git commit -m "Update workbench-docker-version.txt to ${{ inputs.CONTAINER_VER }}"
+          # git push origin ${{ github.ref_name }}
+          echo "create-pr=true" >> $GITHUB_OUTPUT
         fi
+      shell: bash
+
+    - name: Create Workbench Version PR
+      uses: peter-evans/create-pull-request@v7.0.8
+      id: create-pr
+      if: |
+        steps.record-wb-vers.outputs.create-pr == 'true' && github.event.pull_request.head.repo.full_name == github.repository
+      with:
+        token: ${{ inputs.token }}
+        branch: "update/workbench-docker-version"
+        delete-branch: true
+        commit-message: "[actions] update workbench docker version to ${{ inputs.CONTAINER_VER }}"
+        title: "Update workbench docker version to ${{ inputs.CONTAINER_VER }}"
+        body: |
+          Workbench Docker image version updated to: [${{ inputs.CONTAINER_VER }}][1]
+
+          This will trigger a rebuild.
+
+          [1]: "https://hub.docker.com/layers/carpentries/workbench-docker/${{ inputs.CONTAINER_VER }}"
+        labels: "type: docker version"
+        draft: false
+
+    - name: Auto-merge Workbench Version PR
+      if: steps.record-wb-vers.outputs.create-pr == 'true' && steps.create-pr.outcome == 'success'
+      run: |
+        gh pr merge --auto --squash update/workbench-docker-version
+      env:
+        GH_TOKEN: ${{ inputs.token }}
       shell: bash

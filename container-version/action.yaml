@@ -42,7 +42,7 @@ runs:
       id: check-ver-file
       run: |
         # Checking last successful build container version file #
-        LAST_VER_FILE=".github/workbench-docker-version.txt"
+        LAST_VER_FILE=".github/workflows/workbench-docker-version.txt"
         if [[ -f "$LAST_VER_FILE" ]]; then
           echo "version-file-exists=true" >> $GITHUB_OUTPUT
         else
@@ -54,7 +54,7 @@ runs:
       id: prev-wb-vers
       run: |
         # Getting last successful build container version #
-        LAST_VER_FILE=".github/workbench-docker-version.txt"
+        LAST_VER_FILE=".github/workflows/workbench-docker-version.txt"
         if [[ -f "$LAST_VER_FILE" ]]; then
           LAST_VER=$(cat "$LAST_VER_FILE")
         else
