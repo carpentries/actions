@@ -2,14 +2,10 @@ name: 'build-prefilght'
 description: 'Action to perform all prefilght checks before building a lesson'
 author: 'Robert P. Davey'
 inputs:
-  WORKBENCH_TAG:
-    description: 'Override Workbench version tag, e.g. "v0.15.0" or "latest". Defaults to "latest".'
+  CACHE_VERSION:
+    description: 'Optional renv cache version override'
     required: false
-    default: 'latest'
-  # CACHE_VERSION:
-  #   description: 'Optional renv cache version override'
-  #   required: false
-  #   default: ''
+    default: ''
   varnish-version:
     description: 'Optional Varnish version override'
     default: 'latest'
@@ -23,12 +19,12 @@ outputs:
   do-build:
     description: 'Do build?'
     value: ${{ steps.build-check.outputs.push_or_pr }}
-  # renv-needed:
-  #   description: 'Is renv needed?'
-  #   value: ${{ steps.renv-check.outputs.renv-needed }}
-  # renv-cache-hashsum:
-  #   description: 'renv cache hashsum'
-  #   value: ${{ steps.renv-check.outputs.renv-cache-hashsum }}
+  renv-needed:
+    description: 'Is renv needed?'
+    value: ${{ steps.renv-check.outputs.renv-needed }}
+  renv-cache-hashsum:
+    description: 'renv cache hashsum'
+    value: ${{ steps.renv-check.outputs.renv-cache-hashsum }}
   varnish-version-override:
     description: 'Varnish version override'
     value: ${{ steps.input-wb-vers.outputs.varnish-version-override }}
@@ -95,6 +91,13 @@ runs:
           echo "push_or_pr=false" >> $GITHUB_OUTPUT
         fi
       shell: bash
+
+    - name: "Is renv required?"
+      id: renv-check
+      uses: carpentries/actions/renv-checks@frog-s3-test-1
+      with:
+        CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
+        skip-cache-check: true
 
     - name: "Get var/input Workbench package versions"
       id: input-wb-vers
