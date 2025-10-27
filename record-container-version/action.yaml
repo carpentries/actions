@@ -99,11 +99,6 @@ runs:
     # only trigger checks manually if the validate-token step had no valid AWS or SANDPAPER_WORKFLOW token
     - name: "Trigger checks"
       if: ${{ steps.cpr.outputs.pull-request-number != '' && steps.validate-token.outputs.wf != 'true'}}
-      permissions:
-        contents: read
-        actions: write
-        checks: write
-        pull-requests: write
       env:
         GH_TOKEN: ${{ inputs.token }}
       run: |
