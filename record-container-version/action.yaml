@@ -7,7 +7,7 @@ inputs:
     required: true
   token:
     description: "Token to validate"
-    required: false
+    required: true
   role-to-assume:
     required: false
   aws-region:
