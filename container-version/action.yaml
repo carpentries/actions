@@ -9,9 +9,6 @@ inputs:
   renv-needed:
     description: 'Is renv required for this lesson?'
     required: true
-  token:
-    description: "Token to validate"
-    required: true
 outputs:
   container-version:
     description: 'Docker container version'
@@ -71,8 +68,6 @@ runs:
 
     - name: "Trigger Update Cache Workflow?"
       id: trigger-cache-update
-      env:
-        GH_TOKEN: ${{ inputs.token }}
       run: |
         # Compare current and last workbench versions #
         if [[ ${{ inputs.renv-needed }} == 'true' && ${{ steps.wb-vers.outputs.container-version != steps.prev-wb-vers.outputs.last-build-container-version }} == 'true' ]]; then
