@@ -78,6 +78,9 @@ runs:
             if echo "$LABELS" | grep -q "type: package cache"; then
               echo "❗Package cache update PR merged. Build will not run."
               echo "push_or_pr=false" >> $GITHUB_OUTPUT
+            elif echo "$LABELS" | grep -q "type: docker version"; then
+              echo "❗Workbench Docker version PR merged. Build will not run."
+              echo "push_or_pr=false" >> $GITHUB_OUTPUT
             else
               echo "✅ Valid PR merged. Build will run."
               echo "push_or_pr=true" >> $GITHUB_OUTPUT
