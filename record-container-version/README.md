@@ -8,31 +8,31 @@ It comprises six steps:
 
 - Validate Current Org and Workflow
 
-Checks if the repo and workflow are part of the official Carpentries organisation, using the [validate-org-workflow](../validate-org-workflow/README.md) composite action.
+  Checks if the repo and workflow are part of the official Carpentries organisation, using the [validate-org-workflow](../validate-org-workflow/README.md) composite action.
 
 - Configure AWS credentials via OIDC / Set PAT from AWS Secrets Manager
 
-If the repo and workflow are part of the official Carpentries organisation, gets the access token to use in subsequent steps from AWS Secrets Manager.
+  If the repo and workflow are part of the official Carpentries organisation, gets the access token to use in subsequent steps from AWS Secrets Manager.
 
-If the repo/org is not part of the Carpentries, the default GITHUB_TOKEN will be used.
+  If the repo/org is not part of the Carpentries, the default GITHUB_TOKEN will be used.
 
 - Validate token
 
-Checks if the AWS or GitHub access token has sufficient permissions to create PRs in this repository.
+  Checks if the AWS or GitHub access token has sufficient permissions to create PRs in this repository.
 
 - Record Container Version Used
 
-Writes the Workbench Docker version used in the build to the `.github/workbench-docker-version.txt` file, and adds it for commit.
+  Writes the Workbench Docker version used in the build to the `.github/workbench-docker-version.txt` file, and adds it for commit.
 
 - Create Workbench Version PR / Auto-merge Workbench Version PR
 
-As the `workbench-docker-version.txt` file is in the `.github` folder, we need to raise a PR. If successful, this will be auto-merged.
+  As the `workbench-docker-version.txt` file is in the `.github` folder, we need to raise a PR. If successful, this will be auto-merged.
  
 - Trigger checks
 
-If the repo/org is not part of the Carpentries, and the default GITHUB_TOKEN is used, the PR needs to be checked for validity by triggering the {sandpaper} pr-comment.yaml workflow.
+  If the repo/org is not part of the Carpentries, and the default GITHUB_TOKEN is used, the PR needs to be checked for validity by triggering the {sandpaper} pr-comment.yaml workflow.
 
-In either case, the PR comment step will be run automatically.
+  In either case, the PR comment step will be run automatically.
 
 
 ## Inputs

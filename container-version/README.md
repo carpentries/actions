@@ -7,19 +7,19 @@ It comprises four steps:
 
 - Get Container Version Used
 
-Gets the container version either from Dockerhub (if default 'latest') or from the user-inputted WORKBENCH_TAG value.
+  Gets the container version either from Dockerhub (if default 'latest') or from the user-inputted WORKBENCH_TAG value.
 
 - Check version file exists
 
-Checks if the `.github/workbench-docker-version.txt` exists.
+  Checks if the `.github/workbench-docker-version.txt` exists.
 
 - Get Previous Container Version Used
 
-If the `.github/workbench-docker-version.txt` file exists, get the version number from this file.
+  If the `.github/workbench-docker-version.txt` file exists, get the version number from this file.
 
 - Trigger Update Cache Workflow?
 
-Compares the current and last successful build workbench versions, and if they are different then the `update-cache` workflow will be triggered automatically.
+  Compares the current and last successful build workbench versions, and if they are different then the `update-cache` workflow will be triggered automatically.
 
 NOTE: If WORKBENCH_TAG is empty, then the input to this workflow will default to 'latest'.
 The actual version corresponding to the 'latest' tag will be resolved by querying the Dockerhub API.
@@ -62,4 +62,4 @@ Does the `.github/workbench-docker-version.txt` file exist?
 
 This is used in other workflows to quickly verify whether the [record-container-version](../record-container-version/README.md) action needs to be run.
 
-value: `true` or `false`
+- value: `true` or `false`

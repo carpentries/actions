@@ -30,16 +30,16 @@ If you already have a specific renv cache that you wanto reuse (for example if c
 
 Should a build occur?
 
-value: `true` or `false`
+- value: `true` or `false`
 
 ### renv-needed:
 
 Is renv needed?
 
-value: `true` or `false`
+- value: `true` or `false`
 
 ### renv-cache-hashsum:
 
 If renv is needed, return the renv lockfile hashsum, either calculated by calling `hashFiles()` on the lesson lockfile, or returning the user-supplied CACHE_VERSION string.
 
-value: the renv lockfile hashsum
+- value: the renv lockfile hashsum

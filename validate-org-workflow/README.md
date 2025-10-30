@@ -44,6 +44,7 @@ This is typically passed from the calling workflow as `${{ github.workflow }}`.
 
 - required: true
 
+
 ## Outputs
 
 ### is_valid
@@ -51,4 +52,4 @@ This is typically passed from the calling workflow as `${{ github.workflow }}`.
 Set to `'true'` if the repository and workflow are within the allowed set.
 Any repo or workflow not in this set will return `'false'`
 
-value: `true` or `false`
+- value: `true` or `false`

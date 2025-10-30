@@ -6,31 +6,31 @@ It comprises six steps:
 
 - Check for renv
 
-Checks if a renv profile and lockfile exists in this lesson.
+  Checks if a renv profile and lockfile exists in this lesson.
 
 - Calculate renv hash
 
-Calculates the hashsum of the renv lockfile, or uses a user-supplied CACHE_VERSION.
+  Calculates the hashsum of the renv lockfile, or uses a user-supplied CACHE_VERSION.
 
 - Get Container Version Used
 
-Gets the version number of the current [workbench-docker](https://hub.docker.com/r/carpentries/workbench-docker/tags) image used to build the lesson.
+  Gets the version number of the current [workbench-docker](https://hub.docker.com/r/carpentries/workbench-docker/tags) image used to build the lesson.
 
 - Validate Current Org and Workflow
 
-Checks if the repo and workflow are part of the official Carpentries organisation, using the [validate-org-workflow](../validate-org-workflow/README.md) composite action.
+  Checks if the repo and workflow are part of the official Carpentries organisation, using the [validate-org-workflow](../validate-org-workflow/README.md) composite action.
 
 - Configure AWS credentials via OIDC / Set PAT from AWS Secrets Manager
 
-If the repo and workflow are part of the official Carpentries organisation, gets the access token to use in subsequent steps from AWS Secrets Manager.
+  If the repo and workflow are part of the official Carpentries organisation, gets the access token to use in subsequent steps from AWS Secrets Manager.
 
 - Restore renv from cache
 
-Gets the renv package cache file from AWS or GitHub.
+  Gets the renv package cache file from AWS or GitHub.
 
-The format of the key used to save and restore from the cache is as follows:
+  The format of the key used to save and restore from the cache is as follows:
 
-`${{ github.repository }}/${{ container-version }}_renv-${{ renv-cache-hashsum }}`
+  `${{ github.repository }}/${{ container-version }}_renv-${{ renv-cache-hashsum }}`
 
 
 ## Inputs
@@ -90,7 +90,7 @@ This should not be set by end users, and is used only for official Carpentries r
 
 Is renv needed?
 
-value: `true` or `false`
+- value: `true` or `false`
 
 ### renv-cache-hashsum
 
@@ -98,25 +98,25 @@ The renv cache hashsum.
 
 This will either be calculated by calling hashFiles() on the renv lockfile, or by returning the user-supplied hashsum string.
 
-value: an alphanumeric hashsum string
+- value: an alphanumeric hashsum string
 
 ### renv-cache-available
 
 Is the renv cache with the given hashsum key available?
 
-value: `true` or `false`
+- value: `true` or `false`
 
 ### cache-matched-key
 
 The matched cache key, if any
 
-value: an alphanumeric hashsum string
+- value: an alphanumeric hashsum string
 
 ### cache-matched-size
 
 The matched cache size, if any
 
-value: the size of the returned cache in bytes
+- value: the size of the returned cache in bytes
 
 ### backup-cache-used
 
@@ -128,4 +128,4 @@ Effectively, the following key was matched during the restore step, and not the 
 
 `${{ github.repository }}/${{ container-version }}_renv-`
 
-value: `true` or `false`
+- value: `true` or `false`
