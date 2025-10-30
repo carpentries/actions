@@ -6,15 +6,7 @@ inputs:
     description: 'Optional renv cache version override'
     required: false
     default: ''
-  varnish-version:
-    description: 'Optional Varnish version override'
-    default: 'latest'
-  sandpaper-version:
-    description: 'Optional Sandpaper version override'
-    default: 'latest'
-  pegboard-version:
-    description: 'Optional Pegboard version override'
-    default: 'latest'
+
 outputs:
   do-build:
     description: 'Do build?'
@@ -25,15 +17,6 @@ outputs:
   renv-cache-hashsum:
     description: 'renv cache hashsum'
     value: ${{ steps.renv-check.outputs.renv-cache-hashsum }}
-  varnish-version-override:
-    description: 'Varnish version override'
-    value: ${{ steps.input-wb-vers.outputs.varnish-version-override }}
-  sandpaper-version-override:
-    description: 'Sandpaper version override'
-    value: ${{ steps.input-wb-vers.outputs.sandpaper-version-override }}
-  pegboard-version-override:
-    description: 'Pegboard version override'
-    value: ${{ steps.input-wb-vers.outputs.pegboard-version-override }}
 
 runs:
   using: "composite"
@@ -101,21 +84,3 @@ runs:
       with:
         CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
         skip-cache-check: true
-
-    - name: "Get var/input Workbench package versions"
-      id: input-wb-vers
-      run: |
-        # Checking Workbench package versions #
-        VARNISH_VERSION_INPUT="${{ inputs.varnish-version || 'latest' }}"
-        if [[ ! -z "$VARNISH_VERSION_INPUT" ]]; then
-          echo "varnish-version-override=$VARNISH_VERSION_INPUT" >> $GITHUB_OUTPUT
-        fi
-        SANDPAPER_VERSION_INPUT="${{ inputs.sandpaper-version || 'latest' }}"
-        if [[ ! -z "$SANDPAPER_VERSION_INPUT" ]]; then
-          echo "sandpaper-version-override=$SANDPAPER_VERSION_INPUT" >> $GITHUB_OUTPUT
-        fi
-        PEGBOARD_VERSION_INPUT="${{ inputs.pegboard-version || 'latest' }}"
-        if [[ ! -z "$PEGBOARD_VERSION_INPUT" ]]; then
-          echo "pegboard-version-override=$PEGBOARD_VERSION_INPUT" >> $GITHUB_OUTPUT
-        fi
-      shell: bash
