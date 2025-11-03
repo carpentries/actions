@@ -1,0 +1,27 @@
+name: 'build-and-deploy'
+description: 'Action to perform build and deployment of a lesson site'
+author: 'Robert P. Davey'
+inputs:
+  reset:
+    description: 'Clean any previous lesson build output'
+    required: false
+    default: false
+    type: boolean
+  skip-manage-deps:
+    description: 'Skip sandpaper managing dependencies before build'
+    required: false
+    default: false
+    type: boolean
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run Container and Build Site
+      id: build-and-deploy
+      run: |
+        library(sandpaper)
+        reset <- "${{ inputs.reset }}" == "true"
+        skip_manage_deps <- "${{  inputs.skip-manage-deps }}" == "true"
+        sandpaper::package_cache_trigger(TRUE)
+        sandpaper:::ci_deploy(reset = reset, skip_manage_deps = skip_manage_deps)
+      shell: Rscript {0}
