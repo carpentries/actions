@@ -23,8 +23,8 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: "Checkout Lesson"
-      uses: actions/checkout@v4
+    # - name: "Checkout Lesson"
+    #   uses: actions/checkout@v4
 
     - name: Get Container Version Used
       id: wb-vers
