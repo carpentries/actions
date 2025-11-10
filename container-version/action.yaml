@@ -19,6 +19,9 @@ outputs:
   workbench-container-file-exists:
     description: 'Does the workbench-docker-version.txt file exist?'
     value: ${{ steps.check-ver-file.outputs.version-file-exists }}
+  workbench-update:
+    description: 'Should the Workbench update workflow be triggered?'
+    value: ${{ steps.trigger-cache-update.outputs.workbench-update }}
 
 runs:
   using: "composite"
