@@ -80,7 +80,6 @@ runs:
           echo "Requested renv cache not available for this new Workbench version, so the '02 Maintain: Check for Updated Packages' workflow has been triggered." >> $GITHUB_STEP_SUMMARY
 
           echo "workbench-update=true" >> "$GITHUB_OUTPUT"
-          gh workflow run update-cache.yaml
         else
           echo "workbench-update=false" >> "$GITHUB_OUTPUT"
         fi
