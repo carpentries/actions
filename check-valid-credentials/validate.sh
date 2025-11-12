@@ -24,24 +24,16 @@ else
 fi
 mkdir -p ${TMP}
 
-# Set up output first because there
-TOKEN_NAME="Sandpaper%20Token%20%28${GITHUB_REPOSITORY}%29"
-TOKEN_URL="https://github.com/settings/tokens/new?scopes=public_repo,workflow&description=${TOKEN_NAME}"
-echo "## :warning: Missing Token" >> $GITHUB_STEP_SUMMARY
+# # Set up output first because there
+echo "## :warning: Using Default GitHub Access Token" >> $GITHUB_STEP_SUMMARY
 echo "" >> $GITHUB_STEP_SUMMARY
-echo "The \`SANDPAPER_WORKFLOW\` secret is missing, invalid, or does not" \
-  "have the right scope (public_repo, workflow) to update the package cache." >> $GITHUB_STEP_SUMMARY
+echo "This lesson is using the default access token supplied by GitHub (`secrets.GITHUB_TOKEN`)." >> $GITHUB_STEP_SUMMARY
+echo "This should not affect the running of these workflows." >> $GITHUB_STEP_SUMMARY
 echo "" >> $GITHUB_STEP_SUMMARY
-echo "If you want to have automated pull request updates to your package cache," \
-"you will need to generate a new Classic token." >> $GITHUB_STEP_SUMMARY
+echo "However, if you experience any problems:"
+echo "- please verify that you have set the `Allow GitHub Actions to create and approve pull requests` checkbox in your [repository `Workflow permissions` settings](https://github.com/${GITHUB_REPOSITORY}/settings/actions)" >> $GITHUB_STEP_SUMMARY
+echo "- please inform the Workbench developers of this by [raising an issue](https://github.com/carpentries/workbench/issues)" >> $GITHUB_STEP_SUMMARY
 echo "" >> $GITHUB_STEP_SUMMARY
-echo "### Steps to Generate a New Classic Token" >> $GITHUB_STEP_SUMMARY
-echo "" >> $GITHUB_STEP_SUMMARY
-echo "1. :key: [Click here to generate a new Classic token](${TOKEN_URL}) called \`Sandpaper Token (${GITHUB_REPOSITORY})\` with the "public_repo" and "workflow" scopes from your GitHub Account" >> $GITHUB_STEP_SUMMARY
-echo "2. :clipboard: Copy your new token to your clipboard" >> $GITHUB_STEP_SUMMARY
-echo "3. Go To https://github.com/${GITHUB_REPOSITORY}/settings/secrets/actions/new" >> $GITHUB_STEP_SUMMARY
-echo "   - enter \`SANDPAPER_WORKFLOW\` for the 'Name'" >> $GITHUB_STEP_SUMMARY
-echo "   - :inbox_tray: paste your token for the 'Value'" >> $GITHUB_STEP_SUMMARY
 
 if [[ ${PAT} ]]
 then
