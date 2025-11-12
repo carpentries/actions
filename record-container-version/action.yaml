@@ -95,6 +95,7 @@ runs:
         echo "::error::- Enable 'Allow GitHub Actions to create and approve pull requests'"
         echo "::error::- Re-run this Build and Deploy workflow."
         exit 1
+      shell: bash
 
     - name: "Auto-merge Workbench Version PR"
       if: steps.record-wb-vers.outputs.create-pr == 'true' && steps.cpr.outcome == 'success'
