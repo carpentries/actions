@@ -85,8 +85,18 @@ runs:
           [1]: "https://hub.docker.com/layers/carpentries/workbench-docker/${{ inputs.CONTAINER_VER }}"
         labels: "type: docker version"
         draft: false
+      continue-on-error: true
 
-    - name: Auto-merge Workbench Version PR
+    - name: "PR Creation Failed"
+      if: steps.record-wb-vers.outputs.create-pr == 'true' && steps.cpr.outcome == 'failure'
+      run: |
+        echo "::error::Failed to create pull request. This might be because GitHub Actions is not permitted to create PRs in repository settings."
+        echo "::error::- Go to Settings → Actions → General → Workflow permissions"
+        echo "::error::- Enable 'Allow GitHub Actions to create and approve pull requests'"
+        echo "::error::- Re-run this Build and Deploy workflow."
+        exit 1
+
+    - name: "Auto-merge Workbench Version PR"
       if: steps.record-wb-vers.outputs.create-pr == 'true' && steps.cpr.outcome == 'success'
       run: |
         # Auto-merging PR #
