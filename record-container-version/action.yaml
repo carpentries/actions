@@ -104,7 +104,7 @@ runs:
         # Auto-merging PR #
         gh pr merge --auto --squash update/workbench-docker-version
       env:
-        GH_TOKEN: ${{ steps.set-pat.outputs.pat || inputs.token }}
+        GITHUB_TOKEN: ${{ steps.set-pat.outputs.pat || inputs.token }}
       shell: bash
 
     # thanks @Bisaloo! - https://github.com/carpentries/sandpaper/issues/646#issuecomment-2829578435
@@ -112,7 +112,7 @@ runs:
     - name: "Trigger checks"
       if: ${{ steps.cpr.outputs.pull-request-number != '' && steps.validate-token.outputs.wf != 'true'}}
       env:
-        GH_TOKEN: ${{ inputs.token }}
+        GITHUB_TOKEN: ${{ inputs.token }}
       run: |
         # ⚠️ WARNING: Manual PR comment trigger #
         echo "## ⚠️ WARNING: Manual PR comment trigger" >> $GITHUB_STEP_SUMMARY
