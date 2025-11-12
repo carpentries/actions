@@ -30,7 +30,7 @@ echo "" >> $GITHUB_STEP_SUMMARY
 echo "This lesson is using the default access token supplied by GitHub (\`secrets.GITHUB_TOKEN\`)." >> $GITHUB_STEP_SUMMARY
 echo "This should not affect the running of these workflows." >> $GITHUB_STEP_SUMMARY
 echo "" >> $GITHUB_STEP_SUMMARY
-echo "However, if you experience any problems:"
+echo "However, if you experience any problems:" >> $GITHUB_STEP_SUMMARY
 echo "- please verify that you have set the \`Allow GitHub Actions to create and approve pull requests\` checkbox in your [repository \`Workflow permissions\` settings](https://github.com/${GITHUB_REPOSITORY}/settings/actions)" >> $GITHUB_STEP_SUMMARY
 echo "- please inform the Workbench developers of this by [raising an issue](https://github.com/carpentries/workbench/issues)" >> $GITHUB_STEP_SUMMARY
 echo "" >> $GITHUB_STEP_SUMMARY
