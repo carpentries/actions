@@ -90,6 +90,7 @@ runs:
     - name: "PR Creation Failed"
       if: steps.record-wb-vers.outputs.create-pr == 'true' && steps.cpr.outcome == 'failure'
       run: |
+        #❗ERROR: Cannot create Workbench version update PR #
         echo "::error::Failed to create pull request. This might be because GitHub Actions is not permitted to create PRs in repository settings."
         echo "::error::- Go to Settings → Actions → General → Workflow permissions"
         echo "::error::- Enable 'Allow GitHub Actions to create and approve pull requests'"
