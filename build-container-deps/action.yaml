@@ -17,6 +17,9 @@ inputs:
     required: false
   aws-region:
     required: false
+  token:
+    description: "GH Token"
+    required: true
 
 runs:
   using: "composite"
@@ -35,6 +38,7 @@ runs:
         LESSON_PATH: ${{ inputs.LESSON_PATH || '/home/rstudio/lesson' }}
         role-to-assume: ${{ inputs.role-to-assume }}
         aws-region: ${{ inputs.aws-region }}
+        token: ${{ inputs.token }}
 
     - name: Fail on renv cache miss
       if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available != 'true' && steps.check-renv.outputs.backup-cache-used != 'true'

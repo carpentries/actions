@@ -85,6 +85,7 @@ runs:
       uses: carpentries/actions/container-version@frog-s3-test-1
       with:
         WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
+        renv-needed: ${{ steps.check-for-renv.outputs.renv-exists }}
         token: ${{ inputs.token }}
 
     - name: "Validate Current Org and Workflow"
