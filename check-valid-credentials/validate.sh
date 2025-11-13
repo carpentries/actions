@@ -25,7 +25,7 @@ fi
 mkdir -p ${TMP}
 
 # # Set up output first because there
-echo "## ::info:: Using Default GitHub Access Token" >> $GITHUB_STEP_SUMMARY
+echo "## 💡 Using Default GitHub Access Token" >> $GITHUB_STEP_SUMMARY
 echo "" >> $GITHUB_STEP_SUMMARY
 echo "This lesson is using the default access token supplied by GitHub (\`secrets.GITHUB_TOKEN\`)." >> $GITHUB_STEP_SUMMARY
 echo "This should not affect the running of these workflows." >> $GITHUB_STEP_SUMMARY

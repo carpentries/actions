@@ -69,6 +69,14 @@ Path to the lesson directory within the container.
 - required: false
 - default: '/home/rstudio/lesson'
 
+### token
+
+The access token to use for validation - typically a user would provide the GITHUB_TOKEN or SANDPAPER_WORKFLOW token to this action.
+
+If the repo and workflow are part of the official Carpentries organisation, the AWS access token will override whatever is provided to this input.
+
+- required: true
+
 ### `role-to-assume`
 
 AWS role used to get authorised access token for the Carpentries bot.

@@ -41,6 +41,14 @@ Is renv required for this lesson?
 
 - required: true
 
+### token
+
+The access token to use for validation - typically a user would provide the GITHUB_TOKEN or SANDPAPER_WORKFLOW token to this action.
+
+If the repo and workflow are part of the official Carpentries organisation, the AWS access token will override whatever is provided to this input.
+
+- required: true
+
 
 ## Outputs
 
@@ -61,5 +69,13 @@ If a previous build succeeded, then the `container-version` tag will be stored i
 Does the `.github/workbench-docker-version.txt` file exist?
 
 This is used in other workflows to quickly verify whether the [record-container-version](../record-container-version/README.md) action needs to be run.
+
+- value: `true` or `false`
+
+### workbench-update
+
+Should the Workbench update workflow be triggered?
+
+This is used in other workflows to quickly verify whether the package cache update and apply should be run.
 
 - value: `true` or `false`

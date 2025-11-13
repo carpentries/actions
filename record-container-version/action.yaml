@@ -114,13 +114,5 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
       run: |
-        # # ⚠️ WARNING: Manual PR comment trigger #
-        # echo "## ⚠️ WARNING: Manual PR comment trigger" >> $GITHUB_STEP_SUMMARY
-        # echo "" >> $GITHUB_STEP_SUMMARY
-        # echo "This lesson build is running outside the Carpentries organisation, and you do not have a valid SANDPAPER_WORKFLOW Personal Access Token (PAT) available within this repository secrets." >> $GITHUB_STEP_SUMMARY
-        # echo "Therefore, the PR check workflow is being triggered manually." >> $GITHUB_STEP_SUMMARY
-        # echo "" >> $GITHUB_STEP_SUMMARY
-        # echo "To avoid seeing this message, we recommend adding a SANDPAPER_WORKFLOW PAT to your repository!" >> $GITHUB_STEP_SUMMARY
-
         gh workflow run pr-comment.yaml -ref main --field workflow_id=${{ github.run_id }}
       shell: bash

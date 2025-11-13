@@ -67,6 +67,14 @@ Defaults to `false`, doing a check on AWS or GitHub for a renv package cache mat
 - required: false
 - default: false
 
+### token
+
+The access token to use for validation - typically a user would provide the GITHUB_TOKEN or SANDPAPER_WORKFLOW token to this action.
+
+If the repo and workflow are part of the official Carpentries organisation, the AWS access token will override whatever is provided to this input.
+
+- required: true
+
 ### role-to-assume
 
 AWS role used to get authorised access token for the Carpentries bot.
