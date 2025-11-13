@@ -90,7 +90,7 @@ runs:
     - name: "PR Creation Failed"
       if: steps.record-wb-vers.outputs.create-pr == 'true' && steps.cpr.outcome == 'failure'
       run: |
-        #❗ERROR: Cannot create Workbench version update PR #
+        # ❌ ERROR: Cannot create Workbench version update PR #
         echo "::error::Failed to create pull request. This might be because GitHub Actions is not permitted to create PRs in repository settings."
         echo "::error::- Go to Settings → Actions → General → Workflow permissions"
         echo "::error::- Enable 'Allow GitHub Actions to create and approve pull requests'"
@@ -114,13 +114,13 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
       run: |
-        # ⚠️ WARNING: Manual PR comment trigger #
-        echo "## ⚠️ WARNING: Manual PR comment trigger" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "This lesson build is running outside the Carpentries organisation, and you do not have a valid SANDPAPER_WORKFLOW Personal Access Token (PAT) available within this repository secrets." >> $GITHUB_STEP_SUMMARY
-        echo "Therefore, the PR check workflow is being triggered manually." >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "To avoid seeing this message, we recommend adding a SANDPAPER_WORKFLOW PAT to your repository!" >> $GITHUB_STEP_SUMMARY
+        # # ⚠️ WARNING: Manual PR comment trigger #
+        # echo "## ⚠️ WARNING: Manual PR comment trigger" >> $GITHUB_STEP_SUMMARY
+        # echo "" >> $GITHUB_STEP_SUMMARY
+        # echo "This lesson build is running outside the Carpentries organisation, and you do not have a valid SANDPAPER_WORKFLOW Personal Access Token (PAT) available within this repository secrets." >> $GITHUB_STEP_SUMMARY
+        # echo "Therefore, the PR check workflow is being triggered manually." >> $GITHUB_STEP_SUMMARY
+        # echo "" >> $GITHUB_STEP_SUMMARY
+        # echo "To avoid seeing this message, we recommend adding a SANDPAPER_WORKFLOW PAT to your repository!" >> $GITHUB_STEP_SUMMARY
 
         gh workflow run pr-comment.yaml -ref main --field workflow_id=${{ github.run_id }}
       shell: bash
