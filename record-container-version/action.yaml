@@ -26,16 +26,40 @@ runs:
         repo: ${{ github.repository }}
         workflow: ${{ github.workflow }}
 
-    - name: Configure AWS credentials via OIDC
+    - name: "Warn on AWS creds if valid org"
+      if: |
+        steps.validate-org-workflow.outputs.is_valid == 'true' &&
+        (
+          inputs.role-to-assume == '' ||
+          inputs.aws-region == ''
+        )
+      run: |
+        # ⚠️ WARNING: AWS credentials not provided #
+        echo "::warning::This repository is in an allowed Carpentries organisation, but the AWS credentials are not provided."
+        echo "::warning::Skipping the use of AWS caching and falling back to public GitHub storage."
+        echo "::warning::To enable AWS Secrets Manager access, provide both 'role-to-assume' and 'aws-region' inputs."
+
+        echo "## ⚠️ WARNING: AWS credentials not provided" >> $GITHUB_STEP_SUMMARY
+        echo "This repository is in an allowed Carpentries organisation, but AWS credentials are not provided." >> $GITHUB_STEP_SUMMARY
+        echo "Skipping the use of AWS caching and falling back to public GitHub storage." >> $GITHUB_STEP_SUMMARY
+      shell: bash
+
+    - name: "Configure AWS credentials via OIDC"
       id: aws-creds
-      if: ${{ steps.validate-org-workflow.outputs.is_valid == 'true' }}
+      if: |
+        steps.validate-org-workflow.outputs.is_valid == 'true' &&
+        inputs.role-to-assume != '' &&
+        inputs.aws-region != ''
       uses: aws-actions/configure-aws-credentials@v5.0.0
       with:
         role-to-assume: ${{ inputs.role-to-assume }}
         aws-region: ${{ inputs.aws-region }}
 
     - name: "Set PAT from AWS Secrets Manager"
-      if: ${{ steps.validate-org-workflow.outputs.is_valid == 'true' }}
+      if: |
+        steps.validate-org-workflow.outputs.is_valid == 'true' &&
+        inputs.role-to-assume != '' &&
+        inputs.aws-region != ''
       id: set-pat
       run: |
         # Setting AWS PAT #
@@ -66,7 +90,7 @@ runs:
         fi
       shell: bash
 
-    - name: Create Workbench Version PR
+    - name: "Create Workbench Version PR"
       uses: peter-evans/create-pull-request@v7.0.8
       id: cpr
       if: |
