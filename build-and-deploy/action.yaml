@@ -4,12 +4,12 @@ author: 'Robert P. Davey'
 inputs:
   reset:
     description: 'Clean any previous lesson build output'
-    required: false
+    required: true
     default: false
     type: boolean
   skip-manage-deps:
     description: 'Skip sandpaper managing dependencies before build'
-    required: false
+    required: true
     default: false
     type: boolean
 
@@ -21,7 +21,7 @@ runs:
       run: |
         library(sandpaper)
         reset <- "${{ inputs.reset }}" == "true"
-        skip_manage_deps <- "${{  inputs.skip-manage-deps }}" == "true"
+        skip_manage_deps <- "${{ inputs.skip-manage-deps }}" == "true"
         sandpaper::package_cache_trigger(TRUE)
         sandpaper:::ci_deploy(reset = reset, skip_manage_deps = skip_manage_deps)
       shell: Rscript {0}
