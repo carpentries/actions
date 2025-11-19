@@ -125,7 +125,9 @@ runs:
             body(sov)[2] <- list(str2lang(paste(capture.output(dput(vers)), collapse = "")))
             rmts$supported_os_versions <- sov
           }
-          reqs <- remotes::system_requirements(ver[1], ver[2], path = lsn_path)
+          remotes::install_github("carpentries/vise")
+          desc <- vise::lock2desc(renv_lock, desc = "/home/rstudio/lesson/DESCRIPTION")
+          reqs <- remotes::system_requirements(ver[1], ver[2], path = dirname(desc))
 
           nz <- nzchar(reqs)
           deps <- paste(substring(reqs[nz], 20, nchar(reqs[nz])), collapse = " ")
