@@ -116,6 +116,18 @@ runs:
 
           cat("Installing system dependencies for:", paste(pkgs, collapse = ", "), "\n")
 
+          repos <- getOption("repos")
+          if (!"RSPM" %in% names(repos)) {
+            cat("Adding RSPM repo")
+
+            codename <- sub("Codename.\t", "", system2("lsb_release", "-c", stdout = TRUE))
+            repos <- c(
+              RSPM = paste0("https://packagemanager.posit.co/all/__linux__/", codename, "/latest"),
+              repos
+            )
+            options(repos = repos)
+          }
+
           sys_reqs <- pak::pkg_sysreqs(pkgs)
           system(sys_reqs$install_scripts)
         }
