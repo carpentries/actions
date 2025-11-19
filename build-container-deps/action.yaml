@@ -127,10 +127,17 @@ runs:
           }
           remotes::install_github("carpentries/vise")
           desc <- vise::lock2desc(renv_lock, desc = "/home/rstudio/lesson/DESCRIPTION")
-          reqs <- remotes::system_requirements(ver[1], ver[2], path = dirname(desc))
+          all_reqs <- c()
+          for (pkg in pkgs) {
+            reqs <- remotes::system_requirements(ver[1], ver[2], package = pkg)
+            if (!is.null(reqs) && nzchar(reqs)) {
+              all_reqs <- c(all_reqs, reqs)
+            }
+          }
+          all_reqs <- unique(all_reqs)
 
-          nz <- nzchar(reqs)
-          deps <- paste(substring(reqs[nz], 20, nchar(reqs[nz])), collapse = " ")
+          nz <- nzchar(all_reqs)
+          deps <- paste(substring(all_reqs[nz], 20, nchar(all_reqs[nz])), collapse = " ")
           reqs <- paste("apt-get install -y", deps)
 
           system(reqs)
