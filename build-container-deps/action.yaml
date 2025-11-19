@@ -115,6 +115,16 @@ runs:
           # Install missing package system dependencies via apt-get
           ver  <- tolower(system("lsb_release -irs", intern = TRUE))
           print(ver)
+
+          rmts <- asNamespace("remotes")
+          sov <- rmts$supported_os_versions
+          if (!grepl("24.04", body(sov)[2])) {
+            unlockBinding("supported_os_versions", rmts)
+            vers <- eval(parse(text = as.character(body(sov)[2])))
+            vers$ubuntu <- c(vers$ubuntu, "24.04")
+            body(sov)[2] <- list(str2lang(paste(capture.output(dput(vers)), collapse = "")))
+            rmts$supported_os_versions <- sov
+          }
           reqs <- remotes::system_requirements(ver[1], ver[2], path = lsn_path)
 
           nz <- nzchar(reqs)
