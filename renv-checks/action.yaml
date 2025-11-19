@@ -98,7 +98,11 @@ runs:
 
     - name: Configure AWS credentials via OIDC
       id: aws-creds
-      if: ${{ steps.validate-org-workflow.outputs.is_valid == 'true' && inputs.skip-cache-check != 'true' }}
+      if: |
+        steps.validate-org-workflow.outputs.is_valid == 'true' &&
+        inputs.skip-cache-check != 'true' &&
+        inputs.role-to-assume != '' &&
+        inputs.aws-region != ''
       uses: aws-actions/configure-aws-credentials@v5.0.0
       with:
         role-to-assume: ${{ inputs.role-to-assume }}
