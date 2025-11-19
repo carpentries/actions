@@ -116,19 +116,28 @@ runs:
 
           cat("Installing system dependencies for:", paste(pkgs, collapse = ", "), "\n")
 
-          repos <- getOption("repos")
-          if (!"RSPM" %in% names(repos)) {
-            cat("Adding RSPM repo")
-
-            codename <- sub("Codename.\t", "", system2("lsb_release", "-c", stdout = TRUE))
-            repos <- c(
-              RSPM = paste0("https://packagemanager.posit.co/all/__linux__/", codename, "/latest"),
-              repos
-            )
-            options(repos = repos)
+          cat("::group::Register Repositories\n")
+          on_linux <- Sys.info()[["sysname"]] == "Linux"
+          if (on_linux) {
+            if (Sys.getenv("RSPM") == "") {
+              release <- system("lsb_release -c | awk '{print $2}'", intern = TRUE)
+              Sys.setenv("RSPM" =
+                paste0("https://packagemanager.posit.co/all/__linux__/", release, "/latest"))
+            }
           }
+          repos <- list(
+            RSPM        = Sys.getenv("RSPM"),
+            carpentries = "https://carpentries.r-universe.dev/",
+            CRAN        = "https://cran.rstudio.com"
+          )
+          options(pak.no_extra_messages = TRUE, repos = repos)
+          cat("Repositories Used")
+          print(getOption("repos"))
+          cat("::endgroup::\n")
 
-          sys_reqs <- pak::pkg_sysreqs(pkgs)
+          cat(paste0(pak::repo_status()$name, " ", pak::repo_status()$url))
+
+          sys_reqs <- pak::pkg_sysreqs(pkgs, upgrade = TRUE, dependencies = TRUE)
           system(sys_reqs$install_scripts)
         }
 
