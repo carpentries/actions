@@ -116,9 +116,8 @@ runs:
 
           cat("Installing system dependencies for:", paste(pkgs, collapse = ", "), "\n")
 
-          sys_reqs <- pak::pkg_system_requirements(pkgs)
-          apt_cmds <- unique(sys_reqs[grepl("^apt-get -y install", sys_reqs)])
-          system(apt_cmds)
+          sys_reqs <- pak::pkg_sysreqs(pkgs)
+          system(sys_reqs$install_scripts)
         }
 
         renv::load(project = lsn_path, profile = "lesson-requirements")
