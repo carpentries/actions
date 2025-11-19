@@ -110,37 +110,15 @@ runs:
         pkgs <- setdiff(pkgs, names(lock$Packages))
 
         if (length(pkgs)) {
+          if (!requireNamespace("pak", quietly = TRUE)) {
+            install.packages("pak")
+          }
+
           cat("Installing system dependencies for:", paste(pkgs, collapse = ", "), "\n")
 
-          # Install missing package system dependencies via apt-get
-          ver  <- tolower(system("lsb_release -irs", intern = TRUE))
-          print(ver)
-
-          rmts <- asNamespace("remotes")
-          sov <- rmts$supported_os_versions
-          if (!grepl("24.04", body(sov)[2])) {
-            unlockBinding("supported_os_versions", rmts)
-            vers <- eval(parse(text = as.character(body(sov)[2])))
-            vers$ubuntu <- c(vers$ubuntu, "24.04")
-            body(sov)[2] <- list(str2lang(paste(capture.output(dput(vers)), collapse = "")))
-            rmts$supported_os_versions <- sov
-          }
-          remotes::install_github("carpentries/vise")
-          desc <- vise::lock2desc(renv_lock, desc = "/home/rstudio/lesson/DESCRIPTION")
-          all_reqs <- c()
-          for (pkg in pkgs) {
-            reqs <- remotes::system_requirements(ver[1], ver[2], package = pkg)
-            if (!is.null(reqs) && nzchar(reqs)) {
-              all_reqs <- c(all_reqs, reqs)
-            }
-          }
-          all_reqs <- unique(all_reqs)
-
-          nz <- nzchar(all_reqs)
-          deps <- paste(substring(all_reqs[nz], 20, nchar(all_reqs[nz])), collapse = " ")
-          reqs <- paste("apt-get install -y", deps)
-
-          system(reqs)
+          sys_reqs <- pak::pkg_system_requirements(pkgs)
+          apt_cmds <- unique(sys_reqs[grepl("^apt-get -y install", sys_reqs)])
+          system(apt_cmds)
         }
 
         renv::load(project = lsn_path, profile = "lesson-requirements")
