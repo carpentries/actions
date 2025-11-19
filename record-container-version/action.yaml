@@ -122,6 +122,24 @@ runs:
         exit 1
       shell: bash
 
+    - name: "Grab PR"
+      if: steps.record-wb-vers.outputs.create-pr == 'true' && steps.cpr.outcome == 'success'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        PR_NUMBER=${{ steps.cpr.outputs.pull-request-number }}
+        echo $PR_NUMBER > ${{ github.workspace }}/NR
+        echo "NR=$PR_NUMBER" >> $GITHUB_ENV
+      shell: bash
+
+    - name: "Upload PR number"
+      id: upload
+      if: steps.record-wb-vers.outputs.create-pr == 'true' && steps.cpr.outcome == 'success'
+      uses: actions/upload-artifact@v4
+      with:
+        name: pr
+        path: ${{ github.workspace }}/NR
+
     - name: "Auto-merge Workbench Version PR"
       if: steps.record-wb-vers.outputs.create-pr == 'true' && steps.cpr.outcome == 'success'
       run: |
@@ -131,8 +149,7 @@ runs:
         GITHUB_TOKEN: ${{ steps.set-pat.outputs.pat || inputs.token }}
       shell: bash
 
-    # thanks @Bisaloo! - https://github.com/carpentries/sandpaper/issues/646#issuecomment-2829578435
-    # only trigger checks manually if the validate-token step had no valid AWS or SANDPAPER_WORKFLOW token
+    # we need to trigger checks if a repo has a main branch protection rule
     - name: "Trigger checks"
       if: ${{ steps.cpr.outputs.pull-request-number != '' && steps.validate-token.outputs.wf != 'true'}}
       env:
