@@ -91,7 +91,7 @@ runs:
       shell: bash
 
     - name: "Create Workbench Version PR"
-      uses: peter-evans/create-pull-request@v7.0.8
+      uses: carpentries/create-pull-request@main
       id: cpr
       if: |
         steps.record-wb-vers.outputs.create-pr == 'true'

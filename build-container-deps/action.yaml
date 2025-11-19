@@ -20,6 +20,19 @@ inputs:
   token:
     description: "GH Token"
     required: true
+outputs:
+  renv-needed:
+    description: 'Is renv needed?'
+    value: ${{ steps.check-renv.outputs.renv-needed }}
+  renv-cache-available:
+    description: 'Is Renv cache available'
+    value: ${{ steps.check-renv.outputs.renv-cache-available }}
+  backup-cache-used:
+    description: 'Was a backup cache used?'
+    value: ${{ steps.check-renv.outputs.backup-cache-used }}
+  renv-cache-hashsum:
+    description: 'renv cache hashsum'
+    value: ${{ steps.check-renv.outputs.renv-cache-hashsum }}
 
 runs:
   using: "composite"
@@ -59,6 +72,22 @@ runs:
         echo "Whilst this will work, it is recommended to run the '02 Maintain: Check for Updated Packages' and '03 Maintain: Apply Package Cache' workflows to update the cache." >> $GITHUB_STEP_SUMMARY
       shell: bash
 
+    # - name: Verify system dependencies
+    #   if: steps.check-renv.outputs.renv-needed == 'true' && (steps.check-renv.outputs.renv-cache-available == 'true' || steps.check-renv.outputs.backup-cache-used == 'true')
+    #   run: |
+    #     # Restoring renv dependencies #
+    #     lsn_path <- fs::path("${{ inputs.LESSON_PATH }}")
+
+    #     site_libs <- strsplit(Sys.getenv("R_LIBS_SITE"), ":")[[1]]
+    #     site_libs <- site_libs[site_libs != ""]
+    #     options(renv.settings.external.libraries = site_libs)
+    #     .libPaths(c(site_libs, .libPaths()))
+
+    #     renv_lib  <- renv::paths$library(project = lsn_path)
+    #     renv_lock <- renv::paths$lockfile(project = lsn_path)
+
+    #   shell: Rscript {0}
+
     - name: Restore renv Dependencies
       if: steps.check-renv.outputs.renv-needed == 'true' && (steps.check-renv.outputs.renv-cache-available == 'true' || steps.check-renv.outputs.backup-cache-used == 'true')
       run: |
@@ -72,6 +101,29 @@ runs:
 
         renv_lib  <- renv::paths$library(project = lsn_path)
         renv_lock <- renv::paths$lockfile(project = lsn_path)
+
+        # Identify any missing packages from renv.lock and install system dependencies
+        installed <- utils::installed.packages(lib.loc = .libPaths())[, "Package"]
+        deps <- unique(renv::dependencies(path = lsn_path, root = lsn_path, dev = TRUE)$Package)
+        pkgs <- setdiff(deps, installed)
+        lock <- renv::lockfile_read(renv_lock)
+        pkgs <- setdiff(pkgs, names(lock$Packages))
+
+        if (length(pkgs)) {
+          cat("Installing system dependencies for:", paste(pkgs, collapse = ", "), "\n")
+
+          # Install missing package system dependencies via apt-get
+          ver  <- tolower(system("lsb_release -irs", intern = TRUE))
+          print(ver)
+          reqs <- remotes::system_requirements(ver[1], ver[2], path = lsn_path)
+
+          nz <- nzchar(reqs)
+          deps <- paste(substring(reqs[nz], 20, nchar(reqs[nz])), collapse = " ")
+          reqs <- paste("apt-get install -y", deps)
+
+          system(reqs)
+        }
+
         renv::load(project = lsn_path, profile = "lesson-requirements")
         renv::restore(project = lsn_path, library = renv_lib, lockfile = renv_lock, prompt = FALSE)
       shell: Rscript {0}
