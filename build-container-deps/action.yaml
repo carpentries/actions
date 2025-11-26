@@ -111,7 +111,7 @@ runs:
 
         if (length(pkgs)) {
           if (!requireNamespace("pak", quietly = TRUE)) {
-            install.packages("pak")
+            install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))
           }
 
           cat("Installing system dependencies for:", paste(pkgs, collapse = ", "), "\n")
@@ -137,7 +137,7 @@ runs:
 
           cat(paste0(pak::repo_status()$name, " ", pak::repo_status()$url))
 
-          sys_reqs <- pak::pkg_sysreqs(pkgs, upgrade = TRUE, dependencies = TRUE)
+          sys_reqs <- pak::pkg_sysreqs(pkgs, upgrade = FALSE, dependencies = NA)
           system(sys_reqs$install_scripts)
         }
 
