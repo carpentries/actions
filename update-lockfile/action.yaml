@@ -24,8 +24,8 @@ inputs:
     description: 'Generate package cache?'
     default: true
     type: boolean
-  skip-restore:
-    description: 'Skip renv restore?'
+  force-renv-init:
+    description: 'Force renv re-initialisation?'
     default: false
     type: boolean
 outputs:
@@ -42,7 +42,7 @@ outputs:
 runs:
   using: "composite"
   steps:
-  
+
       - name: "Restore {renv} Cache"
         uses: actions/cache/restore@v4
         id: restore-cache
@@ -63,7 +63,7 @@ runs:
         shell: Rscript {0}
         run: |
           req <- function(pkg) {
-            if (!requireNamespace(pkg, quietly = TRUE)) 
+            if (!requireNamespace(pkg, quietly = TRUE))
             install.packages(pkg, repos = c("https://carpentries.r-universe.dev", "https://cran.rstudio.com"))
           }
           wd <- '${{ github.workspace }}'
@@ -72,8 +72,8 @@ runs:
             req("renv")
             req("remotes")
             rmts <- asNamespace("remotes")
-            # extract the function 
-            sov <- rmts$supported_os_versions 
+            # extract the function
+            sov <- rmts$supported_os_versions
             # if 24.04 is not present, we need to modify the function
             if (!grepl("24.04", body(sov)[2])) {
               unlockBinding("supported_os_versions", rmts)
@@ -109,8 +109,8 @@ runs:
           library(desc)
           library(remotes)
           rmts <- asNamespace("remotes")
-          # extract the function 
-          sov <- rmts$supported_os_versions 
+          # extract the function
+          sov <- rmts$supported_os_versions
           Sys.setenv("RSPM_ROOT" = "https://packagemanager.posit.co")
           # if 24.04 is not present, we need to modify the function
           if (!grepl("24.04", body(sov)[2])) {
@@ -125,7 +125,7 @@ runs:
           }
           vise:::ci_update(profile = "${{ inputs.profile }}",
             update = "${{ inputs.update }}",
-            skip_restore = "${{ inputs.skip-restore }}",
+            force_renv_init = "${{ inputs.force-renv-init }}",
             repos = "${{ inputs.repos }}")
           cat("::endgroup::\n")
 
