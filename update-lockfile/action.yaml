@@ -25,7 +25,7 @@ inputs:
     default: true
     type: boolean
   force-renv-init:
-    description: 'Force renv initialisation?'
+    description: 'Force renv re-initialisation?'
     default: false
     type: boolean
 outputs:
