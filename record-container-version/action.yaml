@@ -21,7 +21,7 @@ runs:
 
     - name: "Validate Current Org and Workflow"
       id: validate-org-workflow
-      uses: carpentries/actions/validate-org-workflow@frog-s3-test-1
+      uses: carpentries/actions/validate-org-workflow@main
       with:
         repo: ${{ github.repository }}
         workflow: ${{ github.workflow }}
@@ -73,7 +73,7 @@ runs:
 
     - name: "Validate token"
       id: validate-token
-      uses: carpentries/actions/check-valid-credentials@frog-s3-test-1
+      uses: carpentries/actions/check-valid-credentials@main
       with:
         token: ${{ steps.set-pat.outputs.pat || inputs.token }}
 

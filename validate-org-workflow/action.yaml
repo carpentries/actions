@@ -1,5 +1,5 @@
 name: "Validate Org and Workflow"
-
+description: "Validate that the given organisation and workflow are allowed."
 inputs:
   repo:
     required: true
