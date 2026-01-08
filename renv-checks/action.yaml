@@ -13,6 +13,20 @@ inputs:
   LESSON_PATH:
     description: 'Path to the lesson directory within the container. Defaults to "/home/rstudio/lesson".'
     default: '/home/rstudio/lesson'
+  skip-cache-check:
+    description: 'Skip checking for cache availability and just report if renv is needed'
+    required: false
+    default: false
+    type: boolean
+  token:
+    description: "GH Token"
+    required: true
+  role-to-assume:
+    required: false
+    type: string
+  aws-region:
+    required: false
+    type: string
 outputs:
   renv-needed:
     description: 'Is renv needed?'
@@ -23,6 +37,15 @@ outputs:
   renv-cache-available:
     description: 'Is the renv cache available?'
     value: ${{ steps.restore-renv-cache.outputs.cache-hit }}
+  cache-matched-key:
+    description: 'The matched cache key, if any'
+    value: ${{ steps.restore-renv-cache.outputs.cache-matched-key }}
+  cache-matched-size:
+    description: 'The matched cache size, if any'
+    value: ${{ steps.restore-renv-cache.outputs.cache-size }}
+  backup-cache-used:
+    description: 'Was a previous cache version retrieved?'
+    value: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && ((steps.restore-renv-cache.outputs.cache-matched-key || '') != '') }}
 
 runs:
   using: "composite"
@@ -33,6 +56,7 @@ runs:
     - name: "Check for renv"
       id: check-for-renv
       run: |
+        # Checking if renv is used #
         if [[ -d renv ]]; then
           echo "✅ renv requirement found."
           echo "renv-exists=true" >> $GITHUB_OUTPUT
@@ -46,8 +70,9 @@ runs:
       id: set-renv-hash
       if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
       run: |
+        # Calculating renv cache hashsum #
         CACHE_VERSION_INPUT="${{ inputs.CACHE_VERSION }}"
-        if [ -z "$CACHE_VERSION_INPUT" ]; then
+        if [[ -z "$CACHE_VERSION_INPUT" ]]; then
           echo "renv-cache-hashsum=${{ hashFiles('renv/profiles/lesson-requirements/renv.lock') }}" >> $GITHUB_OUTPUT
         else
           echo "renv-cache-hashsum=$CACHE_VERSION_INPUT" >> $GITHUB_OUTPUT
@@ -55,16 +80,59 @@ runs:
       shell: bash
 
     - name: Get Container Version Used
-      if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
       id: wb-vers
+      if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' && inputs.skip-cache-check != 'true' }}
       uses: carpentries/actions/container-version@main
       with:
         WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
+        renv-needed: ${{ steps.check-for-renv.outputs.renv-exists }}
+        token: ${{ inputs.token }}
+
+    - name: "Validate Current Org and Workflow"
+      id: validate-org-workflow
+      if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' && inputs.skip-cache-check != 'true' }}
+      uses: carpentries/actions/validate-org-workflow@main
+      with:
+        repo: ${{ github.repository }}
+        workflow: ${{ github.workflow }}
+
+    - name: Configure AWS credentials via OIDC
+      id: aws-creds
+      if: |
+        steps.validate-org-workflow.outputs.is_valid == 'true' &&
+        inputs.skip-cache-check != 'true' &&
+        inputs.role-to-assume != '' &&
+        inputs.aws-region != ''
+      uses: aws-actions/configure-aws-credentials@v5.0.0
+      with:
+        role-to-assume: ${{ inputs.role-to-assume }}
+        aws-region: ${{ inputs.aws-region }}
+        output-credentials: true
 
     - name: Restore renv from cache
       id: restore-renv-cache
-      uses: actions/cache/restore@v4
-      if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
+      uses: carpentries/actions-cache/restore@frog-matchedkey-1
+      if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' && inputs.skip-cache-check != 'true' }}
       with:
-        path: ${{ inputs.LESSON_PATH }}/renv
-        key: ${{ github.repository }}-${{ steps.wb-vers.outputs.container-version }}-renv-${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}
+        # insecure: false # optional, use http instead of https. default false
+        accessKey: ${{ steps.aws-creds.outputs.aws-access-key-id }}
+        secretKey: ${{ steps.aws-creds.outputs.aws-secret-access-key }}
+        sessionToken: ${{ steps.aws-creds.outputs.aws-session-token }}
+        bucket: workbench-docker-caches
+        path: |
+          /home/rstudio/lesson/renv
+          /usr/local/lib/R/site-library
+        key: ${{ github.repository }}/${{ steps.wb-vers.outputs.container-version }}_renv-${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}
+        restore-keys: |
+          ${{ github.repository }}/${{ steps.wb-vers.outputs.container-version }}_renv-
+
+    - name: "Debug output"
+      run: |
+        # 💡 Debug renv cache output #
+        echo "renv-needed: ${{ steps.check-for-renv.outputs.renv-exists }}"
+        echo "renv-cache-hashsum: ${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}"
+        echo "renv-cache-available: ${{ steps.restore-renv-cache.outputs.cache-hit }}"
+        echo "cache-matched-key: ${{ steps.restore-renv-cache.outputs.cache-matched-key }}"
+        echo "cache-matched-size: ${{ steps.restore-renv-cache.outputs.cache-size }}"
+        echo "backup-cache-used: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && ((steps.restore-renv-cache.outputs.cache-matched-key || '') != '') }}"
+      shell: bash

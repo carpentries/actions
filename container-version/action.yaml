@@ -6,24 +6,113 @@ inputs:
     description: 'Override Workbench version tag, e.g. "v0.15.0" or "latest". Defaults to "latest".'
     required: false
     default: 'latest'
+  renv-needed:
+    description: 'Is renv required for this lesson?'
+    required: true
+  token:
+    description: "Token to validate"
+    required: true
 outputs:
   container-version:
-    description: 'Docker Container Version'
+    description: 'Docker container version'
     value: ${{ steps.wb-vers.outputs.container-version }}
+  last-container-version:
+    description: 'Previous successful build Docker container version'
+    value: ${{ steps.prev-wb-vers.outputs.last-build-container-version }}
+  workbench-container-file-exists:
+    description: 'Does the workbench-docker-version.txt file exist?'
+    value: ${{ steps.check-ver-file.outputs.version-file-exists }}
+  workbench-update:
+    description: 'Should the Workbench update workflow be triggered?'
+    value: ${{ steps.trigger-cache-update.outputs.workbench-update }}
 
 runs:
   using: "composite"
   steps:
+
+    - name: Get latest Workbench docker release tag
+      id: gh-latest-release
+      run: |
+        # Getting latest carpentries/workbench-docker release tag from GitHub Releases #
+        TAG=$(curl -s -H "Authorization: token ${{ inputs.token }}" "https://api.github.com/repos/carpentries/workbench-docker/releases/latest" | jq -r '.tag_name')
+        echo "release-tag=$TAG" >> $GITHUB_OUTPUT
+      shell: bash
+
     - name: Get Container Version Used
       id: wb-vers
       run: |
+        # Getting version tag from DockerHub metadata #
         tag=${{ inputs.WORKBENCH_TAG || 'latest' }}
-        digest=$(curl -s "https://hub.docker.com/v2/repositories/carpentries/workbench-docker/tags?name=$tag" | jq -r '.results[] | select(.name == "'$tag'") | .digest')
         if [[ "$tag" == "latest" ]]; then
-          vers=$(curl -s "https://hub.docker.com/v2/repositories/carpentries/workbench-docker/tags" | jq -r '.results[] | select(.digest == "'$digest'") | .name')
-          VER=$(echo "$vers" | grep -Po "^v.*")
+          IMAGE="carpentries/workbench-docker"
+
+          # Get anonymous token
+          TOKEN=$(curl -s "https://auth.docker.io/token?service=registry.docker.io&scope=repository:${IMAGE}:pull" | jq -r .token)
+
+          # Get manifest digest
+          LATEST_DIGEST=$(curl -s -H "Authorization: Bearer $TOKEN" \
+                          -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+                          "https://registry-1.docker.io/v2/${IMAGE}/manifests/latest" \
+                          | jq -r '.manifests | first | .digest')
+
+          TAG_DIGEST=$(curl -s -H "Authorization: Bearer $TOKEN" \
+                       -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+                       "https://registry-1.docker.io/v2/${IMAGE}/manifests/${{ steps.gh-latest-release.outputs.release-tag }}" \
+                       | jq -r '.manifests | first | .digest')
+
+          if [[ "$LATEST_DIGEST" == "$TAG_DIGEST" ]]; then
+            echo "✅ Docker 'latest' matches release $EXPECTED_TAG"
+            VER="${{ steps.gh-latest-release.outputs.release-tag }}"
+          else
+            echo "❌ Mismatch! Latest does not match $EXPECTED_TAG"
+            exit 1
+          fi
         else
           VER="$tag"
         fi
         echo "container-version=$VER" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Check version file exists
+      id: check-ver-file
+      run: |
+        # Checking last successful build container version file #
+        LAST_VER_FILE=".github/workbench-docker-version.txt"
+        if [[ -f "$LAST_VER_FILE" ]]; then
+          echo "version-file-exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "version-file-exists=false" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
+
+    - name: Get Previous Container Version Used
+      id: prev-wb-vers
+      run: |
+        # Getting last successful build container version #
+        LAST_VER_FILE=".github/workbench-docker-version.txt"
+        if [[ -f "$LAST_VER_FILE" ]]; then
+          LAST_VER=$(cat "$LAST_VER_FILE")
+        else
+          LAST_VER=""
+        fi
+        echo "last-build-container-version=$LAST_VER" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: "Trigger Update Cache Workflow?"
+      id: trigger-cache-update
+      run: |
+        # Compare current and last workbench versions #
+        if [[ ${{ inputs.renv-needed }} == 'true' && ${{ steps.wb-vers.outputs.container-version != steps.prev-wb-vers.outputs.last-build-container-version }} == 'true' ]]; then
+          echo "## 💡 New Workbench version detected" >> $GITHUB_STEP_SUMMARY
+          echo "A new Docker version of the Workbench has been detected since the last build." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Previous Workbench version: ${{ steps.prev-wb-vers.outputs.last-build-container-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "Current Workbench version:  ${{ steps.wb-vers.outputs.container-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Requested renv cache not available for this new Workbench version, so the '02 Maintain: Check for Updated Packages' workflow has been triggered." >> $GITHUB_STEP_SUMMARY
+
+          echo "workbench-update=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "workbench-update=false" >> "$GITHUB_OUTPUT"
+        fi
       shell: bash

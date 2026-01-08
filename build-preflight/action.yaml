@@ -2,23 +2,11 @@ name: 'build-prefilght'
 description: 'Action to perform all prefilght checks before building a lesson'
 author: 'Robert P. Davey'
 inputs:
-  WORKBENCH_TAG:
-    description: 'Override Workbench version tag, e.g. "v0.15.0" or "latest". Defaults to "latest".'
-    required: false
-    default: 'latest'
   CACHE_VERSION:
     description: 'Optional renv cache version override'
     required: false
     default: ''
-  varnish-version:
-    description: 'Optional Varnish version override'
-    default: 'latest'
-  sandpaper-version:
-    description: 'Optional Sandpaper version override'
-    default: 'latest'
-  pegboard-version:
-    description: 'Optional Pegboard version override'
-    default: 'latest'
+
 outputs:
   do-build:
     description: 'Do build?'
@@ -29,15 +17,6 @@ outputs:
   renv-cache-hashsum:
     description: 'renv cache hashsum'
     value: ${{ steps.renv-check.outputs.renv-cache-hashsum }}
-  varnish-version-override:
-    description: 'Varnish version override'
-    value: ${{ steps.input-wb-vers.outputs.varnish-version-override }}
-  sandpaper-version-override:
-    description: 'Sandpaper version override'
-    value: ${{ steps.input-wb-vers.outputs.sandpaper-version-override }}
-  pegboard-version-override:
-    description: 'Pegboard version override'
-    value: ${{ steps.input-wb-vers.outputs.pegboard-version-override }}
 
 runs:
   using: "composite"
@@ -45,6 +24,7 @@ runs:
     - name: "Should we run build and deploy?"
       id: build-check
       run: |
+        # Pre-build checks #
         if [[ "${{ github.event_name }}" == "schedule" ||
               "${{ github.event_name }}" == "workflow_dispatch" ]]; then
           echo "✅ Scheduled or manual trigger. Build will run."
@@ -81,6 +61,9 @@ runs:
             if echo "$LABELS" | grep -q "type: package cache"; then
               echo "❗Package cache update PR merged. Build will not run."
               echo "push_or_pr=false" >> $GITHUB_OUTPUT
+            elif echo "$LABELS" | grep -q "type: docker version"; then
+              echo "❗Workbench Docker version PR merged. Build will not run."
+              echo "push_or_pr=false" >> $GITHUB_OUTPUT
             else
               echo "✅ Valid PR merged. Build will run."
               echo "push_or_pr=true" >> $GITHUB_OUTPUT
@@ -100,21 +83,4 @@ runs:
       uses: carpentries/actions/renv-checks@main
       with:
         CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
-        WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
-
-    - name: "Get var/input Workbench package versions"
-      id: input-wb-vers
-      run: |
-        VARNISH_VERSION_INPUT="${{ inputs.varnish-version || 'latest' }}"
-        if [ ! -z "$VARNISH_VERSION_INPUT" ]; then
-          echo "varnish-version-override=$VARNISH_VERSION_INPUT" >> $GITHUB_OUTPUT
-        fi
-        SANDPAPER_VERSION_INPUT="${{ inputs.sandpaper-version || 'latest' }}"
-        if [ ! -z "$SANDPAPER_VERSION_INPUT" ]; then
-          echo "sandpaper-version-override=$SANDPAPER_VERSION_INPUT" >> $GITHUB_OUTPUT
-        fi
-        PEGBOARD_VERSION_INPUT="${{ inputs.pegboard-version || 'latest' }}"
-        if [ ! -z "$PEGBOARD_VERSION_INPUT" ]; then
-          echo "pegboard-version-override=$PEGBOARD_VERSION_INPUT" >> $GITHUB_OUTPUT
-        fi
-      shell: bash
+        skip-cache-check: true

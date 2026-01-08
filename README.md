@@ -1,8 +1,12 @@
 # Carpentries GitHub Actions
 
 This is a set of actions that facilitate constructing GitHub workflows that can:
+- prepare Workbench Docker container images for building lessons
+- build and deploy lessons using {sandpaper}
 - validate, comment on, and create pull requests
+- validate repo and workflow consistency for secrets management
 - set up dependencies for GitHub action runners to manage Workbench lesson builds
+- perform checks and caching steps for renv-enabled lessons
 - update renv lockfiles to manage dependency specifications and versions
 - update Workbench workflows, i.e. {sandpaper} version management
 

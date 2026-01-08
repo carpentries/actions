@@ -1,0 +1,159 @@
+name: 'record-container-version'
+description: 'Action to record the Docker container version in workbench-docker-version.txt'
+author: 'Robert P. Davey'
+inputs:
+  CONTAINER_VER:
+    description: 'Docker container version used'
+    required: true
+  token:
+    description: "Token to validate"
+    required: true
+  role-to-assume:
+    required: false
+  aws-region:
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Checkout Lesson"
+      uses: actions/checkout@v4
+
+    - name: "Validate Current Org and Workflow"
+      id: validate-org-workflow
+      uses: carpentries/actions/validate-org-workflow@main
+      with:
+        repo: ${{ github.repository }}
+        workflow: ${{ github.workflow }}
+
+    - name: "Warn on AWS creds if valid org"
+      if: |
+        steps.validate-org-workflow.outputs.is_valid == 'true' &&
+        (
+          inputs.role-to-assume == '' ||
+          inputs.aws-region == ''
+        )
+      run: |
+        # ⚠️ WARNING: AWS credentials not provided #
+        echo "::warning::This repository is in an allowed Carpentries organisation, but the AWS credentials are not provided."
+        echo "::warning::Skipping the use of AWS caching and falling back to public GitHub storage."
+        echo "::warning::To enable AWS Secrets Manager access, provide both 'role-to-assume' and 'aws-region' inputs."
+
+        echo "## ⚠️ WARNING: AWS credentials not provided" >> $GITHUB_STEP_SUMMARY
+        echo "This repository is in an allowed Carpentries organisation, but AWS credentials are not provided." >> $GITHUB_STEP_SUMMARY
+        echo "Skipping the use of AWS caching and falling back to public GitHub storage." >> $GITHUB_STEP_SUMMARY
+      shell: bash
+
+    - name: "Configure AWS credentials via OIDC"
+      id: aws-creds
+      if: |
+        steps.validate-org-workflow.outputs.is_valid == 'true' &&
+        inputs.role-to-assume != '' &&
+        inputs.aws-region != ''
+      uses: aws-actions/configure-aws-credentials@v5.0.0
+      with:
+        role-to-assume: ${{ inputs.role-to-assume }}
+        aws-region: ${{ inputs.aws-region }}
+
+    - name: "Set PAT from AWS Secrets Manager"
+      if: |
+        steps.validate-org-workflow.outputs.is_valid == 'true' &&
+        inputs.role-to-assume != '' &&
+        inputs.aws-region != ''
+      id: set-pat
+      run: |
+        # Setting AWS PAT #
+        SECRET=$(aws secretsmanager get-secret-value \
+                  --secret-id carpentries-bot/github-pat \
+                  --query SecretString --output text)
+        PAT=$(echo "$SECRET" | jq -r .[])
+        echo "::add-mask::$PAT"
+        echo "pat=$PAT" >> "$GITHUB_OUTPUT"
+      shell: bash
+
+    - name: "Validate token"
+      id: validate-token
+      uses: carpentries/actions/check-valid-credentials@main
+      with:
+        token: ${{ steps.set-pat.outputs.pat || inputs.token }}
+
+    - name: Record Container Version Used
+      id: record-wb-vers
+      run: |
+        # Recording container version to .github/workbench-docker-version.txt #
+        echo "${{ inputs.CONTAINER_VER }}" > .github/workbench-docker-version.txt
+        git config --local user.name "GitHub Actions"
+        git config --local user.email "actions@github.com"
+        git add .github/workbench-docker-version.txt
+        if [ ! -z "$(git status --porcelain)" ]; then
+          echo "create-pr=true" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
+
+    - name: "Create Workbench Version PR"
+      uses: carpentries/create-pull-request@main
+      id: cpr
+      if: |
+        steps.record-wb-vers.outputs.create-pr == 'true'
+      with:
+        token: ${{ steps.set-pat.outputs.pat || inputs.token }}
+        branch: "update/workbench-docker-version"
+        delete-branch: true
+        commit-message: "[actions] update workbench docker version to ${{ inputs.CONTAINER_VER }}"
+        title: "Update workbench docker version to ${{ inputs.CONTAINER_VER }}"
+        body: |
+          Workbench Docker image version updated to: [${{ inputs.CONTAINER_VER }}][1]
+
+          This will trigger a rebuild.
+
+          [1]: "https://hub.docker.com/layers/carpentries/workbench-docker/${{ inputs.CONTAINER_VER }}"
+        labels: "type: docker version"
+        draft: false
+      continue-on-error: true
+
+    - name: "PR Creation Failed"
+      if: steps.record-wb-vers.outputs.create-pr == 'true' && steps.cpr.outcome == 'failure'
+      run: |
+        # ❌ ERROR: Cannot create Workbench version update PR #
+        echo "::error::Failed to create pull request. This might be because GitHub Actions is not permitted to create PRs in repository settings."
+        echo "::error::- Go to Settings → Actions → General → Workflow permissions"
+        echo "::error::- Enable 'Allow GitHub Actions to create and approve pull requests'"
+        echo "::error::- Re-run this Build and Deploy workflow."
+        exit 1
+      shell: bash
+
+    - name: "Grab PR"
+      if: steps.record-wb-vers.outputs.create-pr == 'true' && steps.cpr.outcome == 'success'
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+      run: |
+        PR_NUMBER=${{ steps.cpr.outputs.pull-request-number }}
+        echo $PR_NUMBER > ${{ github.workspace }}/NR
+        echo "NR=$PR_NUMBER" >> $GITHUB_ENV
+      shell: bash
+
+    - name: "Upload PR number"
+      id: upload
+      if: steps.record-wb-vers.outputs.create-pr == 'true' && steps.cpr.outcome == 'success'
+      uses: actions/upload-artifact@v4
+      with:
+        name: pr
+        path: ${{ github.workspace }}/NR
+
+    - name: "Auto-merge Workbench Version PR"
+      if: steps.record-wb-vers.outputs.create-pr == 'true' && steps.cpr.outcome == 'success'
+      run: |
+        # Auto-merging PR #
+        gh pr merge --auto --squash update/workbench-docker-version
+      env:
+        GITHUB_TOKEN: ${{ steps.set-pat.outputs.pat || inputs.token }}
+      shell: bash
+
+    # we need to trigger checks if a repo has a main branch protection rule
+    - name: "Trigger checks"
+      if: ${{ steps.cpr.outputs.pull-request-number != '' && steps.validate-token.outputs.wf != 'true'}}
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+      run: |
+        gh workflow run pr-comment.yaml --field workflow_id=${{ github.run_id }}
+      shell: bash

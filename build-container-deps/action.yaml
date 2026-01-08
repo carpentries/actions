@@ -6,9 +6,33 @@ inputs:
     description: 'Override Workbench version tag, e.g. "v0.15.0" or "latest". Defaults to "latest".'
     required: false
     default: 'latest'
+  CACHE_VERSION:
+    description: 'Optional renv cache version override'
+    required: false
+    default: ''
   LESSON_PATH:
     description: 'Path to the lesson directory within the container. Defaults to "/home/rstudio/lesson".'
     default: '/home/rstudio/lesson'
+  role-to-assume:
+    required: false
+  aws-region:
+    required: false
+  token:
+    description: "GH Token"
+    required: true
+outputs:
+  renv-needed:
+    description: 'Is renv needed?'
+    value: ${{ steps.check-renv.outputs.renv-needed }}
+  renv-cache-available:
+    description: 'Is Renv cache available'
+    value: ${{ steps.check-renv.outputs.renv-cache-available }}
+  backup-cache-used:
+    description: 'Was a backup cache used?'
+    value: ${{ steps.check-renv.outputs.backup-cache-used }}
+  renv-cache-hashsum:
+    description: 'renv cache hashsum'
+    value: ${{ steps.check-renv.outputs.renv-cache-hashsum }}
 
 runs:
   using: "composite"
@@ -22,19 +46,52 @@ runs:
       id: check-renv
       uses: carpentries/actions/renv-checks@main
       with:
+        CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
         WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
         LESSON_PATH: ${{ inputs.LESSON_PATH || '/home/rstudio/lesson' }}
+        role-to-assume: ${{ inputs.role-to-assume }}
+        aws-region: ${{ inputs.aws-region }}
+        token: ${{ inputs.token }}
 
     - name: Fail on renv cache miss
-      if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available != 'true'
+      if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available != 'true' && steps.check-renv.outputs.backup-cache-used != 'true'
       run: |
-        echo "❌ renv cache required but none available. Please run the "02 Maintain: Check for Updated Packages" then the "03 Maintain: Apply Package Cache" workflows."
+        # ❌ ERROR: renv cache miss #
+        echo "## ❌ ERROR: renv Cache Miss" >> $GITHUB_STEP_SUMMARY
+        echo "A cached renv environment is required to build this lesson but none is available in the cache." >> $GITHUB_STEP_SUMMARY
+        echo "Please run the '02 Maintain: Check for Updated Packages' then the '03 Maintain: Apply Package Cache' workflows." >> $GITHUB_STEP_SUMMARY
         exit 1
       shell: bash
 
-    - name: Restore renv Dependencies
-      if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available == 'true'
+    - name: Warn on previous cache used
+      if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available != 'true' && steps.check-renv.outputs.backup-cache-used == 'true'
       run: |
+        # ⚠️ WARNING: previous cache used #
+        echo "## ⚠️ WARNING: previous cache used" >> $GITHUB_STEP_SUMMARY
+        echo "Requested renv cache not available, but a previous cache was found and used." >> $GITHUB_STEP_SUMMARY
+        echo "Whilst this will work, it is recommended to run the '02 Maintain: Check for Updated Packages' and '03 Maintain: Apply Package Cache' workflows to update the cache." >> $GITHUB_STEP_SUMMARY
+      shell: bash
+
+    # - name: Verify system dependencies
+    #   if: steps.check-renv.outputs.renv-needed == 'true' && (steps.check-renv.outputs.renv-cache-available == 'true' || steps.check-renv.outputs.backup-cache-used == 'true')
+    #   run: |
+    #     # Restoring renv dependencies #
+    #     lsn_path <- fs::path("${{ inputs.LESSON_PATH }}")
+
+    #     site_libs <- strsplit(Sys.getenv("R_LIBS_SITE"), ":")[[1]]
+    #     site_libs <- site_libs[site_libs != ""]
+    #     options(renv.settings.external.libraries = site_libs)
+    #     .libPaths(c(site_libs, .libPaths()))
+
+    #     renv_lib  <- renv::paths$library(project = lsn_path)
+    #     renv_lock <- renv::paths$lockfile(project = lsn_path)
+
+    #   shell: Rscript {0}
+
+    - name: Restore renv Dependencies
+      if: steps.check-renv.outputs.renv-needed == 'true' && (steps.check-renv.outputs.renv-cache-available == 'true' || steps.check-renv.outputs.backup-cache-used == 'true')
+      run: |
+        # Restoring renv dependencies #
         lsn_path <- fs::path("${{ inputs.LESSON_PATH }}")
 
         site_libs <- strsplit(Sys.getenv("R_LIBS_SITE"), ":")[[1]]
@@ -44,13 +101,54 @@ runs:
 
         renv_lib  <- renv::paths$library(project = lsn_path)
         renv_lock <- renv::paths$lockfile(project = lsn_path)
+
+        # Identify any missing packages from renv.lock and install system dependencies
+        installed <- utils::installed.packages(lib.loc = .libPaths())[, "Package"]
+        deps <- unique(renv::dependencies(path = lsn_path, root = lsn_path, dev = TRUE)$Package)
+        pkgs <- setdiff(deps, installed)
+        lock <- renv::lockfile_read(renv_lock)
+        pkgs <- setdiff(pkgs, names(lock$Packages))
+
+        if (length(pkgs)) {
+          if (!requireNamespace("pak", quietly = TRUE)) {
+            install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))
+          }
+
+          cat("Installing system dependencies for:", paste(pkgs, collapse = ", "), "\n")
+
+          cat("::group::Register Repositories\n")
+          on_linux <- Sys.info()[["sysname"]] == "Linux"
+          if (on_linux) {
+            if (Sys.getenv("RSPM") == "") {
+              release <- system("lsb_release -c | awk '{print $2}'", intern = TRUE)
+              Sys.setenv("RSPM" =
+                paste0("https://packagemanager.posit.co/all/__linux__/", release, "/latest"))
+            }
+          }
+          repos <- list(
+            RSPM        = Sys.getenv("RSPM"),
+            carpentries = "https://carpentries.r-universe.dev/",
+            CRAN        = "https://cran.rstudio.com"
+          )
+          options(pak.no_extra_messages = TRUE, repos = repos)
+          cat("Repositories Used")
+          print(getOption("repos"))
+          cat("::endgroup::\n")
+
+          cat(paste0(pak::repo_status()$name, " ", pak::repo_status()$url))
+
+          sys_reqs <- pak::pkg_sysreqs(pkgs, upgrade = FALSE, dependencies = NA)
+          system(sys_reqs$install_scripts)
+        }
+
         renv::load(project = lsn_path, profile = "lesson-requirements")
         renv::restore(project = lsn_path, library = renv_lib, lockfile = renv_lock, prompt = FALSE)
       shell: Rscript {0}
 
     - name: Override any Workbench packages
-      if: env.VARNISH_VER != 'latest' || env.SANDPAPER_VER != 'latest' || env.PEGBOARD_VER != 'latest'
+      if: (env.VARNISH_VER || 'latest') != 'latest' || (env.SANDPAPER_VER || 'latest') != 'latest' || (env.PEGBOARD_VER || 'latest') != 'latest'
       run: |
+        # Overriding Workbench package versions #
         varnish_version   <- '${{ env.VARNISH_VER }}'
         sandpaper_version <- '${{ env.SANDPAPER_VER }}'
         pegboard_version  <- '${{ env.PEGBOARD_VER }}'

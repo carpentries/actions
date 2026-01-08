@@ -1,5 +1,5 @@
 name: "Validate Org and Workflow"
-
+description: "Validate that the given organisation and workflow are allowed."
 inputs:
   repo:
     required: true
@@ -17,8 +17,8 @@ runs:
   steps:
     - name: "Validate Organisation and Workflow"
       id: validate-org-workflow
-      shell: bash
       run: |
+        # Validating organisation and workflow #
         ALLOWED_ORGS=(
           "carpentries"
           "swcarpentry"
@@ -31,8 +31,11 @@ runs:
         )
 
         ALLOWED_WORKFLOWS=(
+          "01 Maintain: Build and Deploy Site"
           "02 Maintain: Check for Updated Packages"
+          "03 Maintain: Apply Package Cache"
           "04 Maintain: Update Workflow Files"
+          "Bot: Receive Pull Request"
         )
 
         REPO="${{ inputs.repo }}"
@@ -58,3 +61,4 @@ runs:
         else
           echo "is_valid=false" >> $GITHUB_OUTPUT
         fi
+      shell: bash
