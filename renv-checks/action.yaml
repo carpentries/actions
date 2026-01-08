@@ -19,8 +19,8 @@ inputs:
     default: false
     type: boolean
   token:
-    description: "GH Token"
-    required: true
+    description: "GitHub PAT, usually passed as 'secrets.GITHUB_TOKEN' from the caller workflow. Required if skip-cache-check is false."
+    required: false
   role-to-assume:
     required: false
     type: string
