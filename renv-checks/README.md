@@ -73,7 +73,10 @@ The access token to use for validation - typically a user would provide the GITH
 
 If the repo and workflow are part of the official Carpentries organisation, the AWS access token will override whatever is provided to this input.
 
-- required: true
+If the `skip-cache-check` input is `false` (the default), then the caller workflow would usually pass `${secrets.GITHUB_TOKEN}` here.
+If `skip-cache-check` input is `true`, then no token needs to be passed.
+
+- required: false
 
 ### role-to-assume
 
