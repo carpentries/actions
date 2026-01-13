@@ -6,13 +6,13 @@ inputs:
     description: 'The version of the cache, change this from the default (1) to start over with a fresh cache'
     required: true
     default: 1
-  sandpaper-version: 
+  sandpaper-version:
     description: 'The version of sandpaper to use. You can use the remotes syntax to specify a version to use. Defaults to latest on the r-universe.'
     default: 'latest'
-  pegboard-version: 
+  pegboard-version:
     description: 'The version of pegboard to use. You can use the remotes syntax to specify a version to use. Defaults to latest on the r-universe.'
     default: 'latest'
-  varnish-version: 
+  varnish-version:
     description: 'The version of varnish to use. You can use the remotes syntax to specify a version to use. Defaults to latest on the r-universe.'
     default: 'latest'
 runs:
@@ -25,7 +25,7 @@ runs:
           if (on_linux) {
             if (Sys.getenv("RSPM") == "") {
               release <- system("lsb_release -c | awk '{print $2}'", intern = TRUE)
-              Sys.setenv("RSPM" = 
+              Sys.setenv("RSPM" =
                 paste0("https://packagemanager.posit.co/all/__linux__/", release, "/latest"))
             }
           }
@@ -62,22 +62,22 @@ runs:
         shell: bash
         run: |
           sudo apt update || exit 0
-          curl https://carpentries.r-universe.dev/stats/sysdeps 2> /dev/null \
-          | jq -r '.headers[0] | select(. != null)' 2> /dev/null \
-          > ${{ runner.temp }}/sysdeps.txt
-          if [[ `wc -l < ${{ runner.temp }}/sysdeps.txt` -gt 0 ]]; then
-            echo 'sysdeps acquired'
-          else
-            echo 'fetching sysdeps from descriptions'
-            curl https://carpentries.r-universe.dev/stats/descriptions \
-            | jq -r '._builder.sysdeps | .[].headers | select(. != null)' 2> /dev/null \
-            > ${{ runner.temp }}/sysdeps.txt
+          pkgs=$(curl -Ls https://carpentries.r-universe.dev/api/packages)
+          if [[ $? -ne 0 ]]; then
+            echo "::error::Could not fetch package list from r-universe."
+            exit 0
           fi
+
+          echo $pkgs \
+          | jq -r '[.[]._sysdeps | select(.) | .[].headers | select(.)] | unique | .[]' \
+          2> /dev/null \
+          > ${{ runner.temp }}/sysdeps.txt
+
           if [[ `wc -l < ${{ runner.temp }}/sysdeps.txt` -eq 0 ]]; then
-            echo "::warn::System dependencies could not be acquired. Builds may fail"
+            echo "::warn::No system dependencies acquired. Builds may fail."
             exit 1
           else
-            echo "found sysdeps: $(cat ${{ runner.temp }}/sysdeps.txt)"
+            echo -e "Found sysdeps:\n$(cat ${{ runner.temp }}/sysdeps.txt)"
           fi
           printf "libxslt-dev\n" >> ${{ runner.temp }}/sysdeps.txt
           sudo xargs apt-get install --fix-missing -y < ${{ runner.temp }}/sysdeps.txt || echo "Not on Ubuntu"
@@ -98,7 +98,7 @@ runs:
           if (on_linux) {
             if (Sys.getenv("RSPM") == "") {
               release <- system("lsb_release -c | awk '{print $2}'", intern = TRUE)
-              Sys.setenv("RSPM" = 
+              Sys.setenv("RSPM" =
                 paste0("https://packagemanager.posit.co/all/__linux__/", release, "/latest"))
             }
           }
