@@ -65,7 +65,7 @@ runs:
           pkgs=$(curl -Ls https://carpentries.r-universe.dev/api/packages)
           if [[ $? -ne 0 ]]; then
             echo "::error::Could not fetch package list from r-universe."
-            exit 0
+            exit 1
           fi
 
           echo $pkgs \
@@ -75,7 +75,7 @@ runs:
 
           if [[ `wc -l < ${{ runner.temp }}/sysdeps.txt` -eq 0 ]]; then
             echo "::warn::No system dependencies acquired. Builds may fail."
-            exit 1
+            exit 0
           else
             echo -e "Found sysdeps:\n$(cat ${{ runner.temp }}/sysdeps.txt)"
           fi
