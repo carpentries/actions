@@ -155,17 +155,20 @@ runs:
           echo "No renv caches are currently stored for this lesson repository." >> $GITHUB_STEP_SUMMARY
           echo "This is normal if you haven't yet had a successful build that created a cache." >> $GITHUB_STEP_SUMMARY
           exit 0
+        else
+          table=$(echo "$caches" | awk '{split($4,a,"/"); split(a[3],b,"_"); split(b[2],c,"-"); print "| " $1 " " $2 " | " b[1] " | " c[2] " |"}')
         fi
 
-        # if there is a cache-matched-key, note that the current cache was found
         if [ -n "${{ steps.restore-renv-cache.outputs.cache-matched-key }}" ]; then
           echo "## ✅ renv cache found in S3" >> $GITHUB_STEP_SUMMARY
           echo "This build will use the following renv cache: ${{ steps.wb-vers.outputs.container-version }} ${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}" >> $GITHUB_STEP_SUMMARY
         fi
 
-        echo "## ℹ️ Available renv caches" >> $GITHUB_STEP_SUMMARY
-        echo "The following renv caches are available for this lesson:" >> $GITHUB_STEP_SUMMARY
-        echo "| date | container version | renv hashkey |" >> $GITHUB_STEP_SUMMARY
-        echo "| --- | --- | --- |" >> $GITHUB_STEP_SUMMARY
-        echo "$caches" | awk '{split($4,a,"/"); split(a[3],b,"_"); split(b[2],c,"-"); print "| " $1 " " $2 " | " b[1] " | " c[2] " |"}' >> $GITHUB_STEP_SUMMARY
+        if [ -n "$table" ]; then
+          echo "## ℹ️ Available renv caches" >> $GITHUB_STEP_SUMMARY
+          echo "The following renv caches are available for this lesson:" >> $GITHUB_STEP_SUMMARY
+          echo "| date | container version | renv hashkey |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | --- | --- |" >> $GITHUB_STEP_SUMMARY
+          echo "$table" >> $GITHUB_STEP_SUMMARY
+        fi
       shell: bash
