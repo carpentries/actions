@@ -140,8 +140,9 @@ runs:
       id: list-renv-caches
       if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' && inputs.skip-cache-check != 'true' }}
       run: |
-        aws configure set aws_access_key_id "${{ steps.aws-creds.outputs.access-key-id }}"
-        aws configure set aws_secret_access_key "${{ steps.aws-creds.outputs.secret-access-key }}"
+        # ℹ️ Available renv caches #
+        aws configure set aws_access_key_id ${{ steps.aws-creds.outputs.aws-access-key-id }}
+        aws configure set aws_secret_access_key ${{ steps.aws-creds.outputs.aws-secret-access-key }}
         caches=$(aws s3 ls s3://workbench-docker-caches/${{ github.repository }} --region "${{ inputs.aws-region }}" --recursive)
 
         if [ -z "$caches" ]; then
@@ -149,7 +150,6 @@ runs:
           exit 0
         fi
 
-        # ℹ️ Available renv caches #
         echo "## ℹ️ Available renv caches" >> $GITHUB_STEP_SUMMARY
         echo "The following renv caches are available for this lesson:" >> $GITHUB_STEP_SUMMARY
         echo "| date | container version | renv hashkey |" >> $GITHUB_STEP_SUMMARY
