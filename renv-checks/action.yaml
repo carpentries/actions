@@ -114,7 +114,6 @@ runs:
       uses: carpentries/actions-cache/restore@frog-matchedkey-1
       if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' && inputs.skip-cache-check != 'true' }}
       with:
-        # insecure: false # optional, use http instead of https. default false
         accessKey: ${{ steps.aws-creds.outputs.aws-access-key-id }}
         secretKey: ${{ steps.aws-creds.outputs.aws-secret-access-key }}
         sessionToken: ${{ steps.aws-creds.outputs.aws-session-token }}
@@ -135,4 +134,25 @@ runs:
         echo "cache-matched-key: ${{ steps.restore-renv-cache.outputs.cache-matched-key }}"
         echo "cache-matched-size: ${{ steps.restore-renv-cache.outputs.cache-size }}"
         echo "backup-cache-used: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && ((steps.restore-renv-cache.outputs.cache-matched-key || '') != '') }}"
+      shell: bash
+
+    - name: List renv caches in S3
+      id: list-renv-caches
+      if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' && inputs.skip-cache-check != 'true' }}
+      run: |
+        aws configure set aws_access_key_id "${{ steps.aws-creds.outputs.access-key-id }}"
+        aws configure set aws_secret_access_key "${{ steps.aws-creds.outputs.secret-access-key }}"
+        caches=$(aws s3 ls s3://workbench-docker-caches/${{ github.repository }} --region "${{ inputs.aws-region }}" --recursive)
+
+        if [ -z "$caches" ]; then
+          echo "## ⚠️ No renv caches found" >> $GITHUB_STEP_SUMMARY
+          exit 0
+        fi
+
+        # ℹ️ Available renv caches #
+        echo "## ℹ️ Available renv caches" >> $GITHUB_STEP_SUMMARY
+        echo "The following renv caches are available for this lesson:" >> $GITHUB_STEP_SUMMARY
+        echo "| date | container version | renv hashkey |" >> $GITHUB_STEP_SUMMARY
+        echo "| --- | --- | --- |" >> $GITHUB_STEP_SUMMARY
+        echo "$caches" | awk '{split($4,a,"/"); split(a[3],b,"_"); split(b[2],c,"-"); print "| " $1 " " $2 " | " b[1] " | " c[2] " |"}' >> $GITHUB_STEP_SUMMARY
       shell: bash
