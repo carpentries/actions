@@ -44,7 +44,7 @@ runs:
 
     - name: Check renv status
       id: check-renv
-      uses: carpentries/actions/renv-checks@frog-list-caches-1
+      uses: carpentries/actions/renv-checks@main
       with:
         CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
         WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
@@ -71,22 +71,6 @@ runs:
         echo "Requested renv cache not available, but a previous cache was found and used." >> $GITHUB_STEP_SUMMARY
         echo "Whilst this will work, it is recommended to run the '02 Maintain: Check for Updated Packages' and '03 Maintain: Apply Package Cache' workflows to update the cache." >> $GITHUB_STEP_SUMMARY
       shell: bash
-
-    # - name: Verify system dependencies
-    #   if: steps.check-renv.outputs.renv-needed == 'true' && (steps.check-renv.outputs.renv-cache-available == 'true' || steps.check-renv.outputs.backup-cache-used == 'true')
-    #   run: |
-    #     # Restoring renv dependencies #
-    #     lsn_path <- fs::path("${{ inputs.LESSON_PATH }}")
-
-    #     site_libs <- strsplit(Sys.getenv("R_LIBS_SITE"), ":")[[1]]
-    #     site_libs <- site_libs[site_libs != ""]
-    #     options(renv.settings.external.libraries = site_libs)
-    #     .libPaths(c(site_libs, .libPaths()))
-
-    #     renv_lib  <- renv::paths$library(project = lsn_path)
-    #     renv_lock <- renv::paths$lockfile(project = lsn_path)
-
-    #   shell: Rscript {0}
 
     - name: Restore renv Dependencies
       if: steps.check-renv.outputs.renv-needed == 'true' && (steps.check-renv.outputs.renv-cache-available == 'true' || steps.check-renv.outputs.backup-cache-used == 'true')
