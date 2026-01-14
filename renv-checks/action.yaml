@@ -114,7 +114,6 @@ runs:
       uses: carpentries/actions-cache/restore@frog-matchedkey-1
       if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' && inputs.skip-cache-check != 'true' }}
       with:
-        # insecure: false # optional, use http instead of https. default false
         accessKey: ${{ steps.aws-creds.outputs.aws-access-key-id }}
         secretKey: ${{ steps.aws-creds.outputs.aws-secret-access-key }}
         sessionToken: ${{ steps.aws-creds.outputs.aws-session-token }}
@@ -135,4 +134,51 @@ runs:
         echo "cache-matched-key: ${{ steps.restore-renv-cache.outputs.cache-matched-key }}"
         echo "cache-matched-size: ${{ steps.restore-renv-cache.outputs.cache-size }}"
         echo "backup-cache-used: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && ((steps.restore-renv-cache.outputs.cache-matched-key || '') != '') }}"
+      shell: bash
+
+    - name: List renv caches in S3
+      id: list-s3-renv-caches
+      if: |
+        steps.check-for-renv.outputs.renv-exists == 'true' &&
+        inputs.skip-cache-check != 'true' &&
+        inputs.role-to-assume != '' &&
+        inputs.aws-region != ''
+      run: |
+        # ℹ️ Available renv caches #
+        set +e
+        caches=$(aws s3 ls s3://workbench-docker-caches/${{ github.repository }}/ --recursive 2>&1)
+        exit_code=$?
+        set -e
+
+        if [ -z "$caches" ]; then
+          echo "## ⚠️ No renv caches found in S3" >> $GITHUB_STEP_SUMMARY
+          echo "No renv caches are currently stored for this lesson repository." >> $GITHUB_STEP_SUMMARY
+          echo "This is normal if you haven't yet had a successful build that created a cache." >> $GITHUB_STEP_SUMMARY
+          exit 0
+        else
+          if [ $exit_code -ne 0 ]; then
+            echo "## ⚠️ Unable to list renv caches in S3"
+            echo "There was an issue listing the renv caches stored for this lesson repository."
+            echo "AWS CLI output:"
+            echo '```'
+            echo "$caches"
+            echo '```'
+            exit 0
+          else
+            table=$(echo "$caches" | awk '{split($4,a,"/"); split(a[3],b,"_"); split(b[2],c,"-"); print "| " $1 " " $2 " | " b[1] " | " c[2] " |"}')
+          fi
+        fi
+
+        if [ -n "${{ steps.restore-renv-cache.outputs.cache-matched-key }}" ]; then
+          echo "## ✅ renv cache found in S3" >> $GITHUB_STEP_SUMMARY
+          echo "This build will use the following renv cache: ${{ steps.wb-vers.outputs.container-version }} ${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}" >> $GITHUB_STEP_SUMMARY
+        fi
+
+        if [ -n "$table" ]; then
+          echo "## ℹ️ Available renv caches" >> $GITHUB_STEP_SUMMARY
+          echo "The following renv caches are available for this lesson:" >> $GITHUB_STEP_SUMMARY
+          echo "| date | container version | renv hashkey |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | --- | --- |" >> $GITHUB_STEP_SUMMARY
+          echo "$table" >> $GITHUB_STEP_SUMMARY
+        fi
       shell: bash
