@@ -141,7 +141,10 @@ runs:
       if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' && inputs.skip-cache-check != 'true' }}
       run: |
         # ℹ️ Available renv caches #
-        caches=$(aws s3 ls s3://workbench-docker-caches/${{ github.repository }} --region "${{ inputs.aws-region }}" --recursive)
+        set +e
+        caches=$(aws s3 ls s3://workbench-docker-caches/${{ github.repository }}/ --recursive 2>&1)
+        exit_code=$?
+        set -e
 
         if [ -z "$caches" ]; then
           echo "## ⚠️ No renv caches found" >> $GITHUB_STEP_SUMMARY
