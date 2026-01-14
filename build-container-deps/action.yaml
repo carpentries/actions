@@ -44,7 +44,7 @@ runs:
 
     - name: Check renv status
       id: check-renv
-      uses: carpentries/actions/renv-checks@main
+      uses: carpentries/actions/renv-checks@frog-list-caches-1
       with:
         CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
         WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
