@@ -137,8 +137,12 @@ runs:
       shell: bash
 
     - name: List renv caches in S3
-      id: list-renv-caches
-      if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' && inputs.skip-cache-check != 'true' }}
+      id: list-s3-renv-caches
+      if: |
+        steps.check-for-renv.outputs.renv-exists == 'true' &&
+        inputs.skip-cache-check != 'true' &&
+        inputs.role-to-assume != '' &&
+        inputs.aws-region != ''
       run: |
         # ℹ️ Available renv caches #
         set +e
@@ -147,8 +151,16 @@ runs:
         set -e
 
         if [ -z "$caches" ]; then
-          echo "## ⚠️ No renv caches found" >> $GITHUB_STEP_SUMMARY
+          echo "## ⚠️ No renv caches found in S3" >> $GITHUB_STEP_SUMMARY
+          echo "No renv caches are currently stored for this lesson repository." >> $GITHUB_STEP_SUMMARY
+          echo "This is normal if you haven't yet had a successful build that created a cache." >> $GITHUB_STEP_SUMMARY
           exit 0
+        fi
+
+        # if there is a cache-matched-key, note that the current cache was found
+        if [ -n "${{ steps.restore-renv-cache.outputs.cache-matched-key }}" ]; then
+          echo "## ✅ renv cache found in S3" >> $GITHUB_STEP_SUMMARY
+          echo "This build will use the following renv cache: ${{ steps.wb-vers.outputs.container-version }} ${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}" >> $GITHUB_STEP_SUMMARY
         fi
 
         echo "## ℹ️ Available renv caches" >> $GITHUB_STEP_SUMMARY
