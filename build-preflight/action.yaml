@@ -24,7 +24,7 @@ runs:
     - name: "Should we run build and deploy?"
       id: build-check
       run: |
-        # Pre-build checks #
+        # 🔧 Pre-build checks #
         if [[ "${{ github.event_name }}" == "schedule" ||
               "${{ github.event_name }}" == "workflow_dispatch" ]]; then
           echo "✅ Scheduled or manual trigger. Build will run."
@@ -40,6 +40,8 @@ runs:
 
               if [[ "$MERGED" == "false" || "$STATE" != "MERGED" ]]; then
                 echo "❗PR not merged or in an invalid state. No build will run."
+                echo "## ❗ Build Skipped" >> $GITHUB_STEP_SUMMARY
+                echo "❗PR not merged or in an invalid state. No build will run." >> $ GITHUB_STEP_SUMMARY
                 echo "push_or_pr=false" >> $GITHUB_OUTPUT
               else
                 echo "✅ PR merged successfully. Build will run."
@@ -59,10 +61,25 @@ runs:
           if [[ -n "$PRE_PR" ]]; then
             LABELS=$(gh pr view "$PRE_PR" --repo "${{ github.repository }}" --json labels -q ".labels[].name")
             if echo "$LABELS" | grep -q "type: package cache"; then
-              echo "❗Package cache update PR merged. Build will not run."
+              echo "⛔ Package cache update PR merged. Build will not run."
+
+              echo "## ⛔ Build Skipped" >> $GITHUB_STEP_SUMMARY
+              echo "⛔ Package cache update PR merged. Build will not run." >> $ GITHUB_STEP_SUMMARY
+
               echo "push_or_pr=false" >> $GITHUB_OUTPUT
             elif echo "$LABELS" | grep -q "type: docker version"; then
-              echo "❗Workbench Docker version PR merged. Build will not run."
+              echo "⛔ Workbench Docker version PR merged. Build will not run."
+
+              echo "## ⛔ Build Skipped" >> $GITHUB_STEP_SUMMARY
+              echo "⛔ Workbench Docker version PR merged. Build will not run." >> $ GITHUB_STEP_SUMMARY
+
+              echo "push_or_pr=false" >> $GITHUB_OUTPUT
+            elif echo "$LABELS" | grep -q "type: workflows"; then
+              echo "⛔ Workflow file update PR merged. Build will not run."
+
+              echo "## ⛔ Build Skipped" >> $GITHUB_STEP_SUMMARY
+              echo "⛔ Workflow file update PR merged. Build will not run." >> $ GITHUB_STEP_SUMMARY
+
               echo "push_or_pr=false" >> $GITHUB_OUTPUT
             else
               echo "✅ Valid PR merged. Build will run."
@@ -74,6 +91,10 @@ runs:
           fi
         else
           echo "❗This was not a schedule or valid trigger. No build will run."
+
+          echo "## ❗ Build Skipped" >> $GITHUB_STEP_SUMMARY
+          echo "❗This was not a schedule or valid trigger. No build will run." >> $ GITHUB_STEP_SUMMARY
+
           echo "push_or_pr=false" >> $GITHUB_OUTPUT
         fi
       shell: bash
