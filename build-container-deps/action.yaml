@@ -59,7 +59,9 @@ runs:
         # ❌ ERROR: renv cache miss #
         echo "## ❌ ERROR: renv Cache Miss" >> $GITHUB_STEP_SUMMARY
         echo "A cached renv environment is required to build this lesson but none is available in the cache." >> $GITHUB_STEP_SUMMARY
-        echo "Please run the '02 Maintain: Check for Updated Packages' then the '03 Maintain: Apply Package Cache' workflows." >> $GITHUB_STEP_SUMMARY
+        echo "Please:" >> $GITHUB_STEP_SUMMARY
+        echo "- merge in any open package update pull requests, or run the '02 Maintain: Check for Updated Packages' workflow then merge the resulting PR" >> $GITHUB_STEP_SUMMARY
+        echo "- run the '03 Maintain: Apply Package Cache' workflow" >> $GITHUB_STEP_SUMMARY
         exit 1
       shell: bash
 
