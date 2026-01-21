@@ -77,7 +77,7 @@ runs:
     - name: Restore renv Dependencies
       if: steps.check-renv.outputs.renv-needed == 'true' && (steps.check-renv.outputs.renv-cache-available == 'true' || steps.check-renv.outputs.backup-cache-used == 'true')
       run: |
-        # Restoring renv dependencies #
+        # 🔧 Restoring renv dependencies #
         lsn_path <- fs::path("${{ inputs.LESSON_PATH }}")
 
         site_libs <- strsplit(Sys.getenv("R_LIBS_SITE"), ":")[[1]]
@@ -132,13 +132,8 @@ runs:
       shell: Rscript {0}
 
     - name: Override any Workbench packages
-      if: (env.VARNISH_VER || 'latest') != 'latest' || (env.SANDPAPER_VER || 'latest') != 'latest' || (env.PEGBOARD_VER || 'latest') != 'latest'
       run: |
-        # Overriding Workbench package versions #
-        varnish_version   <- '${{ env.VARNISH_VER }}'
-        sandpaper_version <- '${{ env.SANDPAPER_VER }}'
-        pegboard_version  <- '${{ env.PEGBOARD_VER }}'
-
+        # ℹ️ Checking config.yaml for Workbench package overrides #
         cfg_file <- '${{ inputs.LESSON_PATH }}/config.yaml'
 
         library("remotes")
@@ -162,16 +157,19 @@ runs:
         sandpaper_version <- get_version(cfg, key = "sandpaper")
         pegboard_version <- get_version(cfg, key = "pegboard")
         if (varnish_version != "latest") {
+          # ❗ Overriding varnish package version from config #
           cat("::group::Installing", varnish_version, "\n")
           remotes::install_github(varnish_version)
           cat("::endgroup::\n")
         }
         if (sandpaper_version != "latest") {
+          # ❗ Overriding sandpaper package version from config #
           cat("::group::Installing", sandpaper_version, "\n")
           remotes::install_github(sandpaper_version)
           cat("::endgroup::\n")
         }
         if (pegboard_version != "latest") {
+          # ❗ Overriding pegboard package version from config #
           cat("::group::Installing", pegboard_version, "\n")
           remotes::install_github(pegboard_version)
           cat("::endgroup::\n")
