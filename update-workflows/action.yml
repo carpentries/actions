@@ -1,18 +1,14 @@
 name: "Update Workflows"
-description: "Update GitHub Action Workflows for {sandpaper} repoisitories"
+description: "Update GitHub Action Workflows for Workbench lesson repoisitories"
 inputs:
   version:
-    description: "Version of {sandpaper} to use"
+    description: "Version of workbench-workflows to use. 'release' for latest release, 'main' for main branch, or specific version tag."
     required: false
-    default: 'current'
-  repo:
-    description: "CRAN-like repository to get the workflow files (no slash at end)"
-    required: false
-    default: "https://carpentries.r-universe.dev"
+    default: 'release'
   clean:
     description: "Workflow file extensions to be cleaned before update. No wildcards as they will be auto-expanded. Defaults to none."
     required: false
-    default: ''
+    default: '.yaml'
 outputs:
   old:
     description: "old version of workflows"
@@ -31,6 +27,5 @@ runs:
       run: |
         ${{ github.action_path }}/update-workflows.sh \
           ${{ inputs.version }} \
-          ${{ inputs.repo }} \
           ${{ inputs.clean }}
       shell: bash

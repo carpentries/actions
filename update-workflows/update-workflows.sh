@@ -4,66 +4,65 @@ set -eo pipefail
 # Download and update sandpaper workflow files from an upstream repository
 #
 # usage:
-#   bash update-workflows.sh [UPSTREAM] [SOURCE] [CLEAN]
+#   bash update-workflows.sh [UPSTREAM] [CLEAN]
 #
 # args:
-#   UPSTREAM - a version number from which to fetch the workflows. By default,
-#     this is fetched from https://carpentries.r-universe.dev/api/packages/sandpaper
-#   SOURCE - a CRAN-like repository from which to fetch a tarball of sandpaper
-#     By default this is fetched from https://carpentries.r-universe.dev/
-#   CLEAN files to clean as a pattern. Example: *.yaml will clean all the yaml
+#   UPSTREAM - a version number or "main" from which to fetch the workflows. By default,
+#     this is fetched from https://github.com/carpentries/workbench-workflows
+#   CLEAN files to clean as a pattern. Example: .yaml will clean all the yaml
 #     files, but will leave the yml files alone.
 #
-# example: Reset the workflow versions to that of 0.0.0.9041 from the drat
-#   archives
+# Example 1: Use the main branch workflow versions, removing all existing .yaml files first
+# bash update-workflows.sh main .yaml
 #
-# bash update-workflows.sh 0.0.0.9041 https://carpentries.github.io/drat/ *.yaml
+# Example 2: Use a specific release workflow version, only updating files that differ
+#
+# bash update-workflows.sh 0.18.3
 
 # Fail if we aren't in a sandpaper repository
-if [[ -r .github/workflows/sandpaper-main.yaml || -r .github/workflows/sandpaper-version.txt ]]; then
+if [[ -r .github/workflows/workflows-version.txt ]]; then
   echo "" > /dev/null
 else
-  echo "::error::This is not a {sandpaper} repository"
+  echo "::error::This is not a Carpentries Workbench lesson repository"
   exit 1
 fi
 
-# Set variables needed
-UPSTREAM="${1:-current}"
-SOURCE="${2:-https://carpentries.r-universe.dev}"
-CLEAN="${3:-}"
-CURRENT=$(cat .github/workflows/sandpaper-version.txt)
+WF_REPO="https://github.com/carpentries/workbench-workflows/archive/refs"
+SOURCE=""
 
-# Show the version inforamtion
+# Set variables needed
+UPSTREAM="${1:-release}"
+CLEAN="${2:-}"
+CURRENT=$(cat .github/workflows/workflows-version.txt)
+
+# Show the version information
 echo "::group::Inputs"
-echo "Source:          ${SOURCE}"
-echo "This version:    ${CURRENT}"
-echo "Current version: ${UPSTREAM}"
-echo "Clean:           ${CLEAN}"
+echo "Current version:   ${CURRENT}"
+echo "Desired version:   ${UPSTREAM}"
+echo "Clean:             ${CLEAN}"
 echo "::endgroup::"
 
-# if the SOURCE URL ends in zip or tar.gz
-if [[ ${SOURCE} =~ \.zip$ || ${SOURCE} =~ \.tar\.gz$ ]]; then
-  # echo "Using the provided source URL: ${SOURCE}"
-  UPSTREAM=${SOURCE}
-fi
-
-# Fetch upstream version from the API if we don't have that information
-if [[ ${UPSTREAM} == 'current' ]]; then
-  UPSTREAM=$(curl -L ${SOURCE}/api/packages/sandpaper/)
-  UPSTREAM=$(echo ${UPSTREAM} | jq -r .Version)
-  SOURCE="https://carpentries.r-universe.dev/src/contrib/sandpaper_${UPSTREAM}.tar.gz"
-elif [[ ${SOURCE} == 'https://carpentries.r-universe.dev' ]]; then
-  SOURCE=https://carpentries.github.io/drat
+# Fetch version from carpentries/workbench-workflows latest GitHub release, or a release version number
+if [[ ${UPSTREAM} == 'release' ]]; then
+  # get latest release
+  UPSTREAM=$(curl -s https://api.github.com/repos/carpentries/workbench-workflows/releases/latest | jq -r .tag_name)
+  SOURCE="${WF_REPO}/tags/${UPSTREAM}.tar.gz"
+elif [[ ${UPSTREAM} == "main" ]]; then
+  # get main branch
+  UPSTREAM=$(curl -s https://api.github.com/repos/carpentries/workbench-workflows/branches/main | jq -r .commit.sha | cut -c1-7)
+  SOURCE="${WF_REPO}/heads/main.tar.gz"
+else
+  # get specific version
+  SOURCE="${WF_REPO}/tags/${UPSTREAM}.tar.gz"
 fi
 
 # Create a temporary directory for the sandpaper resource files to land in
 TMP=$(mktemp -d)
 
-# Show the version inforamtion
+# Show the version information
 echo "::group::Version Information"
-echo "Source:          ${SOURCE}"
-echo "This version:    ${CURRENT}"
-echo "Current version: ${UPSTREAM}"
+echo "Current version:   ${CURRENT}"
+echo "Available version: ${UPSTREAM}"
 echo "::endgroup::"
 
 # Copy the contents if the versions do not match
@@ -80,8 +79,8 @@ if [[ ${CURRENT} != ${UPSTREAM} ]]; then
   fi
   echo "::group::Copying files"
   curl -L ${SOURCE} | \
-    tar -C ${TMP} --strip-components=1 --wildcards -xzv */inst/workflows/*
-  cp -v ${TMP}/inst/workflows/* .github/workflows/
+    tar -C ${TMP} --strip-components=1 --wildcards -xzv */workflows/*
+  cp -v ${TMP}/workflows/* .github/workflows/
   echo "::endgroup::"
   NEEDS_UPDATE=$(git status --porcelain)
   if [[ ${NEEDS_UPDATE} ]]; then
@@ -89,7 +88,7 @@ if [[ ${CURRENT} != ${UPSTREAM} ]]; then
     echo "new=$(echo ${UPSTREAM})" >> $GITHUB_OUTPUT
     echo "date=$(date --utc -Iminutes)" >> $GITHUB_OUTPUT
     echo "Updating version number to ${UPSTREAM}"
-    echo ${UPSTREAM} > .github/workflows/sandpaper-version.txt
+    echo ${UPSTREAM} > .github/workflows/workflows-version.txt
   else
     echo "${CURRENT} contains the latest version of the workflow files."
   fi
