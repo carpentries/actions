@@ -12,7 +12,7 @@ inputs:
   clean:
     description: "Workflow file extensions to be cleaned before update. No wildcards as they will be auto-expanded. Defaults to none."
     required: false
-    default: ''
+    default: '.yaml'
 outputs:
   old:
     description: "old version of workflows"
