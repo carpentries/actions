@@ -7,7 +7,7 @@ set -eo pipefail
 #   bash update-workflows.sh [UPSTREAM] [CLEAN]
 #
 # args:
-#   UPSTREAM - a version number or "main" from which to fetch the workflows. By default,
+#   UPSTREAM - a version number or branch name from which to fetch the workflows. By default,
 #     this is fetched from https://github.com/carpentries/workbench-workflows
 #   CLEAN files to clean as a pattern. Example: .yaml will clean all the yaml
 #     files, but will leave the yml files alone.
@@ -32,7 +32,7 @@ SOURCE=""
 BODY=""
 
 # Set variables needed
-UPSTREAM="${1:-release}"
+UPSTREAM="${1:-latest}"
 CLEAN="${2:-}"
 CURRENT=$(cat .github/workflows/workflows-version.txt)
 
@@ -43,23 +43,22 @@ echo "Desired version:   ${UPSTREAM}"
 echo "Clean:             ${CLEAN}"
 echo "::endgroup::"
 
-# Fetch version from carpentries/workbench-workflows latest GitHub release, or a release version number
-if [[ ${UPSTREAM} == 'release' ]]; then
-  # get latest release
-  INFO=$(curl -s https://api.github.com/repos/carpentries/workbench-workflows/releases/latest)
+if [[ ${UPSTREAM} == 'latest' ]]; then
+  # resolve latest release
+  INFO=$(curl -s https://api.github.com/repos/carpentries/workbench-workflows/releases/${UPSTREAM})
   UPSTREAM=$(echo ${INFO} | jq -r .tag_name)
   BODY=$(echo ${INFO} | jq -r .body)
   SOURCE="${WF_REPO}/tags/${UPSTREAM}.tar.gz"
-elif [[ ${UPSTREAM} == "main" ]]; then
-  # get main branch
-  INFO=$(curl -s https://api.github.com/repos/carpentries/workbench-workflows/branches/main)
+elif [[ ${UPSTREAM} =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
+  # if input matches version number
+  SOURCE="${WF_REPO}/tags/${UPSTREAM}.tar.gz"
+else
+  # assume branch name
+  INFO=$(curl -s https://api.github.com/repos/carpentries/workbench-workflows/branches/${UPSTREAM})
   SHA=$(echo ${INFO} | jq -r .commit.sha)
   BODY=$(curl -s https://api.github.com/repos/carpentries/workbench-workflows/git/commits/${SHA} | jq -r .message)
   UPSTREAM=$(echo ${SHA} | cut -c1-7)
-  SOURCE="${WF_REPO}/heads/main.tar.gz"
-else
-  # get specific version
-  SOURCE="${WF_REPO}/tags/${UPSTREAM}.tar.gz"
+  SOURCE="${WF_REPO}/heads/${UPSTREAM}.tar.gz"
 fi
 
 # Create a temporary directory for the sandpaper resource files to land in
