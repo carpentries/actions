@@ -29,6 +29,7 @@ fi
 
 WF_REPO="https://github.com/carpentries/workbench-workflows/archive/refs"
 SOURCE=""
+BODY=""
 
 # Set variables needed
 UPSTREAM="${1:-release}"
@@ -45,11 +46,16 @@ echo "::endgroup::"
 # Fetch version from carpentries/workbench-workflows latest GitHub release, or a release version number
 if [[ ${UPSTREAM} == 'release' ]]; then
   # get latest release
-  UPSTREAM=$(curl -s https://api.github.com/repos/carpentries/workbench-workflows/releases/latest | jq -r .tag_name)
+  INFO=$(curl -s https://api.github.com/repos/carpentries/workbench-workflows/releases/latest)
+  UPSTREAM=$(echo ${INFO} | jq -r .tag_name)
+  BODY=$(echo ${INFO} | jq -r .body)
   SOURCE="${WF_REPO}/tags/${UPSTREAM}.tar.gz"
 elif [[ ${UPSTREAM} == "main" ]]; then
   # get main branch
-  UPSTREAM=$(curl -s https://api.github.com/repos/carpentries/workbench-workflows/branches/main | jq -r .commit.sha | cut -c1-7)
+  INFO=$(curl -s https://api.github.com/repos/carpentries/workbench-workflows/branches/main)
+  SHA=$(echo ${INFO} | jq -r .commit.sha)
+  BODY=$(curl -s https://api.github.com/repos/carpentries/workbench-workflows/git/commits/${SHA} | jq -r .message)
+  UPSTREAM=$(echo ${SHA} | cut -c1-7)
   SOURCE="${WF_REPO}/heads/main.tar.gz"
 else
   # get specific version
@@ -87,6 +93,7 @@ if [[ ${CURRENT} != ${UPSTREAM} ]]; then
     echo "old=$(echo ${CURRENT})" >> $GITHUB_OUTPUT
     echo "new=$(echo ${UPSTREAM})" >> $GITHUB_OUTPUT
     echo "date=$(date --utc -Iminutes)" >> $GITHUB_OUTPUT
+    echo "body=$(echo ${BODY})" >> $GITHUB_OUTPUT
     echo "Updating version number to ${UPSTREAM}"
     echo ${UPSTREAM} > .github/workflows/workflows-version.txt
   else
