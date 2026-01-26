@@ -44,8 +44,7 @@ CURRENT=$(cat .github/workflows/workflows-version.txt)
 
 # Show the version information
 echo "::group::Inputs"
-echo "Current version:   ${CURRENT}"
-echo "Desired version:   ${UPSTREAM}"
+echo "Requested version: ${UPSTREAM}"
 echo "Clean:             ${CLEAN}"
 echo "::endgroup::"
 
@@ -73,7 +72,7 @@ TMP=$(mktemp -d)
 # Show the version information
 echo "::group::Version Information"
 echo "Current version:   ${CURRENT}"
-echo "Available version: ${UPSTREAM}"
+echo "Requested version: ${UPSTREAM}"
 echo "::endgroup::"
 
 # Copy the contents if the versions do not match
