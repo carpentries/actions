@@ -2,9 +2,9 @@ name: "Update Workflows"
 description: "Update GitHub Action Workflows for Workbench lesson repoisitories"
 inputs:
   version:
-    description: "Version of workbench-workflows to use. 'release' for latest release, 'main' for main branch, or specific version tag."
+    description: "Version of workbench-workflows to use. 'latest' for latest release, a specific version tag (e.g. '0.0.1'), or a branch name (e.g. 'main')."
     required: false
-    default: 'release'
+    default: 'latest'
   clean:
     description: "Workflow file extensions to be cleaned before update. No wildcards as they will be auto-expanded. Defaults to none."
     required: false
