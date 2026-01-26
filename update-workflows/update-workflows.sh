@@ -8,16 +8,22 @@ set -eo pipefail
 #
 # args:
 #   UPSTREAM - a version number or branch name from which to fetch the workflows. By default,
-#     this is fetched from https://github.com/carpentries/workbench-workflows
+#     this is fetched from the latest release tag from https://github.com/carpentries/workbench-workflows
 #   CLEAN files to clean as a pattern. Example: .yaml will clean all the yaml
 #     files, but will leave the yml files alone.
 #
 # Example 1: Use the main branch workflow versions, removing all existing .yaml files first
+#
 # bash update-workflows.sh main .yaml
 #
 # Example 2: Use a specific release workflow version, only updating files that differ
 #
 # bash update-workflows.sh 0.18.3
+#
+# Example 3: Get the latest release, only updating files that differ
+#
+# bash update-workflows.sh
+
 
 # Fail if we aren't in a sandpaper repository
 if [[ -r .github/workflows/workflows-version.txt ]]; then
