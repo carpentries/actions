@@ -107,13 +107,11 @@ runs:
         commit-message: "[actions] update workbench docker version to ${{ inputs.CONTAINER_VER }}"
         title: "Update workbench docker version to ${{ inputs.CONTAINER_VER }}"
         body: |
-          Workbench Docker image version updated to: [${{ inputs.CONTAINER_VER }}]
+          Workbench Docker image version updated to: ${{ inputs.CONTAINER_VER }}
 
-          [GHCR][1]
-          [DockerHub][2]
+          [GHCR](https://github.com/carpentries/workbench-docker/pkgs/container/workbench-docker)
+          [DockerHub](https://hub.docker.com/layers/carpentries/workbench-docker/${{ inputs.CONTAINER_VER }})
 
-          [1]: "https://github.com/carpentries/workbench-docker/pkgs/container/workbench-docker"
-          [2]: "https://hub.docker.com/layers/carpentries/workbench-docker/${{ inputs.CONTAINER_VER }}"
         labels: "type: docker version"
         draft: false
       continue-on-error: true
