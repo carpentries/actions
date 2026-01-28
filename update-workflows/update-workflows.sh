@@ -62,13 +62,13 @@ else
   INFO=$(curl -s https://api.github.com/repos/carpentries/workbench-workflows/branches/${UPSTREAM})
   SHA=$(echo ${INFO} | jq -r .commit.sha)
   BODY=$(curl -s https://api.github.com/repos/carpentries/workbench-workflows/git/commits/${SHA} | jq -r .message)
-  UPSTREAM=$(echo ${SHA} | cut -c1-7)
   SOURCE="${WF_REPO}/heads/${UPSTREAM}.tar.gz"
 fi
 
 # Create a temporary directory for the sandpaper resource files to land in
 TMP=$(mktemp -d)
 
+1f4e0f5
 # Show the version information
 echo "::group::Version Information"
 echo "Current version:   ${CURRENT}"
