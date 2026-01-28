@@ -26,7 +26,7 @@ set -eo pipefail
 
 
 # Fail if we aren't in a sandpaper repository
-if [[ -r .github/workflows/workflows-version.txt ]]; then
+if [[ -r .github/workflows/sandpaper-version.txt || -r .github/workflows/workflows-version.txt ]]; then
   echo "" > /dev/null
 else
   echo "::error::This is not a Carpentries Workbench lesson repository"
@@ -100,6 +100,12 @@ if [[ ${CURRENT} != ${UPSTREAM} ]]; then
     echo "body=$(echo ${BODY})" >> $GITHUB_OUTPUT
     echo "Updating version number to ${UPSTREAM}"
     echo ${UPSTREAM} > .github/workflows/workflows-version.txt
+
+    # finally if .github/workflows/sandpaper-version.txt exists, delete it
+    if [[ -e .github/workflows/sandpaper-version.txt ]]; then
+      echo "Removing old sandpaper-version.txt ..."
+      rm .github/workflows/sandpaper-version.txt
+    fi
   else
     echo "${CURRENT} contains the latest version of the workflow files."
   fi
