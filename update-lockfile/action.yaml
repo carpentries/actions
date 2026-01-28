@@ -139,12 +139,13 @@ runs:
             !${{ github.workspace }}/renv/profiles/${{ inputs.profile }}/renv/staging
           retention-days: 30
 
-      - name: "Generate Cache?"
+      - name: "Generate Temporary Cache?"
         run: echo "Cache generation is ${{ inputs.generate-cache }}"
         shell: bash
 
-      - name: "Save {renv} Cache"
+      - name: "Save Temporary {renv} Cache"
         uses: actions/cache/save@v4
+        if: ${{ inputs.generate-cache == 'true' }}
         id: save-cache
         with:
           path: ${{ env.RENV_PATHS_ROOT }}
