@@ -68,7 +68,6 @@ fi
 # Create a temporary directory for the sandpaper resource files to land in
 TMP=$(mktemp -d)
 
-1f4e0f5
 # Show the version information
 echo "::group::Version Information"
 echo "Current version:   ${CURRENT}"
