@@ -26,7 +26,7 @@ set -eo pipefail
 
 
 # Fail if we aren't in a sandpaper repository
-if [[ -r .github/workflows/sandpaper-version.txt || -r .github/workflows/workflows-version.txt ]]; then
+if [[ -r .github/workflows/workflows-version.txt || -r .github/workflows/sandpaper-version.txt ]]; then
   echo "" > /dev/null
 else
   echo "::error::This is not a Carpentries Workbench lesson repository"
