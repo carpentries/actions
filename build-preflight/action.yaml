@@ -21,8 +21,37 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: "Is renv required?"
+      id: renv-check
+      uses: carpentries/actions/renv-checks@main
+      with:
+        CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
+        skip-cache-check: true
+
+    - name: "Get workflow artifact if Apply Cache trigger"
+      id: get-apply-cache-artifact
+      if: |
+        github.event_name == 'workflow_run' &&
+        steps.renv-check.outputs.renv-needed
+      uses: carpentries/actions/download-workflow-artifact@main
+      with:
+        run: ${{ github.event.workflow_run.id }}
+        name: 'apply-cache-result'
+
+    - name: "Get apply cache result"
+      id: get-apply-cache-result
+      if: |
+        github.event_name == 'workflow_run' &&
+        steps.renv-check.outputs.renv-needed &&
+        steps.get-apply-cache-artifact.outputs.success == 'true'
+      run: |
+        unzip apply-cache-result.zip
+        echo "apply_cache_result=$(<./apply-cache-result)" >> $GITHUB_OUTPUT
+      shell: bash
+
     - name: "Should we run build and deploy?"
       id: build-check
+      if: always()
       run: |
         # 🔧 Pre-build checks #
         if [[ "${{ github.event_name }}" == "schedule" ||
@@ -48,12 +77,36 @@ runs:
                 echo "push_or_pr=true" >> $GITHUB_OUTPUT
               fi
             else
-              echo "✅ PR merged successfully. Build will run."
-              echo "push_or_pr=true" >> $GITHUB_OUTPUT
+              if [[ "${{ steps.renv-check.outputs.renv-needed }}" == 'true' &&
+                    (
+                      "${{ steps.get-apply-cache-artifact.outputs.success }}" != "true" ||
+                      "${{ steps.get-apply-cache-result.outputs.apply_cache_result }}" != "true"
+                    ) ]]; then
+                echo "⛔ Apply Cache workflow required but failed. No build will run."
+                echo "## ⛔ Build Skipped" >> $GITHUB_STEP_SUMMARY
+                echo "Apply Cache workflow required but failed. No build will run." >> $GITHUB_STEP_SUMMARY
+                echo "push_or_pr=false" >> $GITHUB_OUTPUT
+              else
+                echo "✅ PR merged successfully. Build will run."
+                echo "push_or_pr=true" >> $GITHUB_OUTPUT
+              fi
             fi
           else
-            echo "✅ PR merged successfully. Build will run."
-            echo "push_or_pr=true" >> $GITHUB_OUTPUT
+            if [[ "${{ steps.renv-check.outputs.renv-needed }}" == 'true' &&
+                  (
+                    "${{ steps.get-apply-cache-artifact.outputs.success }}" != "true" ||
+                    "${{ steps.get-apply-cache-result.outputs.apply_cache_result }}" != "true"
+                  ) ]]; then
+              echo "⛔ Apply Cache workflow required but failed. No build will run."
+
+              echo "## ⛔ Build Skipped" >> $GITHUB_STEP_SUMMARY
+              echo "Apply Cache workflow required but failed. No build will run." >> $GITHUB_STEP_SUMMARY
+
+              echo "push_or_pr=false" >> $GITHUB_OUTPUT
+            else
+              echo "✅ Triggered from workflow run. Build will run."
+              echo "push_or_pr=true" >> $GITHUB_OUTPUT
+            fi
           fi
         elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
           PRE_PR=$(gh pr list --repo "${{ github.repository }}" --state merged --search "${{ github.sha }}" --json number -q ".[0].number") >> $GITHUB_ENV
@@ -98,10 +151,3 @@ runs:
           echo "push_or_pr=false" >> $GITHUB_OUTPUT
         fi
       shell: bash
-
-    - name: "Is renv required?"
-      id: renv-check
-      uses: carpentries/actions/renv-checks@main
-      with:
-        CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
-        skip-cache-check: true

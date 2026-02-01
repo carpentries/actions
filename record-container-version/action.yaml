@@ -17,6 +17,13 @@ inputs:
     required: false
   aws-region:
     required: false
+outputs:
+  pr-number:
+    description: the PR number created
+    value: ${{ steps.cpr.outputs.pull-request-number }}
+  pr-success:
+    description: whether the PR was successfully created
+    value: ${{ steps.cpr.outputs.success }}
 
 runs:
   using: "composite"
@@ -161,16 +168,4 @@ runs:
         gh pr merge --auto --squash update/workbench-docker-version
       env:
         GITHUB_TOKEN: ${{ steps.set-pat.outputs.pat || inputs.token }}
-      shell: bash
-
-    # we need to trigger checks if a repo has a main branch protection rule
-    - name: "Trigger checks"
-      if: |
-        steps.cpr.outputs.pull-request-number != '' &&
-        steps.validate-token.outputs.wf != 'true' &&
-        inputs.AUTO_MERGE == 'true'
-      env:
-        GITHUB_TOKEN: ${{ steps.set-pat.outputs.pat || inputs.token }}
-      run: |
-        gh workflow run pr-comment.yaml --field workflow_id=${{ github.run_id }}
       shell: bash
