@@ -24,12 +24,14 @@ runs:
       id: setup-translation
       if: ${{ inputs.lang-code != '' }}
       run: |
+        cat("Processing lesson translations with dovetail ...\n")
         lesson_trans_dir <- paste0(tempdir(), "/dovetail-", Sys.Date())
         lang_code <- "${{ inputs.lang-code }}"
         dovetail:::make_translated_dir(
           translated_dir = lesson_trans_dir, overwrite = TRUE, lang = lang_code, l10n_branch = NULL, clean = FALSE
         )
         echo "build_path=$lesson_trans_dir" >> "$GITHUB_OUTPUT"
+        cat("Using translated lesson directory at: ${{ steps.setup-translation.outputs.build_path }}\n")
       shell: Rscript {0}
 
     - name: Run Container and Build Site
@@ -39,7 +41,6 @@ runs:
         reset <- "${{ inputs.reset }}" == "true"
         build_path <- "."
         if ("${{ inputs.lang-code }}" != "") {
-          message("Using translated lesson directory at: ${{ steps.setup-translation.outputs.build_path }}")
           build_path <- "${{ steps.setup-translation.outputs.build_path }}"
         }
         skip_manage_deps <- "${{ inputs.skip-manage-deps }}" == "true"
