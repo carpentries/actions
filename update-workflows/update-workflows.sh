@@ -42,13 +42,11 @@ UPSTREAM="${1:-latest}"
 CLEAN="${2:-}"
 
 # Get the current version of the workflow files if it exists
+CURRENT=""
 if [[ -r .github/workflows/workflows-version.txt ]]; then
   CURRENT=$(cat .github/workflows/workflows-version.txt)
 elif [[ -r .github/workflows/sandpaper-version.txt ]]; then
   CURRENT=$(cat .github/workflows/sandpaper-version.txt)
-else
-  echo "::warning::No workflow version file found. Assuming no workflow files are present."
-  CURRENT=""
 fi
 
 # Show the version information
