@@ -12,16 +12,38 @@ inputs:
     required: true
     default: false
     type: boolean
+  lang-code:
+    description: 'Language code for translation (e.g. "en", "es", "fr"). Defaults to "".'
+    required: false
+    default: ''
 
 runs:
   using: "composite"
   steps:
+    - name: Set up translation
+      id: setup-translation
+      if: ${{ inputs.lang-code != '' }}
+      run: |
+        cat("Processing lesson translations with dovetail ...\n")
+        lesson_trans_dir <- paste0(tempdir(), "/dovetail-", Sys.Date())
+        lang_code <- "${{ inputs.lang-code }}"
+        dovetail:::make_translated_dir(
+          translated_dir = lesson_trans_dir, overwrite = TRUE, lang = lang_code, l10n_branch = NULL, clean = FALSE
+        )
+        echo "build_path=$lesson_trans_dir" >> "$GITHUB_OUTPUT"
+        cat("Using translated lesson directory at: ${{ steps.setup-translation.outputs.build_path }}\n")
+      shell: Rscript {0}
+
     - name: Run Container and Build Site
       id: build-and-deploy
       run: |
         library(sandpaper)
         reset <- "${{ inputs.reset }}" == "true"
+        build_path <- "."
+        if ("${{ inputs.lang-code }}" != "") {
+          build_path <- "${{ steps.setup-translation.outputs.build_path }}"
+        }
         skip_manage_deps <- "${{ inputs.skip-manage-deps }}" == "true"
         sandpaper::package_cache_trigger(TRUE)
-        sandpaper:::ci_deploy(reset = reset, skip_manage_deps = skip_manage_deps)
+        sandpaper:::ci_deploy(path = build_path, reset = reset, skip_manage_deps = skip_manage_deps)
       shell: Rscript {0}
