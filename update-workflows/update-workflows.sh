@@ -40,7 +40,6 @@ BODY=""
 # Set variables needed
 UPSTREAM="${1:-latest}"
 CLEAN="${2:-}"
-CURRENT=$(cat .github/workflows/workflows-version.txt)
 
 # Get the current version of the workflow files if it exists
 if [[ -r .github/workflows/workflows-version.txt ]]; then
