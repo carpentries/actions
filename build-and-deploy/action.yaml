@@ -20,18 +20,23 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Checkout l10n_main branch
+      if: ${{ inputs.lang-code != '' }}
+      uses: actions/checkout@v4
+      with:
+        ref: l10n_main
+
     - name: Set up translation
       id: setup-translation
       if: ${{ inputs.lang-code != '' }}
       run: |
         cat("Processing lesson translations with dovetail ...\n")
-        lesson_trans_dir <- paste0(tempdir(), "/dovetail-", Sys.Date())
         lang_code <- "${{ inputs.lang-code }}"
         dovetail:::make_translated_dir(
-          translated_dir = lesson_trans_dir, overwrite = TRUE, lang = lang_code, l10n_branch = NULL, clean = FALSE
+          translated_dir = "${{ runner.temp }}", overwrite = TRUE, lang = lang_code, l10n_branch = NULL, clean = FALSE
         )
-        echo "build_path=$lesson_trans_dir" >> "$GITHUB_OUTPUT"
-        cat("Using translated lesson directory at: ${{ steps.setup-translation.outputs.build_path }}\n")
+        cat("build_path=${{ runner.temp }}\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
+        cat("Using translated lesson directory at: ${{ runner.temp }}\n")
       shell: Rscript {0}
 
     - name: Run Container and Build Site
