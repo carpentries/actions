@@ -33,10 +33,10 @@ runs:
         cat("Processing lesson translations with dovetail ...\n")
         lang_code <- "${{ inputs.lang-code }}"
         dovetail:::make_translated_dir(
-          translated_dir = ${{ runner.temp }}, overwrite = TRUE, lang = lang_code, l10n_branch = NULL, clean = FALSE
+          translated_dir = "${{ runner.temp }}", overwrite = TRUE, lang = lang_code, l10n_branch = NULL, clean = FALSE
         )
-        cat("build_path=", ${{ runner.temp }}, "\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
-        cat("Using translated lesson directory at: ", ${{ runner.temp }}, "\n")
+        cat("build_path=${{ runner.temp }}\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
+        cat("Using translated lesson directory at: ${{ runner.temp }}\n")
       shell: Rscript {0}
 
     - name: Run Container and Build Site
