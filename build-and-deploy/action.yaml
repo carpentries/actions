@@ -20,11 +20,11 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout l18n_main branch
+    - name: Checkout l10n_main branch
       if: ${{ inputs.lang-code != '' }}
       uses: actions/checkout@v4
       with:
-        ref: l18n_main
+        ref: l10n_main
 
     - name: Set up translation
       id: setup-translation
