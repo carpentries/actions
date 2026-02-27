@@ -36,7 +36,7 @@ runs:
         dovetail:::make_translated_dir(
           translated_dir = lesson_trans_dir, overwrite = TRUE, lang = lang_code, l10n_branch = NULL, clean = FALSE
         )
-        echo "build_path=$lesson_trans_dir" >> "$GITHUB_OUTPUT"
+        cat("build_path=", lesson_trans_dir, "\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
         cat("Using translated lesson directory at: ${{ steps.setup-translation.outputs.build_path }}\n")
       shell: Rscript {0}
 
