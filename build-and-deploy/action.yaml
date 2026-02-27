@@ -31,16 +31,12 @@ runs:
       if: ${{ inputs.lang-code != '' }}
       run: |
         cat("Processing lesson translations with dovetail ...\n")
-        lesson_trans_dir <- paste0(tempdir(), "/dovetail-", Sys.Date())
-        if (!dir.exists(lesson_trans_dir)) {
-          dir.create(lesson_trans_dir, recursive = TRUE)
-        }
         lang_code <- "${{ inputs.lang-code }}"
         dovetail:::make_translated_dir(
-          translated_dir = lesson_trans_dir, overwrite = TRUE, lang = lang_code, l10n_branch = NULL, clean = FALSE
+          translated_dir = ${{ runner.temp }}, overwrite = TRUE, lang = lang_code, l10n_branch = NULL, clean = FALSE
         )
-        cat("build_path=", lesson_trans_dir, "\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
-        cat("Using translated lesson directory at: ", lesson_trans_dir, "\n")
+        cat("build_path=", ${{ runner.temp }}, "\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
+        cat("Using translated lesson directory at: ", ${{ runner.temp }}, "\n")
       shell: Rscript {0}
 
     - name: Run Container and Build Site
