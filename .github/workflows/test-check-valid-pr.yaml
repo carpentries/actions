@@ -1,6 +1,6 @@
 name: Test check-valid-pr
 
-on: 
+on:
   push:
     paths: ['.github/workflows/test-check-valid-pr.yaml', 'check-valid-pr/**']
 
@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-22.04
     name: Testing PR states
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - id: valid-pr
         name: "Valid PR"
         uses: carpentries/actions/check-valid-pr@main
@@ -43,7 +43,7 @@ jobs:
           repo: 'grunwaldlab/poppr'
       - run: |
           echo VALID? ${{ steps.invalid-pr.outputs.VALID }}
-          echo ${{ steps.invalid-pr-files.outputs.payload }}
+          echo ${{ steps.invalid-pr.outputs.payload }}
       - id: invalid-pr-files
         name: "Invalid PR (files)"
         uses: carpentries/actions/check-valid-pr@main

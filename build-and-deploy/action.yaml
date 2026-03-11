@@ -22,7 +22,7 @@ runs:
   steps:
     - name: Checkout l10n_main branch
       if: ${{ inputs.lang-code != '' }}
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         ref: l10n_main
 

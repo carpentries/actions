@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-20.04
     name: Styles Update
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
 
       - name: Sync lesson with carpentries/styles
         id: update
@@ -54,7 +54,7 @@ jobs:
       - name: Create Pull Request
         id: cpr
         if: ${{ steps.update.outputs.update == 'true' }}
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.STYLES_WORKFLOW }}
           commit-message: "[actions] Sync lesson with carpentries/styles"

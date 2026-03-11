@@ -51,7 +51,7 @@ runs:
   using: "composite"
   steps:
     - name: "Checkout Lesson"
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: "Check for renv"
       id: check-for-renv

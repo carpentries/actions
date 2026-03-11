@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-20.04
     name: Testing Comment on PR
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - id: comment-diff
         name: "PR Comment"
         uses: carpentries/actions/comment-diff@main

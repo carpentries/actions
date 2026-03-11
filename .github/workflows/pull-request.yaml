@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: "Checkout Pull Request"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: "Create PR Number"
         id: get-number

@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Repository"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Update Workflows
         id: update
@@ -57,7 +57,7 @@ jobs:
       - name: Create Pull Request
         id: cpr
         if: "${{ steps.update.outputs.new }}"
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.SANDPAPER_WORKFLOW }}
           delete-branch: true

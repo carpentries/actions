@@ -1,6 +1,6 @@
 name: Test comment-diff
 
-on: 
+on:
   push:
     paths: ['.github/workflows/test-comment-pr.yaml', 'comment-diff/**']
 
@@ -10,10 +10,10 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      repository-projects: write    
+      repository-projects: write
     name: Testing Comment on PR
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: |
           printf "### Test Comment\n" > ${{ github.workspace }}/body.txt
           printf ":heavy_check_mark: The ID for this run is ${{ github.run_id }}" >> ${{ github.workspace }}/body.txt

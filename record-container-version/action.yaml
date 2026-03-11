@@ -29,7 +29,7 @@ runs:
   using: "composite"
   steps:
     - name: "Checkout Lesson"
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: "Validate Current Org and Workflow"
       id: validate-org-workflow
@@ -103,7 +103,7 @@ runs:
       shell: bash
 
     - name: "Create Workbench Version PR"
-      uses: carpentries/create-pull-request@main
+      uses: peter-evans/create-pull-request@v8
       id: cpr
       if: |
         steps.record-wb-vers.outputs.create-pr == 'true'

@@ -1,7 +1,7 @@
 name: 'Remove a temporary branch created by a PR'
 description: 'This removes a temporary orphan branch that were created via a Pull Request, which has a prefix pattern and a PR number'
 inputs:
-  prefix: 
+  prefix:
     description: 'branch prefix in the form of {prefix}-{pr}. Defaults to md-outputs-PR'
     required: true
     default: 'md-outputs-PR'
@@ -17,5 +17,5 @@ inputs:
     required: true
     default: ${{ github.token }}
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'index.js'
