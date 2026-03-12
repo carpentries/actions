@@ -1,3 +1,10 @@
+# DEPRECATION NOTICE
+
+This action is replaced by the [Workbench Docker environments](https://github.com/carpentries/workbench-docker) and [associated workflows](https://github.com/carpentries/workbench-workflows).
+
+As such, it will no longer be updated, and will be removed in a future version of these actions.
+
+
 # setup-sandpaper
 
 This action is modified from [r-lib/actions/setup-r-dependencies](https://github.com/r-lib/actions) to setup {sandpaper} for use in Carpentries lessons.
@@ -21,7 +28,7 @@ Inputs available:
 
 ```yaml
 steps:
-- uses: actions/checkout@v4
+- uses: actions/checkout@v6
 - uses: r-lib/actions/setup-r@v2
 - uses: carpentries/actions/setup-sandpaper@main
   with:
