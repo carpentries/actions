@@ -44,7 +44,7 @@ runs:
   steps:
 
       - name: "Restore {renv} Cache"
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         id: restore-cache
         with:
           path: ${{ env.RENV_PATHS_ROOT }}
@@ -144,7 +144,7 @@ runs:
         shell: bash
 
       - name: "Save Temporary {renv} Cache"
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         if: ${{ inputs.generate-cache == 'true' }}
         id: save-cache
         with:
