@@ -153,7 +153,7 @@ runs:
     - name: "Upload PR number"
       id: upload
       if: steps.record-wb-vers.outputs.create-pr == 'true' && steps.cpr.outcome == 'success'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: pr
         path: ${{ github.workspace }}/NR
