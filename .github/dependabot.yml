@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directories:
+      - "/build-and-deploy"
+      - "/build-container-deps"
+      - "/build-preflight"
+      - "/check-valid-credentials"
+      - "/check-valid-pr"
+      - "/comment-diff"
+      - "/container-version"
+      - "/download-workflow-artifact"
+      - "/record-container-version"
+      - "/remove-branch"
+      - "/renv-checks"
+      - "/setup-lesson-deps"
+      - "/update-lockfile"
+      - "/update-workflows"
+      - "/validate-org-workflow"
+    schedule:
+      interval: "weekly"
