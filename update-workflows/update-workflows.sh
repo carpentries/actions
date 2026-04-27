@@ -57,17 +57,39 @@ echo "::endgroup::"
 
 if [[ ${UPSTREAM} == 'latest' ]]; then
   # resolve latest release
-  INFO=$(curl -s https://api.github.com/repos/carpentries/workbench-workflows/releases/${UPSTREAM})
-  UPSTREAM=$(echo ${INFO} | jq -r .tag_name)
-  BODY=$(echo ${INFO} | jq -r .body)
+  INFO=$(curl -s -H "Accept: application/json" https://api.github.com/repos/carpentries/workbench-workflows/releases/${UPSTREAM})
+  UPSTREAM=$(echo "${INFO}" | jq -r .tag_name)
+  if [[ ${UPSTREAM} == "null" ]]; then
+    ERROR_CODE=$(echo "${INFO}" | jq -r .status)
+    ERROR_MESSAGE=$(echo "${INFO}" | jq -r .message)
+    echo "::error::Unable to resolve latest release tag from GitHub API." >> $GITHUB_STEP_SUMMARY
+    echo "" >> $GITHUB_STEP_SUMMARY
+    echo "Status: ${ERROR_CODE}" >> $GITHUB_STEP_SUMMARY
+    echo "Message: ${ERROR_MESSAGE}" >> $GITHUB_STEP_SUMMARY
+    echo "" >> $GITHUB_STEP_SUMMARY
+    echo "Please re-run this workflow!" >> $GITHUB_STEP_SUMMARY
+    exit 1
+  fi
+  BODY=$(echo "${INFO}" | jq -r .body)
   SOURCE="${WF_REPO}/tags/${UPSTREAM}.tar.gz"
 elif [[ ${UPSTREAM} =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
   # if input matches version number
   SOURCE="${WF_REPO}/tags/${UPSTREAM}.tar.gz"
 else
   # assume branch name
-  INFO=$(curl -s https://api.github.com/repos/carpentries/workbench-workflows/branches/${UPSTREAM})
+  INFO=$(curl -s -H "Accept: application/json" https://api.github.com/repos/carpentries/workbench-workflows/branches/${UPSTREAM})
   SHA=$(echo ${INFO} | jq -r .commit.sha)
+  if [[ ${SHA} == "null" ]]; then
+    ERROR_CODE=$(echo "${INFO}" | jq -r .status)
+    ERROR_MESSAGE=$(echo "${INFO}" | jq -r .message)
+    echo "::error::Unable to resolve branch '${UPSTREAM}' from GitHub API." >> $GITHUB_STEP_SUMMARY
+    echo "" >> $GITHUB_STEP_SUMMARY
+    echo "Status: ${ERROR_CODE}" >> $GITHUB_STEP_SUMMARY
+    echo "Message: ${ERROR_MESSAGE}" >> $GITHUB_STEP_SUMMARY
+    echo "" >> $GITHUB_STEP_SUMMARY
+    echo "Please re-run this workflow with a valid branch name for the carpentries/workbench-workflows repository." >> $GITHUB_STEP_SUMMARY
+    exit 1
+  fi
   BODY=$(curl -s https://api.github.com/repos/carpentries/workbench-workflows/git/commits/${SHA} | jq -r .message)
   SOURCE="${WF_REPO}/heads/${UPSTREAM}.tar.gz"
 fi
