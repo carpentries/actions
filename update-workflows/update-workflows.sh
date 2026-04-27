@@ -62,6 +62,7 @@ if [[ ${UPSTREAM} == 'latest' ]]; then
   if [[ ${UPSTREAM} == "null" ]]; then
     ERROR_CODE=$(echo "${INFO}" | jq -r .status)
     ERROR_MESSAGE=$(echo "${INFO}" | jq -r .message)
+    echo "::error::Unable to resolve latest release tag from GitHub API."
     echo "::error::Unable to resolve latest release tag from GitHub API." >> $GITHUB_STEP_SUMMARY
     echo "" >> $GITHUB_STEP_SUMMARY
     echo "Status: ${ERROR_CODE}" >> $GITHUB_STEP_SUMMARY
@@ -82,6 +83,7 @@ else
   if [[ ${SHA} == "null" ]]; then
     ERROR_CODE=$(echo "${INFO}" | jq -r .status)
     ERROR_MESSAGE=$(echo "${INFO}" | jq -r .message)
+    echo "::error::Unable to resolve branch '${UPSTREAM}' from GitHub API."
     echo "::error::Unable to resolve branch '${UPSTREAM}' from GitHub API." >> $GITHUB_STEP_SUMMARY
     echo "" >> $GITHUB_STEP_SUMMARY
     echo "Status: ${ERROR_CODE}" >> $GITHUB_STEP_SUMMARY

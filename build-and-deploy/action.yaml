@@ -16,9 +16,13 @@ inputs:
     description: 'Language code for translation (e.g. "en", "es", "fr"). Defaults to "".'
     required: false
     default: ''
+  token:
+    description: "GH Token"
+    required: true
 
 runs:
   using: "composite"
+
   steps:
     - name: Checkout l10n_main branch
       if: ${{ inputs.lang-code != '' }}
@@ -41,6 +45,8 @@ runs:
 
     - name: Run Container and Build Site
       id: build-and-deploy
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
       run: |
         library(sandpaper)
         reset <- "${{ inputs.reset }}" == "true"
