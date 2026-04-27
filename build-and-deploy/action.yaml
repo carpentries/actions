@@ -29,6 +29,8 @@ runs:
       uses: actions/checkout@v6
       with:
         ref: l10n_main
+        persist-credentials: true
+        token: ${{ inputs.token }}
 
     - name: Set up translation
       id: setup-translation
