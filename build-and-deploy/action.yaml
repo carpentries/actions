@@ -16,9 +16,6 @@ inputs:
     description: 'Language code for translation (e.g. "en", "es", "fr"). Defaults to "".'
     required: false
     default: ''
-  token:
-    description: "GH Token"
-    required: true
 
 runs:
   using: "composite"
@@ -26,11 +23,9 @@ runs:
   steps:
     - name: Checkout l10n_main branch
       if: ${{ inputs.lang-code != '' }}
-      uses: actions/checkout@v6
+      uses: actions/checkout@v5
       with:
         ref: l10n_main
-        persist-credentials: true
-        token: ${{ inputs.token }}
 
     - name: Set up translation
       id: setup-translation
@@ -47,8 +42,6 @@ runs:
 
     - name: Run Container and Build Site
       id: build-and-deploy
-      env:
-        GITHUB_TOKEN: ${{ inputs.token }}
       run: |
         library(sandpaper)
         reset <- "${{ inputs.reset }}" == "true"
