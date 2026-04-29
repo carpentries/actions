@@ -37,7 +37,7 @@ runs:
           translated_dir = "${{ runner.temp }}", overwrite = TRUE, lang = lang_code, l10n_branch = NULL, clean = FALSE
         )
         withr::with_dir(
-          ${{ runner.temp }},
+          "${{ runner.temp }}",
           {
             conf <- yaml::read_yaml("config.yaml")
             conf$lang <- lang_code
