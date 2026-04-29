@@ -36,8 +36,16 @@ runs:
         dovetail:::make_translated_dir(
           translated_dir = "${{ runner.temp }}", overwrite = TRUE, lang = lang_code, l10n_branch = NULL, clean = FALSE
         )
+        withr::with_dir(
+          "${{ runner.temp }}",
+          {
+            conf <- yaml::read_yaml("config.yaml")
+            conf$lang <- lang_code
+            yaml::write_yaml(conf, "config.yaml")
+          }
+        )
         cat("build_path=${{ runner.temp }}\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
-        cat("Using translated lesson directory at: ${{ runner.temp }}\n")
+        cat("Using lang ${{ inputs.lang-code }} translated lesson directory at: ${{ runner.temp }}\n")
       shell: Rscript {0}
 
     - name: Run Container and Build Site
