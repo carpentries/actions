@@ -45,7 +45,7 @@ runs:
           }
         )
         cat("build_path=${{ runner.temp }}\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
-        cat("Using lang ${{ inputs.lang_code }} translated lesson directory at: ${{ runner.temp }}\n")
+        cat("Using lang ${{ inputs.lang-code }} translated lesson directory at: ${{ runner.temp }}\n")
       shell: Rscript {0}
 
     - name: Run Container and Build Site
