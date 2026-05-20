@@ -51,11 +51,20 @@ runs:
               install.packages(pkg, ...)
             }
           }
+
           wd <- '${{ github.workspace }}'
           has_lock <- file.exists(file.path(wd, 'renv'))
           if (Sys.info()[["sysname"]] == "Linux" && has_lock) {
+            Sys.setenv("RENV_PROFILE" = "lesson-requirements")
+
             req("renv")
-            req("remotes")
+            lib  <- renv::paths$library()
+            if (!dir.exists(lib)) {
+              dir.create(lib, recursive = TRUE, showWarnings = FALSE)
+            }
+            .libPaths(c(lib, .libPaths()))
+
+            req("remotes", lib = lib)
             rmts <- asNamespace("remotes")
             # extract the function
             sov <- rmts$supported_os_versions
@@ -70,12 +79,12 @@ runs:
               # replace the function in the namespace
               rmts$supported_os_versions <- sov
             }
-            req("desc")
-            remotes::install_github("carpentries/vise")
+            req("desc", lib = lib)
+            remotes::install_github("carpentries/vise", lib = lib)
             if (file.exists("DESCRIPTION")) {
               file.rename("DESCRIPTION", "DESCRIPTION.bak")
             }
-            Sys.setenv("RENV_PROFILE" = "lesson-requirements")
+
             Sys.setenv("RSPM_ROOT" = "https://packagemanager.posit.co")
             vise::lock2desc(renv::paths$lockfile(), desc = "${{ github.workspace }}/DESCRIPTION")
             writeLines(readLines("${{ github.workspace }}/DESCRIPTION"))
@@ -109,13 +118,9 @@ runs:
           # Fortify local {renv} packages
           cat("::group::Fortify local {renv} packages\n")
           wd <- '${{ github.workspace }}'
-          req <- function(pkg) {
+          req <- function(pkg, ...) {
             if (!requireNamespace(pkg, quietly = TRUE))
-              install.packages(pkg)
-          }
-          if (file.exists("DESCRIPTION")) {
-            req("remotes")
-            remotes::install_deps()
+              install.packages(pkg, ...)
           }
           cat("::endgroup::\n")
           if (file.exists(file.path(wd, 'renv'))) {
@@ -127,6 +132,14 @@ runs:
             }
             req("renv")
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
+            lib  <- renv::paths$library()
+            .libPaths(c(lib, .libPaths()))
+
+            if (file.exists("DESCRIPTION")) {
+              req("remotes", lib = lib)
+              remotes::install_deps(lib = lib)
+            }
+
             tryCatch(sandpaper::manage_deps(path = wd, quiet = FALSE),
               error = function(e) {
                 iss <- "https://github.com/rstudio/renv/issues/1184"
@@ -135,6 +148,10 @@ runs:
             })
             cat("::endgroup::\n")
           } else {
+            if (file.exists("DESCRIPTION")) {
+              req("remotes")
+              remotes::install_deps()
+            }
             writeLines("Package cache not used")
           }
 
