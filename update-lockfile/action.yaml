@@ -76,6 +76,7 @@ runs:
             if (!dir.exists(lib)) {
               dir.create(lib, recursive = TRUE, showWarnings = FALSE)
             }
+            .libPaths(c(lib, .libPaths()))
 
             req("remotes", lib = lib)
             rmts <- asNamespace("remotes")
