@@ -73,6 +73,9 @@ runs:
 
             req("renv")
             lib  <- renv::paths$library()
+            if (!dir.exists(lib)) {
+              dir.create(lib, recursive = TRUE, showWarnings = FALSE)
+            }
 
             req("remotes", lib = lib)
             rmts <- asNamespace("remotes")
