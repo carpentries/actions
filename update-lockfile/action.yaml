@@ -106,6 +106,10 @@ runs:
         run: |
           # Verify inputs ------------------------------------------------------
           cat("::group::Verifying inputs and setting repositories\n")
+          Sys.setenv("RENV_PROFILE" = "lesson-requirements")
+          lib  <- renv::paths$library()
+          .libPaths(c(lib, .libPaths()))
+
           library(vise)
           vise::verify_simple_vector(${{ inputs.repos }})
           options(repos = ${{ inputs.repos }})
