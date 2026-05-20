@@ -62,7 +62,7 @@ runs:
       - name: "Setup System Dependencies"
         shell: Rscript {0}
         run: |
-          req <- function(pkg, lib = .libPaths()) {
+          req <- function(pkg, lib = NULL) {
             if (!requireNamespace(pkg, quietly = TRUE))
             install.packages(pkg, repos = c("https://carpentries.r-universe.dev", "https://cran.rstudio.com"), lib = lib)
           }
