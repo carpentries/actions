@@ -33,3 +33,7 @@ runs:
           ${{ inputs.version }} \
           ${{ inputs.clean }}
       shell: bash
+
+    - name: "Unset checkout auth"
+      run: git config --unset-all http.https://github.com/.extraheader
+      shell: bash
