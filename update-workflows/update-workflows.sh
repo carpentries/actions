@@ -92,7 +92,7 @@ else
     echo "Please re-run this workflow with a valid branch name for the carpentries/workbench-workflows repository." >> $GITHUB_STEP_SUMMARY
     exit 1
   fi
-  BODY=$(curl -s https://api.github.com/repos/carpentries/workbench-workflows/git/commits/${SHA} | jq -r .message)
+  BODY=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/carpentries/workbench-workflows/git/commits/${SHA} | jq -r .message)
   SOURCE="${WF_REPO}/heads/${UPSTREAM}.tar.gz"
 fi
 
