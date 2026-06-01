@@ -13,6 +13,10 @@ inputs:
     description: "DEPRECATED: CRAN-like repository to get the workflow files (no slash at end)"
     required: false
     default: "https://carpentries.r-universe.dev"
+  token:
+    description: "GitHub PAT, usually passed as 'secrets.GITHUB_TOKEN' from the caller workflow."
+    required: false
+
 outputs:
   old:
     description: "old version of workflows"
@@ -28,6 +32,8 @@ runs:
   steps:
     - name: "Update Workflows"
       id: update
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
       run: |
         ${{ github.action_path }}/update-workflows.sh \
           ${{ inputs.version }} \
