@@ -30,10 +30,10 @@ outputs:
 runs:
   using: "composite"
   steps:
-  - env:
-      GITHUB_TOKEN: ${{ inputs.token }}
     - name: "Update Workflows"
       id: update
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
       run: |
         ${{ github.action_path }}/update-workflows.sh \
           ${{ inputs.version }} \
