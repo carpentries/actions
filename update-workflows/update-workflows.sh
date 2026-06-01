@@ -57,7 +57,7 @@ echo "::endgroup::"
 
 if [[ ${UPSTREAM} == 'latest' ]]; then
   # resolve latest release
-  INFO=$(curl -s -H "Accept: application/json" https://api.github.com/repos/carpentries/workbench-workflows/releases/${UPSTREAM})
+  INFO=$(curl -s -H "Accept: application/json" -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/carpentries/workbench-workflows/releases/${UPSTREAM})
   UPSTREAM=$(echo "${INFO}" | jq -r .tag_name)
   if [[ ${UPSTREAM} == "null" ]]; then
     ERROR_CODE=$(echo "${INFO}" | jq -r .status)
@@ -78,7 +78,7 @@ elif [[ ${UPSTREAM} =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
   SOURCE="${WF_REPO}/tags/${UPSTREAM}.tar.gz"
 else
   # assume branch name
-  INFO=$(curl -s -H "Accept: application/json" https://api.github.com/repos/carpentries/workbench-workflows/branches/${UPSTREAM})
+  INFO=$(curl -s -H "Accept: application/json" -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/carpentries/workbench-workflows/branches/${UPSTREAM})
   SHA=$(echo ${INFO} | jq -r .commit.sha)
   if [[ ${SHA} == "null" ]]; then
     ERROR_CODE=$(echo "${INFO}" | jq -r .status)
