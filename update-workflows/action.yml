@@ -8,7 +8,7 @@ inputs:
   clean:
     description: "Workflow file extensions to be cleaned before update. No wildcards as they will be auto-expanded. Defaults to none."
     required: false
-    default: "".yaml"
+    default: ".yaml"
   repo:
     description: "DEPRECATED: CRAN-like repository to get the workflow files (no slash at end)"
     required: false
