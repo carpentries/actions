@@ -4,11 +4,11 @@ inputs:
   version:
     description: "Version of workbench-workflows to use. 'latest' for latest release, a specific version tag (e.g. '0.0.1'), or a branch name (e.g. 'main')."
     required: false
-    default: 'latest'
+    default: "latest"
   clean:
     description: "Workflow file extensions to be cleaned before update. No wildcards as they will be auto-expanded. Defaults to none."
     required: false
-    default: '.yaml'
+    default: "".yaml"
   repo:
     description: "DEPRECATED: CRAN-like repository to get the workflow files (no slash at end)"
     required: false
@@ -16,6 +16,7 @@ inputs:
   token:
     description: "GitHub PAT, usually passed as 'secrets.GITHUB_TOKEN' from the caller workflow."
     required: false
+    default: ""
 
 outputs:
   old:

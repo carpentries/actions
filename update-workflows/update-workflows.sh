@@ -55,9 +55,17 @@ echo "Requested version: ${UPSTREAM}"
 echo "Clean:             ${CLEAN}"
 echo "::endgroup::"
 
+GHTOKEN_HEADER=""
+if [[ ${GITHUB_TOKEN} ]]; then
+  echo "::notice::Using provided GITHUB_TOKEN for API requests."
+  GHTOKEN_HEADER="Authorization: Bearer ${GITHUB_TOKEN}"
+else
+  echo "::notice::No GITHUB_TOKEN provided. API requests may be rate limited."
+fi
+
 if [[ ${UPSTREAM} == 'latest' ]]; then
   # resolve latest release
-  INFO=$(curl -s -H "Accept: application/json" -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/carpentries/workbench-workflows/releases/${UPSTREAM})
+  INFO=$(curl -s -H "Accept: application/json" -H "${GHTOKEN_HEADER}" https://api.github.com/repos/carpentries/workbench-workflows/releases/${UPSTREAM})
   UPSTREAM=$(echo "${INFO}" | jq -r .tag_name)
   if [[ ${UPSTREAM} == "null" ]]; then
     ERROR_CODE=$(echo "${INFO}" | jq -r .status)
@@ -78,7 +86,7 @@ elif [[ ${UPSTREAM} =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
   SOURCE="${WF_REPO}/tags/${UPSTREAM}.tar.gz"
 else
   # assume branch name
-  INFO=$(curl -s -H "Accept: application/json" -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/carpentries/workbench-workflows/branches/${UPSTREAM})
+  INFO=$(curl -s -H "Accept: application/json" -H "${GHTOKEN_HEADER}" https://api.github.com/repos/carpentries/workbench-workflows/branches/${UPSTREAM})
   SHA=$(echo ${INFO} | jq -r .commit.sha)
   if [[ ${SHA} == "null" ]]; then
     ERROR_CODE=$(echo "${INFO}" | jq -r .status)
@@ -92,7 +100,7 @@ else
     echo "Please re-run this workflow with a valid branch name for the carpentries/workbench-workflows repository." >> $GITHUB_STEP_SUMMARY
     exit 1
   fi
-  BODY=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/carpentries/workbench-workflows/git/commits/${SHA} | jq -r .message)
+  BODY=$(curl -s -H "${GHTOKEN_HEADER}" https://api.github.com/repos/carpentries/workbench-workflows/git/commits/${SHA} | jq -r .message)
   SOURCE="${WF_REPO}/heads/${UPSTREAM}.tar.gz"
 fi
 
