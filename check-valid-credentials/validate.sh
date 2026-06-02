@@ -28,10 +28,10 @@ TOKEN_NAME="Sandpaper%20Token%20%28${GITHUB_REPOSITORY}%29"
 TOKEN_URL="https://github.com/settings/tokens/new?scopes=public_repo,workflow&description=${TOKEN_NAME}"
 
 # Set up output first
-echo "## ℹ️ Using Default GitHub Access Token" >> $GITHUB_STEP_SUMMARY
+echo "## ℹ️ Warning: Personal Access Token Required" >> $GITHUB_STEP_SUMMARY
 echo "" >> $GITHUB_STEP_SUMMARY
-echo "This lesson will use the default access token supplied by GitHub (\`secrets.GITHUB_TOKEN\`)." >> $GITHUB_STEP_SUMMARY
-echo "When using the Dockerised workflows released as part of {sandpaper} 0.18.0 or later, this will not affect the running of these workflows." >> $GITHUB_STEP_SUMMARY
+echo "Your repository needs a personal access token (PAT) to perform required Workbench workflow actions." >> $GITHUB_STEP_SUMMARY
+echo "If your repository is under your own GitHub user account or a non-Carpentries organisation, please follow the instructions below to create and configure a PAT." >> $GITHUB_STEP_SUMMARY
 echo "" >> $GITHUB_STEP_SUMMARY
 echo "If you have recently created this repository or changed any repository settings, and are experiencing any problems with building your lesson:" >> $GITHUB_STEP_SUMMARY
 echo "- please verify that you have checked the \`Allow GitHub Actions to create and approve pull requests\` checkbox in your [repository \`Workflow permissions\` settings](https://github.com/${GITHUB_REPOSITORY}/settings/actions)" >> $GITHUB_STEP_SUMMARY
@@ -54,7 +54,7 @@ if [[ ${PAT} ]]
 then
 
   headerfile=${TMP}/${RANDOM}
-  curl --dump-header ${headerfile} --head -H "Authorization: token ${PAT}" \
+  curl --dump-header ${headerfile} --head -H "Authorization: Bearer ${PAT}" \
     https://api.github.com/user > /dev/null
 
   WORKFLOW=$(grep -ic 'x-oauth-scopes: .*workflow' ${headerfile} || echo '0')
