@@ -124,7 +124,9 @@ runs:
           cat(paste0(pak::repo_status()$name, " ", pak::repo_status()$url))
 
           sys_reqs <- pak::pkg_sysreqs(pkgs, upgrade = FALSE, dependencies = NA)
-          system(sys_reqs$install_scripts)
+          if (length(sys_reqs$install_scripts)) {
+            system(sys_reqs$install_scripts)
+          }
         }
 
         renv::load(project = lsn_path, profile = "lesson-requirements")
