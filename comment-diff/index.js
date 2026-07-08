@@ -11,6 +11,7 @@ async function run() {
   const PR         = core.getInput('pr');
   let   body;
   const path       = core.getInput('path');
+  const warn       = core.getInput('warn');
   const repository = core.getInput('repo').split('/');
   const octokit    = github.getOctokit(myToken)
 
@@ -28,7 +29,7 @@ async function run() {
     body = core.getInput('body');
   }
 
-  if (typeof body === undefined) {
+  if (typeof body === "undefined" || body.length == 0) {
     core.setFailed("No Body");
     process.exit(1);
   }
@@ -46,7 +47,7 @@ async function run() {
       issue_number: Number(PR),
       page: page,
       per_page: 100
-    }).catch(err => { 
+    }).catch(err => {
       // HTTP errors turn into a failed run --------------------------------------
       console.log(err);
       core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
@@ -68,19 +69,29 @@ async function run() {
     process.exit(1);
   }
 
+  // add a warning comment if one is provided, which will not be overwritten
+  if (typeof warn !== "undefined" && warn.length > 0) {
+    var id = await octokit.issues.createComment({
+      owner: repository[0],
+      repo: repository[1],
+      issue_number: Number(PR),
+      body: warn
+    });
+  }
+
   if (id >= 0) {
     var id = await octokit.issues.updateComment({
       owner: repository[0],
       repo: repository[1],
       comment_id: id,
-      body: body 
+      body: body
     });
   } else {
     var id = await octokit.issues.createComment({
       owner: repository[0],
       repo: repository[1],
       issue_number: Number(PR),
-      body: body 
+      body: body
     });
   }
 
