@@ -19,6 +19,7 @@ async function run() {
   let valid = true; // true if valid and no workflow files are modified
   let pass  = true; // true if modified files are only content OR workflows, but otherwise valid
   let MSG = "";  // MSG output
+  let PR_WARN_MSG = ""; // WARN output
 
   function getFilename(f) {
     return f.filename;
@@ -113,9 +114,15 @@ async function run() {
   // --- CHECK: pull request is still open
   console.log(`checking if PR #${PR} was previously merged`);
   open_valid = pullRequest.data.state == 'open';
-  PR_WARN_MSG = "";
   if (!open_valid) {
-    PR_WARN_MSG = `**WARNING:** This Pull Request (#${PR}) was previously merged and closed`;
+    PR_WARN_MSG = `${PR_WARN_MSG}
+
+### :warning: WARNING :warning:
+This pull request has been previously merged and closed. This is often an indication of a duplicate or outdated pull request, and not a malicious attempt.
+
+This can also occur when quickly merging PRs before checks have had time to complete.
+
+Please verify that this pull request is still relevant and up-to-date before proceeding.`;
     console.log(PR_WARN_MSG);
   }
 
@@ -256,15 +263,6 @@ This could mean that this pull request was spoofed, but the details are unclear.
 
 This pull request has been checked and contains no modified workflow files${(bad_origin=='')?' or spoofing':', spoofing, or invalid commits'}.`;
 
-    if (PR_WARN_MSG != "") {
-        MSG = `${MSG}
-
-### :warning: WARNING :warning:
-This pull request has been previously merged and closed. This is often an indication of a duplicate or outdated pull request, and not a malicious attempt.
-
-Please verify that this pull request is still relevant and up-to-date before proceeding.`;
-    }
-
     if (pullRequest.data.author_association == "NONE") {
       // First-time contributors need their PRs approved.
       MSG = `${MSG}\n\nIt should be safe to **Approve and Run** the workflows that need maintainer approval.`;
@@ -273,6 +271,7 @@ Please verify that this pull request is still relevant and up-to-date before pro
     }
   }
   core.setOutput("MSG", MSG);
+  core.setOutput("WARN", PR_WARN_MSG);
 }
 
 
