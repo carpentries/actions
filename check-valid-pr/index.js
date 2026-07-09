@@ -19,11 +19,12 @@ async function run() {
   let valid = true; // true if valid and no workflow files are modified
   let pass  = true; // true if modified files are only content OR workflows, but otherwise valid
   let MSG = "";  // MSG output
+  let PR_WARN_MSG = ""; // WARN output
 
   function getFilename(f) {
     return f.filename;
   }
-  
+
   function getSHA(c) {
     return c.node.commit.oid;
   }
@@ -37,7 +38,7 @@ async function run() {
     owner: repository[0],
     repo: repository[1],
     pull_number: Number(PR),
-  }).catch(err => { 
+  }).catch(err => {
     // HTTP errors turn into a failed run
     console.log(err);
     core.setFailed(`There was a problem with the request (Status ${err.status}). See log.`);
@@ -47,23 +48,16 @@ async function run() {
   let that_repo = pullRequest.data.head.repo;
 
   // STEP 2: Perform Checks ----------------------------------------------------
-  // --- CHECK: pull request is still open 
-  console.log(`checking if PR #${PR} was previously merged`);
-  valid = pullRequest.data.state == 'open';
-  if (!valid) {
-    MSG = `${MSG} **NOTE:** This Pull Request (#${PR}) was previously merged`;
-    console.log(MSG);
-  }
 
   // --- CHECK: pull request is IDENTICAL to the provided sha
   if (sha) {
     console.log(`checking if ${sha} is HEAD commit`);
     let sha_valid = pullRequest.data.head.sha == sha;
     // Here, we want to check if the commits that we are testing is in the last
-    // number of commits as indicated by 'headroom'. 
+    // number of commits as indicated by 'headroom'.
     //
     // Right now, my strategy is not working. because the request I am using
-    // returns the number of commits starting with the oldest commit. 
+    // returns the number of commits starting with the oldest commit.
     if (!sha_valid && headroom > 1) {
       console.log(`checking if ${sha} is within last ${headroom} commits`);
       const commits = await octokit.graphql(
@@ -103,7 +97,7 @@ async function run() {
     pass = valid;
     if (!sha_valid) {
       MSG = `${MSG}
-## :x: DANGER :x: 
+## :x: DANGER :x:
 
 **Do not merge this Pull Request**. This PR has been spoofed to look like #${PR} (HEAD @ ${pullRequest.data.head.sha}).`;
       core.setOutput("VALID", valid);
@@ -116,6 +110,22 @@ async function run() {
       }
     }
   }
+
+  // --- CHECK: pull request is still open
+  console.log(`checking if PR #${PR} was previously merged`);
+  open_valid = pullRequest.data.state == 'open';
+  if (!open_valid) {
+    PR_WARN_MSG = `${PR_WARN_MSG}
+
+### :warning: WARNING :warning:
+This pull request has been previously merged and closed. This is often an indication of a duplicate or outdated pull request, and not a malicious attempt.
+
+This can also occur when quickly merging PRs before checks have had time to complete.
+
+Please verify that this pull request is still relevant and up-to-date before proceeding.`;
+    console.log(PR_WARN_MSG);
+  }
+
   // If it is invalid at this point, it is spoofed, and we can skip the checks
   if (valid) {
     // create payload output if the PR is not spoofed
@@ -123,7 +133,7 @@ async function run() {
     // --- CHECK: The bad commit does not exist
     //     BUT, if we are in a branch in our own repo, then we can allow it
     //     because GitHub keeps track of old refs, even if they have been
-    //     deleted. 
+    //     deleted.
     if (bad_origin != '') {
       console.log(`checking for the invalid commit ${bad_origin}`);
       // https://stackoverflow.com/a/23970412/2752888
@@ -133,12 +143,12 @@ async function run() {
       // it does not exist on the branch.
       let bad_origin_request = `GET /repos/{owner}/{repo}/compare/{branch}...${bad_origin}`
       // This will return a null if there is no comparison and it will reterun
-      // "diverged" if the commit is in the history. 
+      // "diverged" if the commit is in the history.
       const { data: comparison } = await octokit.request(bad_origin_request, {
         owner: that_repo.owner.login,
         repo: that_repo.name,
         branch: pullRequest.data.head.ref,
-      }).catch(err => { 
+      }).catch(err => {
         if (err.status == '404') {
           // status 404 means that we did not see a commit so we can move on.
           return({data: null});
@@ -149,8 +159,8 @@ async function run() {
         }
       });
 
-      // If we get the bad commit back, then the PR should be closed and the 
-      // author should be encouraged to remove their repository 
+      // If we get the bad commit back, then the PR should be closed and the
+      // author should be encouraged to remove their repository
       let origin_valid = !comparison || !comparison.status || comparison.status == "diverged";
       valid = valid && origin_valid;
       pass = valid;
@@ -187,14 +197,14 @@ The fork ${forkurl} has divergent history and contains an invalid commit (${comm
       repo: repository[1],
       pull_number: Number(PR),
     }).catch(err => { console.log(err); return err; } );
-    
+
     // --- CHECK: pull request files exist
     if (pullRequestFiles) {
       const files = pullRequestFiles.map(getFilename);
       // filter out the files that are not GHA files
       let valid_files = files.filter(isNotWorkflow);
       // --- CHECK: no workflow files exist
-      //     we have a valid PR if the valid file array is unchanged after 
+      //     we have a valid PR if the valid file array is unchanged after
       //     filtering for .github files.
       let workflow_valid = valid_files.length == files.length;
       valid = valid && workflow_valid;
@@ -211,10 +221,10 @@ The fork ${forkurl} has divergent history and contains an invalid commit (${comm
 
 This pull request contains a mix of workflow files and regular files. **This could be malicious.** No preview will be created.
 
-regular files:    
+regular files:
  - ${vf}
 
-workflow files:    
+workflow files:
  - ${inv}
 `;
         } else {
@@ -226,7 +236,7 @@ workflow files:
 
 This pull request contains modified workflow files and no preview will be created.
 
-Workflow files modified: 
+Workflow files modified:
  - ${inv}
 
 **If this is not from a trusted source, please inspect the changes for any malicious content.**`;
@@ -247,19 +257,21 @@ This could mean that this pull request was spoofed, but the details are unclear.
   core.setOutput("VALID", valid);
   if (fail_on_error && !pass) {
     core.setFailed(MSG);
-  } 
+  }
   if (MSG == "") {
     MSG = `## :ok: Pre-flight checks passed :smiley:
 
 This pull request has been checked and contains no modified workflow files${(bad_origin=='')?' or spoofing':', spoofing, or invalid commits'}.`;
+
     if (pullRequest.data.author_association == "NONE") {
       // First-time contributors need their PRs approved.
       MSG = `${MSG}\n\nIt should be safe to **Approve and Run** the workflows that need maintainer approval.`;
     } else {
       MSG = `${MSG}\n\nResults of any additional workflows will appear here when they are done.`;
     }
-  } 
+  }
   core.setOutput("MSG", MSG);
+  core.setOutput("WARN", PR_WARN_MSG);
 }
 
 

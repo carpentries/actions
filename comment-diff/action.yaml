@@ -7,6 +7,9 @@ inputs:
   body:
     description: 'body of the comment as a string'
     required: false
+  warn:
+    description: 'body of any warning comments as a string'
+    required: false
   path:
     description: 'path to a file to use for the body'
     required: false
