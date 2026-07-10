@@ -30,7 +30,15 @@ async function run() {
   }
 
   function isNotWorkflow(l) {
-    return !l.startsWith('.github/');
+    return (
+      // check that the file is not in the .github directory
+      !l.startsWith('.github/') ||
+      // or check that the file is, but is not a workflow file, e.g. a issue/PR template
+      (
+        l.startsWith('.github/') &&
+        !l.endsWith('.yaml') && !l.endsWith('.yml')
+      )
+    );
   }
 
   // STEP 1: Access Pull Request -----------------------------------------------
