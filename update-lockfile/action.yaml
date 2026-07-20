@@ -71,6 +71,7 @@ runs:
           if (Sys.info()[["sysname"]] == "Linux" && has_lock) {
             Sys.setenv("RENV_PROFILE" = "lesson-requirements")
 
+            req("yaml")
             req("renv")
             lib  <- renv::paths$library()
             if (!dir.exists(lib)) {
