@@ -123,9 +123,24 @@ runs:
 
           cat(paste0(pak::repo_status()$name, " ", pak::repo_status()$url))
 
-          sys_reqs <- pak::pkg_sysreqs(pkgs, upgrade = FALSE, dependencies = NA)
-          if (length(sys_reqs$install_scripts)) {
-            system(sys_reqs$install_scripts)
+          sysreq_pkgs <- vapply(pkgs, function(pkg) {
+            if (identical(lock$Packages[[pkg]]$Source, "GitHub")) {
+              remote_ref <- lock$Packages[[pkg]]$RemotePkgRef
+              if (!is.null(remote_ref) && nzchar(remote_ref)) {
+                return(remote_ref)
+              }
+            }
+            pkg
+          }, character(1), USE.NAMES = FALSE)
+          sysreq_pkgs <- unique(sysreq_pkgs)
+
+          if (length(sysreq_pkgs)) {
+            sys_reqs <- pak::pkg_sysreqs(sysreq_pkgs, upgrade = FALSE, dependencies = NA)
+            if (length(sys_reqs$install_scripts)) {
+              system(sys_reqs$install_scripts)
+            }
+          } else {
+            cat("No packages require sysreq resolution.\n")
           }
         }
 
