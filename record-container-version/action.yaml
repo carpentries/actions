@@ -29,7 +29,7 @@ runs:
   using: "composite"
   steps:
     - name: "Checkout Lesson"
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: "Validate Current Org and Workflow"
       id: validate-org-workflow
