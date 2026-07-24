@@ -85,6 +85,8 @@ runs:
                 echo "⛔ Apply Cache workflow required but failed. No build will run."
                 echo "## ⛔ Build Skipped" >> $GITHUB_STEP_SUMMARY
                 echo "Apply Cache workflow required but failed. No build will run." >> $GITHUB_STEP_SUMMARY
+                echo "" >> $GITHUB_STEP_SUMMARY
+                echo "Please run the 03 Maintain: Apply Package Cache manually to build a valid renv cache." >> $GITHUB_STEP_SUMMARY
                 echo "push_or_pr=false" >> $GITHUB_OUTPUT
                 exit 1
               else
@@ -101,6 +103,8 @@ runs:
               echo "⛔ Apply Cache workflow required but failed. No build will run."
               echo "## ⛔ Build Skipped" >> $GITHUB_STEP_SUMMARY
               echo "Apply Cache workflow required but failed. No build will run." >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "Please run the 03 Maintain: Apply Package Cache manually to build a valid renv cache." >> $GITHUB_STEP_SUMMARY
               echo "push_or_pr=false" >> $GITHUB_OUTPUT
               exit 1
             else
