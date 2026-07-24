@@ -124,9 +124,11 @@ runs:
           cat(paste0(pak::repo_status()$name, " ", pak::repo_status()$url))
 
           sysreq_pkgs <- vapply(pkgs, function(pkg) {
+            cat(capture.output(lock$Packages[[pkg]]), sep = "\n")
             if (identical(lock$Packages[[pkg]]$Source, "GitHub")) {
               remote_ref <- lock$Packages[[pkg]]$RemotePkgRef
               if (!is.null(remote_ref) && nzchar(remote_ref)) {
+                cat("Using GitHub ref for", pkg, ":", remote_ref, "\n")
                 return(remote_ref)
               }
             }
