@@ -17,14 +17,13 @@ async function run() {
 
 
   if (path) {
-    fs.stat(path, function(err, stat) {
-      if (err == null) {
-        body = String(fs.readFileSync(path));
-      } else {
-        core.setFailed(`File Error: ${err.code}`);
-        process.exit(1);
-      }
-    });
+    try {
+      await fs.promises.stat(path);
+      body = String(await fs.promises.readFile(path));
+    } catch (err) {
+      core.setFailed(`File Error: ${err.code}`);
+      process.exit(1);
+    }
   } else {
     body = core.getInput('body');
   }
