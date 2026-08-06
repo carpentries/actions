@@ -74,10 +74,10 @@ runs:
         echo "Whilst this will work, it is recommended to run the '02 Maintain: Check for Updated Packages' and '03 Maintain: Apply Package Cache' workflows to update the cache." >> $GITHUB_STEP_SUMMARY
       shell: bash
 
-    - name: Restore renv Dependencies
+    - name: Install any system dependencies
       if: steps.check-renv.outputs.renv-needed == 'true' && (steps.check-renv.outputs.renv-cache-available == 'true' || steps.check-renv.outputs.backup-cache-used == 'true')
       run: |
-        # 🔧 Restoring renv dependencies #
+        # 🔧 Installing package system dependencies #
         lsn_path <- fs::path("${{ inputs.LESSON_PATH }}")
 
         site_libs <- strsplit(Sys.getenv("R_LIBS_SITE"), ":")[[1]]
@@ -111,12 +111,39 @@ runs:
                 paste0("https://packagemanager.posit.co/all/__linux__/", release, "/latest"))
             }
           }
-          repos <- list(
+
+          base_repos <- c(
             RSPM        = Sys.getenv("RSPM"),
             carpentries = "https://carpentries.r-universe.dev/",
             CRAN        = "https://cran.rstudio.com"
           )
-          options(pak.no_extra_messages = TRUE, repos = repos)
+
+          lock_repos <- if (!is.null(lock$R$Repositories)) unlist(lock$R$Repositories) else character(0)
+
+          bioc_repos <- character(0)
+          uses_bioc <- any(vapply(lock$Packages, function(p) {
+            identical(p$Source, "Bioconductor") || identical(p$biocViews, TRUE) || !is.null(p$git_repository) && grepl("bioconductor", p$git_repository %||% "", ignore.case = TRUE)
+          }, logical(1)))
+          if (uses_bioc || isTRUE(requireNamespace("BiocManager", quietly = TRUE))) {
+            if (!requireNamespace("BiocManager", quietly = TRUE)) {
+              install.packages("BiocManager", repos = base_repos["CRAN"])
+            }
+            bioc_repos <- BiocManager::repositories()
+          }
+
+          universe_repos <- character(0)
+          for (pkg in names(lock$Packages)) {
+            entry <- lock$Packages[[pkg]]
+            repo_url <- entry$RepoUrl %||% entry$RemoteUrl
+            if (!is.null(repo_url) && grepl("r-universe\\.dev", repo_url)) {
+              universe_repos[pkg] <- sub("/(src|bin).*$", "", repo_url)
+            }
+          }
+
+          all_repos <- c(base_repos, lock_repos, bioc_repos, universe_repos)
+          all_repos <- all_repos[!duplicated(names(all_repos)) & nzchar(all_repos)]
+          options(pak.no_extra_messages = TRUE, repos = all_repos)
+
           cat("Repositories Used")
           print(getOption("repos"))
           cat("::endgroup::\n")
@@ -146,6 +173,7 @@ runs:
           }
         }
 
+        # Load the renv environment and restore
         renv::load(project = lsn_path, profile = "lesson-requirements")
         renv::restore(project = lsn_path, library = renv_lib, lockfile = renv_lock, prompt = FALSE)
       shell: Rscript {0}
