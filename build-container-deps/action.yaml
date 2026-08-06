@@ -74,7 +74,7 @@ runs:
         echo "Whilst this will work, it is recommended to run the '02 Maintain: Check for Updated Packages' and '03 Maintain: Apply Package Cache' workflows to update the cache." >> $GITHUB_STEP_SUMMARY
       shell: bash
 
-    - name: Install any system dependencies
+    - name: Install any system dependencies and renv restore
       if: steps.check-renv.outputs.renv-needed == 'true' && (steps.check-renv.outputs.renv-cache-available == 'true' || steps.check-renv.outputs.backup-cache-used == 'true')
       run: |
         # 🔧 Installing package system dependencies #
