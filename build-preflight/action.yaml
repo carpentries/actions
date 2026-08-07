@@ -17,6 +17,12 @@ outputs:
   renv-cache-hashsum:
     description: 'renv cache hashsum'
     value: ${{ steps.renv-check.outputs.renv-cache-hashsum }}
+  dependency-image-ref:
+    description: 'Dependency image reference selected for this repository and lockfile state'
+    value: ${{ steps.renv-check.outputs.dependency-image-ref }}
+  dependency-image-available:
+    description: 'Whether a repository-scoped dependency image exists in GHCR'
+    value: ${{ steps.renv-check.outputs.dependency-image-available }}
 
 runs:
   using: "composite"

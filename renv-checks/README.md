@@ -1,6 +1,6 @@
 # Get renv environment properties
 
-This composite workflow performs prerequisite validation and checks to verify if {renv} is used in a lesson, and if a package cache exists for this lesson.
+This composite workflow performs prerequisite validation and checks to verify if {renv} is used in a lesson, resolve a repository-scoped dependency image in GHCR, and optionally check legacy cache availability.
 
 It comprises six steps:
 
@@ -15,6 +15,10 @@ It comprises six steps:
 - Get Container Version Used
 
   Gets the version number of the current [workbench-docker](https://hub.docker.com/r/carpentries/workbench-docker/tags) image used to build the lesson.
+
+- Resolve dependency image
+
+  Checks for a repository-scoped dependency image in GHCR by exact lockfile hash tag.
 
 - Validate Current Org and Workflow
 
@@ -61,7 +65,7 @@ Path to the lesson directory within the container.
 
 ### skip-cache-check
 
-If `true`, skip checking for cache availability and just report if renv is needed and the corresponding renv lockfile hashsum if so.
+If `true`, skip checking AWS/GitHub cache availability and just report renv state, lockfile hash, and dependency image resolution.
 Defaults to `false`, doing a check on AWS or GitHub for a renv package cache matching the hashsum of the renv lockfile, or a user supplied CACHE_VERSION.
 
 - required: false
@@ -111,9 +115,21 @@ This will either be calculated by calling hashFiles() on the renv lockfile, or b
 
 - value: an alphanumeric hashsum string
 
-### renv-cache-available
+### dependency-image-ref
 
-Is the renv cache with the given hashsum key available?
+Resolved image reference for this lesson. If no repository dependency image exists, this falls back to the base Workbench image.
+
+- value: image reference string
+
+### dependency-image-available
+
+Whether a repository dependency image was found (`true`) or a base-image fallback is in use (`false`).
+
+- value: `true` or `false`
+
+### renv-layer-available
+
+Is an exact dependency layer or exact cache key available?
 
 - value: `true` or `false`
 
@@ -129,14 +145,3 @@ The matched cache size, if any
 
 - value: the size of the returned cache in bytes
 
-### backup-cache-used
-
-Was a previous cache version retrieved?
-
-If the cache check returns a hit with a non-zero `cache-matched-size`, but the `renv-cache-hashsum` does not match, then there is a previous cache available that was generated using the same Workbench Docker version, and can be used instead.
-
-Effectively, the following key was matched during the restore step, and not the complete key including the hashsum:
-
-`${{ github.repository }}/${{ container-version }}_renv-`
-
-- value: `true` or `false`

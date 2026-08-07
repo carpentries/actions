@@ -24,12 +24,15 @@ outputs:
   renv-needed:
     description: 'Is renv needed?'
     value: ${{ steps.check-renv.outputs.renv-needed }}
-  renv-cache-available:
-    description: 'Is Renv cache available'
-    value: ${{ steps.check-renv.outputs.renv-cache-available }}
-  backup-cache-used:
-    description: 'Was a backup cache used?'
-    value: ${{ steps.check-renv.outputs.backup-cache-used }}
+  dependency-image-ref:
+    description: 'Dependency image reference selected for this repository and lockfile state'
+    value: ${{ steps.check-renv.outputs.dependency-image-ref }}
+  dependency-image-available:
+    description: 'Whether a repository-scoped dependency image exists in GHCR'
+    value: ${{ steps.check-renv.outputs.dependency-image-available }}
+  renv-layer-available:
+    description: 'Is an exact dependency layer or exact cache key available'
+    value: ${{ steps.check-renv.outputs.renv-layer-available }}
   renv-cache-hashsum:
     description: 'renv cache hashsum'
     value: ${{ steps.check-renv.outputs.renv-cache-hashsum }}
@@ -53,29 +56,23 @@ runs:
         aws-region: ${{ inputs.aws-region }}
         token: ${{ inputs.token }}
 
-    - name: Fail on renv cache miss
-      if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available != 'true' && steps.check-renv.outputs.backup-cache-used != 'true'
+    - name: Warn when dependency image missing
+      if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.dependency-image-available != 'true'
       run: |
-        # ❌ ERROR: renv cache miss #
-        echo "## ❌ ERROR: renv Cache Miss" >> $GITHUB_STEP_SUMMARY
-        echo "A cached renv environment is required to build this lesson but none is available in the cache." >> $GITHUB_STEP_SUMMARY
-        echo "Please:" >> $GITHUB_STEP_SUMMARY
-        echo "- merge in any open package update pull requests, or run the '02 Maintain: Check for Updated Packages' workflow then merge the resulting PR" >> $GITHUB_STEP_SUMMARY
-        echo "- run the '03 Maintain: Apply Package Cache' workflow" >> $GITHUB_STEP_SUMMARY
-        exit 1
+        # ⚠️ WARNING: dependency image missing #
+        echo "## ⚠️ WARNING: dependency image not found" >> $GITHUB_STEP_SUMMARY
+        echo "No repository-scoped dependency image is currently available for this lockfile." >> $GITHUB_STEP_SUMMARY
+        echo "The build will continue by restoring dependencies during runtime, which is slower." >> $GITHUB_STEP_SUMMARY
+        echo "Run '03 Maintain: Apply Package Cache' to publish a matching dependency image." >> $GITHUB_STEP_SUMMARY
       shell: bash
 
-    - name: Warn on previous cache used
-      if: steps.check-renv.outputs.renv-needed == 'true' && steps.check-renv.outputs.renv-cache-available != 'true' && steps.check-renv.outputs.backup-cache-used == 'true'
-      run: |
-        # ⚠️ WARNING: previous cache used #
-        echo "## ⚠️ WARNING: previous cache used" >> $GITHUB_STEP_SUMMARY
-        echo "Requested renv cache not available, but a previous cache was found and used." >> $GITHUB_STEP_SUMMARY
-        echo "Whilst this will work, it is recommended to run the '02 Maintain: Check for Updated Packages' and '03 Maintain: Apply Package Cache' workflows to update the cache." >> $GITHUB_STEP_SUMMARY
-      shell: bash
-
+<<<<<<< Updated upstream
     - name: Restore renv Dependencies
       if: steps.check-renv.outputs.renv-needed == 'true' && (steps.check-renv.outputs.renv-cache-available == 'true' || steps.check-renv.outputs.backup-cache-used == 'true')
+=======
+    - name: Install any system dependencies and renv restore
+      if: steps.check-renv.outputs.renv-needed == 'true'
+>>>>>>> Stashed changes
       run: |
         # 🔧 Restoring renv dependencies #
         lsn_path <- fs::path("${{ inputs.LESSON_PATH }}")
@@ -116,7 +113,37 @@ runs:
             carpentries = "https://carpentries.r-universe.dev/",
             CRAN        = "https://cran.rstudio.com"
           )
+<<<<<<< Updated upstream
           options(pak.no_extra_messages = TRUE, repos = repos)
+=======
+
+          lock_repos <- if (!is.null(lock$R$Repositories)) unlist(lock$R$Repositories) else character(0)
+
+          bioc_repos <- character(0)
+          uses_bioc <- any(vapply(lock$Packages, function(p) {
+            identical(p$Source, "Bioconductor") || identical(p$biocViews, TRUE) || !is.null(p$git_repository) && grepl("bioconductor", p$git_repository %||% "", ignore.case = TRUE)
+          }, logical(1)))
+          if (uses_bioc || isTRUE(requireNamespace("BiocManager", quietly = TRUE))) {
+            if (!requireNamespace("BiocManager", quietly = TRUE)) {
+              install.packages("BiocManager", repos = base_repos["CRAN"])
+            }
+            bioc_repos <- BiocManager::repositories()
+          }
+
+          universe_repos <- character(0)
+          for (pkg in names(lock$Packages)) {
+            entry <- lock$Packages[[pkg]]
+            repo_url <- entry$RepoUrl %||% entry$RemoteUrl
+            if (!is.null(repo_url) && grepl("r-universe\\.dev", repo_url)) {
+              universe_repos[pkg] <- sub("/(src|bin).*$", "", repo_url)
+            }
+          }
+
+          all_repos <- c(lock_repos, universe_repos, base_repos, bioc_repos)
+          all_repos <- all_repos[nzchar(all_repos) & !duplicated(names(all_repos))]
+          options(pak.no_extra_messages = TRUE, repos = all_repos)
+
+>>>>>>> Stashed changes
           cat("Repositories Used")
           print(getOption("repos"))
           cat("::endgroup::\n")

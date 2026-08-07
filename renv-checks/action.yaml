@@ -34,18 +34,21 @@ outputs:
   renv-cache-hashsum:
     description: 'renv cache hashsum'
     value: ${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}
-  renv-cache-available:
-    description: 'Is the renv cache available?'
-    value: ${{ steps.restore-renv-cache.outputs.cache-hit }}
+  dependency-image-ref:
+    description: 'Dependency image reference selected for this repository and lockfile state'
+    value: ${{ steps.resolve-dependency-image.outputs.dependency-image-ref }}
+  dependency-image-available:
+    description: 'Whether a repository-scoped dependency image exists in GHCR'
+    value: ${{ steps.resolve-dependency-image.outputs.dependency-image-available }}
+  renv-layer-available:
+    description: 'Is an exact dependency layer or exact cache key available?'
+    value: ${{ steps.resolve-cache-availability.outputs.renv-layer-available }}
   cache-matched-key:
     description: 'The matched cache key, if any'
     value: ${{ steps.restore-renv-cache.outputs.cache-matched-key }}
   cache-matched-size:
     description: 'The matched cache size, if any'
     value: ${{ steps.restore-renv-cache.outputs.cache-size }}
-  backup-cache-used:
-    description: 'Was a previous cache version retrieved?'
-    value: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && ((steps.restore-renv-cache.outputs.cache-matched-key || '') != '') }}
 
 runs:
   using: "composite"
@@ -81,12 +84,36 @@ runs:
 
     - name: Get Container Version Used
       id: wb-vers
-      if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' && inputs.skip-cache-check != 'true' }}
+      if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
       uses: carpentries/actions/container-version@main
       with:
         WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
         renv-needed: ${{ steps.check-for-renv.outputs.renv-exists }}
-        token: ${{ inputs.token }}
+        token: ${{ inputs.token || github.token }}
+
+    - name: Resolve dependency image
+      id: resolve-dependency-image
+      if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
+      shell: bash
+      env:
+        WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
+        IMAGE_OWNER: ${{ github.repository_owner }}
+        IMAGE_NAME: ${{ github.event.repository.name }}
+        WB_VERSION: ${{ steps.wb-vers.outputs.container-version }}
+        RENV_HASH: ${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}
+      run: |
+        set -euo pipefail
+
+        base_image="ghcr.io/carpentries/workbench-docker:${WORKBENCH_TAG}"
+        exact_image="ghcr.io/${IMAGE_OWNER}/${IMAGE_NAME}-deps:${WB_VERSION}_renv-${RENV_HASH}"
+
+        if docker manifest inspect "$exact_image" >/dev/null 2>&1; then
+          echo "dependency-image-ref=$exact_image" >> "$GITHUB_OUTPUT"
+          echo "dependency-image-available=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "dependency-image-ref=$base_image" >> "$GITHUB_OUTPUT"
+          echo "dependency-image-available=false" >> "$GITHUB_OUTPUT"
+        fi
 
     - name: "Validate Current Org and Workflow"
       id: validate-org-workflow
@@ -101,6 +128,7 @@ runs:
       if: |
         steps.validate-org-workflow.outputs.is_valid == 'true' &&
         inputs.skip-cache-check != 'true' &&
+        steps.resolve-dependency-image.outputs.dependency-image-available != 'true' &&
         inputs.role-to-assume != '' &&
         inputs.aws-region != ''
       uses: aws-actions/configure-aws-credentials@v6
@@ -112,7 +140,7 @@ runs:
     - name: Restore renv from cache
       id: restore-renv-cache
       uses: tespkg/actions-cache/restore@v1.10.2
-      if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' && inputs.skip-cache-check != 'true' }}
+      if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' && inputs.skip-cache-check != 'true' && steps.resolve-dependency-image.outputs.dependency-image-available != 'true' }}
       with:
         accessKey: ${{ steps.aws-creds.outputs.aws-access-key-id }}
         secretKey: ${{ steps.aws-creds.outputs.aws-secret-access-key }}
@@ -122,18 +150,29 @@ runs:
           /home/rstudio/lesson/renv
           /usr/local/lib/R/site-library
         key: ${{ github.repository }}/${{ steps.wb-vers.outputs.container-version }}_renv-${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}
-        restore-keys: |
-          ${{ github.repository }}/${{ steps.wb-vers.outputs.container-version }}_renv-
+
+    - name: Resolve cache availability output
+      id: resolve-cache-availability
+      if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
+      shell: bash
+      run: |
+        set -euo pipefail
+        if [[ "${{ steps.resolve-dependency-image.outputs.dependency-image-available }}" == "true" ]]; then
+          echo "renv-layer-available=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "renv-layer-available=${{ steps.restore-renv-cache.outputs.cache-hit || 'false' }}" >> "$GITHUB_OUTPUT"
+        fi
 
     - name: "Debug output"
       run: |
         # 💡 Debug renv cache output #
         echo "renv-needed: ${{ steps.check-for-renv.outputs.renv-exists }}"
         echo "renv-cache-hashsum: ${{ steps.set-renv-hash.outputs.renv-cache-hashsum }}"
-        echo "renv-cache-available: ${{ steps.restore-renv-cache.outputs.cache-hit }}"
+        echo "dependency-image-ref: ${{ steps.resolve-dependency-image.outputs.dependency-image-ref }}"
+        echo "dependency-image-available: ${{ steps.resolve-dependency-image.outputs.dependency-image-available }}"
+        echo "renv-layer-available: ${{ steps.resolve-cache-availability.outputs.renv-layer-available }}"
         echo "cache-matched-key: ${{ steps.restore-renv-cache.outputs.cache-matched-key }}"
         echo "cache-matched-size: ${{ steps.restore-renv-cache.outputs.cache-size }}"
-        echo "backup-cache-used: ${{ steps.restore-renv-cache.outputs.cache-hit != 'true' && ((steps.restore-renv-cache.outputs.cache-matched-key || '') != '') }}"
       shell: bash
 
     - name: List renv caches in S3
@@ -141,6 +180,7 @@ runs:
       if: |
         steps.check-for-renv.outputs.renv-exists == 'true' &&
         inputs.skip-cache-check != 'true' &&
+        steps.resolve-dependency-image.outputs.dependency-image-available != 'true' &&
         inputs.role-to-assume != '' &&
         inputs.aws-region != ''
       run: |
