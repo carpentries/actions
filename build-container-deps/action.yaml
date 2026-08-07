@@ -66,13 +66,8 @@ runs:
         echo "Run '03 Maintain: Apply Package Cache' to publish a matching dependency image." >> $GITHUB_STEP_SUMMARY
       shell: bash
 
-<<<<<<< Updated upstream
-    - name: Restore renv Dependencies
-      if: steps.check-renv.outputs.renv-needed == 'true' && (steps.check-renv.outputs.renv-cache-available == 'true' || steps.check-renv.outputs.backup-cache-used == 'true')
-=======
     - name: Install any system dependencies and renv restore
       if: steps.check-renv.outputs.renv-needed == 'true'
->>>>>>> Stashed changes
       run: |
         # 🔧 Restoring renv dependencies #
         lsn_path <- fs::path("${{ inputs.LESSON_PATH }}")
@@ -113,9 +108,6 @@ runs:
             carpentries = "https://carpentries.r-universe.dev/",
             CRAN        = "https://cran.rstudio.com"
           )
-<<<<<<< Updated upstream
-          options(pak.no_extra_messages = TRUE, repos = repos)
-=======
 
           lock_repos <- if (!is.null(lock$R$Repositories)) unlist(lock$R$Repositories) else character(0)
 
@@ -143,7 +135,6 @@ runs:
           all_repos <- all_repos[nzchar(all_repos) & !duplicated(names(all_repos))]
           options(pak.no_extra_messages = TRUE, repos = all_repos)
 
->>>>>>> Stashed changes
           cat("Repositories Used")
           print(getOption("repos"))
           cat("::endgroup::\n")
