@@ -4,6 +4,7 @@ inputs:
   workbench-tag:
     description: Workbench base image tag
     required: true
+    default: 'latest'
   github-token:
     description: Token used to clone the lesson repository during docker build
     required: true
@@ -27,11 +28,10 @@ runs:
   using: composite
   steps:
     - name: Prepare dependency Dockerfile
-      shell: bash
       run: |
         set -euo pipefail
         cat > "${RUNNER_TEMP}/Dockerfile.deps" <<'EOF'
-        ARG WORKBENCH_TAG=${{ vars.WORKBENCH_TAG || 'latest' }}
+        ARG WORKBENCH_TAG=${WORKBENCH_TAG}
         FROM ghcr.io/carpentries/workbench-docker:${WORKBENCH_TAG} AS builder
         ARG GITHUB_TOKEN
         ARG GITHUB_REPOSITORY
@@ -57,7 +57,7 @@ runs:
         COPY --from=builder /usr/local/lib/R/site-library /usr/local/lib/R/site-library
         RUN chown -R rstudio:rstudio /home/rstudio/lesson
         EOF
-
+      shell: bash
 
     - name: Build and push dependency image
       uses: docker/build-push-action@v6
