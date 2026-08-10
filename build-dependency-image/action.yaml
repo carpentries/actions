@@ -31,7 +31,7 @@ runs:
       run: |
         set -euo pipefail
         cat > "${RUNNER_TEMP}/Dockerfile.deps" <<'EOF'
-        ARG WORKBENCH_TAG=${{ inputs.workbench-tag }}
+        ARG WORKBENCH_TAG=${{ vars.WORKBENCH_TAG || 'latest' }}
         FROM ghcr.io/carpentries/workbench-docker:${WORKBENCH_TAG} AS builder
         ARG GITHUB_TOKEN
         ARG GITHUB_REPOSITORY
@@ -42,16 +42,11 @@ runs:
             RENV_PATHS_ROOT=/home/rstudio/lesson/renv \
             RENV_PROFILE=lesson-requirements \
             RENV_CONFIG_EXTERNAL_LIBRARIES=/usr/local/lib/R/site-library
-        WORKDIR /home/rstudio
-        RUN git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" /home/rstudio/lesson && \
-          cd /home/rstudio/lesson && \
-          git checkout "${GITHUB_SHA}" && \
-          chown -R rstudio:rstudio /home/rstudio/lesson && \
-          git config --global --add safe.directory /home/rstudio/lesson
-
-        RUN Rscript /home/rstudio/.workbench/setup_lesson_deps.R && \
-          Rscript /home/rstudio/.workbench/fortify_renv_cache.R && \
-          rm -rf /home/rstudio/lesson/.git
+        WORKDIR /home/rstudio/lesson
+        COPY . /home/rstudio/lesson
+        RUN git config --global --add safe.directory /home/rstudio/lesson && \
+          Rscript /home/rstudio/.workbench/setup_lesson_deps.R && \
+          Rscript /home/rstudio/.workbench/fortify_renv_cache.R
 
         FROM ghcr.io/carpentries/workbench-docker:${WORKBENCH_TAG}
         ENV WORKBENCH_PROFILE=ci \
@@ -63,10 +58,11 @@ runs:
         RUN chown -R rstudio:rstudio /home/rstudio/lesson
         EOF
 
+
     - name: Build and push dependency image
       uses: docker/build-push-action@v6
       with:
-        context: ${{ inputs.build-context }}
+        context: ${{ github.workspace }}
         file: ${{ runner.temp }}/Dockerfile.deps
         push: true
         build-args: |
