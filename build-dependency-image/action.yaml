@@ -53,7 +53,7 @@ runs:
             RENV_PATHS_ROOT=/home/rstudio/lesson/renv \
             RENV_PROFILE=lesson-requirements \
             RENV_CONFIG_EXTERNAL_LIBRARIES=/usr/local/lib/R/site-library
-        COPY --from=builder --chown=rstudio:rstudio /home/rstudio/lesson/renv /home/rstudio/lesson/renv
+        COPY --from=builder --chown=rstudio:rstudio /home/rstudio/lesson /home/rstudio/lesson
         COPY --from=builder /usr/local/lib/R/site-library /usr/local/lib/R/site-library
         RUN chown -R rstudio:rstudio /home/rstudio/lesson
         EOF
