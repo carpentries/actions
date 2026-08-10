@@ -1,0 +1,79 @@
+name: Build dependency image
+description: Prepare and build/push the lesson dependency image to GHCR
+inputs:
+  workbench-tag:
+    description: Workbench base image tag
+    required: true
+  github-token:
+    description: Token used to clone the lesson repository during docker build
+    required: true
+  github-repository:
+    description: Repository in owner/name format used for clone during docker build
+    required: true
+  github-sha:
+    description: Commit SHA to checkout in the cloned repository
+    required: true
+  exact-image:
+    description: Fully qualified versioned dependency image tag
+    required: true
+  latest-image:
+    description: Fully qualified latest dependency image tag
+    required: true
+  build-context:
+    description: Docker build context path
+    required: false
+    default: .
+runs:
+  using: composite
+  steps:
+    - name: Prepare dependency Dockerfile
+      shell: bash
+      run: |
+        set -euo pipefail
+        cat > "${RUNNER_TEMP}/Dockerfile.deps" <<'EOF'
+        ARG WORKBENCH_TAG=${{ inputs.workbench-tag }}
+        FROM ghcr.io/carpentries/workbench-docker:${WORKBENCH_TAG} AS builder
+        ARG GITHUB_TOKEN
+        ARG GITHUB_REPOSITORY
+        ARG GITHUB_SHA
+        ENV WORKBENCH_PROFILE=ci \
+            GITHUB_PAT=${GITHUB_TOKEN} \
+            GITHUB_TOKEN=${GITHUB_TOKEN} \
+            RENV_PATHS_ROOT=/home/rstudio/lesson/renv \
+            RENV_PROFILE=lesson-requirements \
+            RENV_CONFIG_EXTERNAL_LIBRARIES=/usr/local/lib/R/site-library
+        WORKDIR /home/rstudio
+        RUN git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" /home/rstudio/lesson && \
+          cd /home/rstudio/lesson && \
+          git checkout "${GITHUB_SHA}" && \
+          chown -R rstudio:rstudio /home/rstudio/lesson && \
+          git config --global --add safe.directory /home/rstudio/lesson
+
+        RUN Rscript /home/rstudio/.workbench/setup_lesson_deps.R && \
+          Rscript /home/rstudio/.workbench/fortify_renv_cache.R && \
+          rm -rf /home/rstudio/lesson/.git
+
+        FROM ghcr.io/carpentries/workbench-docker:${WORKBENCH_TAG}
+        ENV WORKBENCH_PROFILE=ci \
+            RENV_PATHS_ROOT=/home/rstudio/lesson/renv \
+            RENV_PROFILE=lesson-requirements \
+            RENV_CONFIG_EXTERNAL_LIBRARIES=/usr/local/lib/R/site-library
+        COPY --from=builder --chown=rstudio:rstudio /home/rstudio/lesson/renv /home/rstudio/lesson/renv
+        COPY --from=builder /usr/local/lib/R/site-library /usr/local/lib/R/site-library
+        RUN chown -R rstudio:rstudio /home/rstudio/lesson
+        EOF
+
+    - name: Build and push dependency image
+      uses: docker/build-push-action@v6
+      with:
+        context: ${{ inputs.build-context }}
+        file: ${{ runner.temp }}/Dockerfile.deps
+        push: true
+        build-args: |
+          WORKBENCH_TAG=${{ inputs.workbench-tag }}
+          GITHUB_TOKEN=${{ inputs.github-token }}
+          GITHUB_REPOSITORY=${{ inputs.github-repository }}
+          GITHUB_SHA=${{ inputs.github-sha }}
+        tags: |
+          ${{ inputs.exact-image }}
+          ${{ inputs.latest-image }}
