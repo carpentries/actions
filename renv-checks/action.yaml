@@ -107,11 +107,12 @@ runs:
         base_image="ghcr.io/carpentries/workbench-docker:${WORKBENCH_TAG}"
         exact_image="ghcr.io/${IMAGE_OWNER}/${IMAGE_NAME}-deps:${WB_VERSION}_renv-${RENV_HASH}"
 
-        if docker manifest inspect "$exact_image" >/dev/null 2>&1; then
-          echo "dependency-image-ref=$exact_image" >> "$GITHUB_OUTPUT"
+        # remember to lowercaseify image names
+        if docker manifest inspect "${exact_image,,}" >/dev/null 2>&1; then
+          echo "dependency-image-ref=${exact_image,,}" >> "$GITHUB_OUTPUT"
           echo "dependency-image-available=true" >> "$GITHUB_OUTPUT"
         else
-          echo "dependency-image-ref=$base_image" >> "$GITHUB_OUTPUT"
+          echo "dependency-image-ref=${base_image,,}" >> "$GITHUB_OUTPUT"
           echo "dependency-image-available=false" >> "$GITHUB_OUTPUT"
         fi
 
