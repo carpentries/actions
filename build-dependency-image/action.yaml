@@ -4,7 +4,6 @@ inputs:
   workbench-tag:
     description: Workbench base image tag
     required: true
-    default: 'latest'
   github-token:
     description: Token used to clone the lesson repository during docker build
     required: true
@@ -28,6 +27,7 @@ runs:
   using: composite
   steps:
     - name: Prepare dependency Dockerfile
+      id: prepare-dockerfile
       run: |
         set -euo pipefail
         cat > "${RUNNER_TEMP}/Dockerfile.deps" <<'EOF'
