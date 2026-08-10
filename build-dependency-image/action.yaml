@@ -23,6 +23,7 @@ inputs:
     description: Docker build context path
     required: false
     default: .
+
 runs:
   using: composite
   steps:
@@ -31,7 +32,7 @@ runs:
       run: |
         set -euo pipefail
         cat > "${RUNNER_TEMP}/Dockerfile.deps" <<'EOF'
-        ARG WORKBENCH_TAG=${WORKBENCH_TAG}
+        ARG WORKBENCH_TAG
         FROM ghcr.io/carpentries/workbench-docker:${WORKBENCH_TAG} AS builder
         ARG GITHUB_TOKEN
         ARG GITHUB_REPOSITORY

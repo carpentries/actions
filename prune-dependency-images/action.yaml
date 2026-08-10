@@ -1,0 +1,90 @@
+name: Build dependency image
+description: Prepare and build/push the lesson dependency image to GHCR
+inputs:
+  owner:
+    description: Owner of the repository
+    required: true
+  owner-type:
+    description: Type of the repository owner (User or Organization)
+    required: true
+  package-name:
+    description: Name of the dependency image package
+    required: true
+  keep-count:
+    description: Number of old dependency image versions to keep
+    required: false
+    default: "2"
+
+runs:
+  using: composite
+  steps:
+    - name: "Prune old dependency image versions"
+      env:
+        OWNER: ${{ inputs.owner }}
+        OWNER_TYPE: ${{ inputs.owner-type }}
+        PACKAGE_NAME: ${{ inputs.package-name }}
+        KEEP_COUNT: ${{ inputs.keep-count }}
+      run: |
+        set -euo pipefail
+
+        if [[ "${OWNER_TYPE}" == "Organization" ]]; then
+          api_base="/orgs/${OWNER}/packages/container/${PACKAGE_NAME}/versions"
+        else
+          api_base="/users/${OWNER}/packages/container/${PACKAGE_NAME}/versions"
+        fi
+
+        # Pull all versions and flatten version id, creation time, and every tag.
+        raw_json="$(gh api --paginate "${api_base}?per_page=100")"
+        rows="$(echo "${raw_json}" | jq -r '
+          .[]
+          | {id, created_at, tags: (.metadata.container.tags // [])}
+          | select(.tags | length > 0)
+          | . as $v
+          | $v.tags[]
+          | "\($v.id)\t\($v.created_at)\t\(.)"
+        ')"
+
+        if [[ -z "${rows}" ]]; then
+          echo "No tagged package versions found for ${PACKAGE_NAME}."
+          exit 0
+        fi
+
+        # Keep latest tag and any non-hash tags. Prune only WB_VERSION_renv-HASH tags.
+        candidates="$(echo "${rows}" | awk -F '\t' '$3 ~ /_renv-/ && $3 != "latest"')"
+
+        if [[ -z "${candidates}" ]]; then
+          echo "No hash-tagged versions eligible for pruning."
+          exit 0
+        fi
+
+        delete_ids="$(
+          echo "${candidates}" \
+            | sort -t $'\t' -k2,2r \
+            | awk -F '\t' -v keep="${KEEP_COUNT}" '
+                {
+                  id=$1
+                  tag=$3
+                  split(tag, parts, "_renv-")
+                  wb=parts[1]
+                  seen[wb]++
+                  if (seen[wb] > keep) {
+                    del[id]=1
+                  }
+                }
+                END {
+                  for (id in del) print id
+                }
+              '
+        )"
+
+        if [[ -z "${delete_ids}" ]]; then
+          echo "No old hash-tagged versions to delete."
+          exit 0
+        fi
+
+        while IFS= read -r version_id; do
+          [[ -z "${version_id}" ]] && continue
+          echo "Deleting package version id ${version_id} from ${PACKAGE_NAME}"
+          gh api -X DELETE "${api_base}/${version_id}"
+        done <<< "${delete_ids}"
+      shell: bash
