@@ -49,11 +49,8 @@ runs:
       id: check-renv
       uses: carpentries/actions/renv-checks@frog-ghcr-dep-layer-1
       with:
-        CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
         WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
-        LESSON_PATH: ${{ inputs.LESSON_PATH || '/home/rstudio/lesson' }}
-        role-to-assume: ${{ inputs.role-to-assume }}
-        aws-region: ${{ inputs.aws-region }}
+        CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
         token: ${{ inputs.token }}
 
     - name: Warn when dependency image missing
@@ -62,7 +59,7 @@ runs:
         # ⚠️ WARNING: dependency image missing #
         echo "## ⚠️ WARNING: dependency image not found" >> $GITHUB_STEP_SUMMARY
         echo "No repository-scoped dependency image is currently available for this lockfile." >> $GITHUB_STEP_SUMMARY
-        echo "The build will continue by restoring dependencies during runtime, which is slower." >> $GITHUB_STEP_SUMMARY
+        echo "The build will continue by restoring dependencies during runtime, which will likely be slower." >> $GITHUB_STEP_SUMMARY
         echo "Run '03 Maintain: Apply Package Cache' to publish a matching dependency image." >> $GITHUB_STEP_SUMMARY
       shell: bash
 
