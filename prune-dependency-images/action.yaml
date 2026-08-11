@@ -7,6 +7,9 @@ inputs:
   owner:
     description: Owner of the repository
     required: true
+  repository:
+    description: Name of the repository
+    required: true
   owner-type:
     description: Type of the repository owner (User or Organization)
     required: true
@@ -14,14 +17,14 @@ inputs:
     description: Name of the dependency image package
     required: true
   keep-count:
-    description: Number of old dependency image versions to keep
+    description: Number of untagged dependency image digests to keep
     required: false
-    default: "2"
+    default: "1"
 
 runs:
   using: composite
   steps:
-    - name: "Prune old dependency image versions"
+    - name: "Prune old untagged dependency image digests"
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         OWNER: ${{ inputs.owner }}
@@ -41,48 +44,34 @@ runs:
         raw_json="$(gh api --paginate "${api_base}?per_page=100")"
         rows="$(echo "${raw_json}" | jq -r '
           .[]
-          | {id, created_at, tags: (.metadata.container.tags // [])}
-          | select(.tags | length > 0)
-          | . as $v
-          | $v.tags[]
-          | "\($v.id)\t\($v.created_at)\t\(.)"
+          | select(.metadata.container.tags == [])
+          | [
+            .id,
+            .created_at
+          ]
+          | @tsv
         ')"
 
         if [[ -z "${rows}" ]]; then
-          echo "No tagged package versions found for ${PACKAGE_NAME}."
+          echo "No package versions found for ${PACKAGE_NAME}."
           exit 0
         fi
 
-        # Keep latest tag and any non-hash tags. Prune only WB_VERSION_renv-HASH tags.
-        candidates="$(echo "${rows}" | awk -F '\t' '$3 ~ /_renv-/ && $3 != "latest"')"
-
-        if [[ -z "${candidates}" ]]; then
-          echo "No hash-tagged versions eligible for pruning."
-          exit 0
-        fi
-
-        delete_ids="$(
-          echo "${candidates}" \
-            | sort -t $'\t' -k2,2r \
-            | awk -F '\t' -v keep="${KEEP_COUNT}" '
-                {
-                  id=$1
-                  tag=$3
-                  split(tag, parts, "_renv-")
-                  wb=parts[1]
-                  seen[wb]++
-                  if (seen[wb] > keep) {
-                    del[id]=1
-                  }
-                }
-                END {
-                  for (id in del) print id
-                }
-              '
-        )"
+        delete_ids="$({
+          echo "${rows}" \
+          | sort -t $'\t' -k2,2r \
+          | awk -F '\t' -v keep="${KEEP_COUNT}" '
+            {
+              count++
+              if (count > keep) {
+              print $1
+              }
+              }
+            '
+        })"
 
         if [[ -z "${delete_ids}" ]]; then
-          echo "No old hash-tagged versions to delete."
+          echo "No untagged digests to delete. Nothing to do."
           exit 0
         fi
 
@@ -91,4 +80,6 @@ runs:
           echo "Deleting package version id ${version_id} from ${PACKAGE_NAME}"
           gh api -X DELETE "${api_base}/${version_id}"
         done <<< "${delete_ids}"
+
+        echo "Deleted $(echo "${delete_ids}" | wc -l) untagged digests from https://github.com/${OWNER}/${repository}/pkgs/container/${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
       shell: bash
