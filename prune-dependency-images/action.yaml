@@ -64,10 +64,10 @@ runs:
             {
               count++
               if (count > keep) {
-              print $1
+                print $1
               }
-              }
-            '
+            }
+          '
         })"
 
         if [[ -z "${delete_ids}" ]]; then
