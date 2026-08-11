@@ -1,6 +1,9 @@
 name: Build dependency image
 description: Prepare and build/push the lesson dependency image to GHCR
 inputs:
+  github-token:
+    description: Token used to clone the lesson repository during docker build
+    required: true
   owner:
     description: Owner of the repository
     required: true
@@ -20,6 +23,7 @@ runs:
   steps:
     - name: "Prune old dependency image versions"
       env:
+        GH_TOKEN: ${{ inputs.github-token }}
         OWNER: ${{ inputs.owner }}
         OWNER_TYPE: ${{ inputs.owner-type }}
         PACKAGE_NAME: ${{ inputs.package-name }}
