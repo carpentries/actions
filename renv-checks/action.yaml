@@ -94,7 +94,6 @@ runs:
     - name: Resolve dependency image
       id: resolve-dependency-image
       if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
-      shell: bash
       env:
         WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
         IMAGE_OWNER: ${{ github.repository_owner }}
@@ -115,6 +114,17 @@ runs:
           echo "dependency-image-ref=${base_image,,}" >> "$GITHUB_OUTPUT"
           echo "dependency-image-available=false" >> "$GITHUB_OUTPUT"
         fi
+      shell: bash
+
+    - name: Pass back base image
+      if: ${{ steps.check-for-renv.outputs.renv-exists != 'true' }}
+      env:
+        WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
+      run: |
+        # If renv is not needed, we can just use the base Workbench image #
+        echo "dependency-image-ref=ghcr.io/carpentries/workbench-docker:${WORKBENCH_TAG}" >> $GITHUB_OUTPUT
+        echo "dependency-image-available=true" >> $GITHUB_OUTPUT
+      shell: bash
 
     - name: "Validate Current Org and Workflow"
       id: validate-org-workflow
@@ -155,7 +165,6 @@ runs:
     - name: Resolve cache availability output
       id: resolve-cache-availability
       if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
-      shell: bash
       run: |
         set -euo pipefail
         if [[ "${{ steps.resolve-dependency-image.outputs.dependency-image-available }}" == "true" ]]; then
@@ -163,6 +172,7 @@ runs:
         else
           echo "renv-layer-available=${{ steps.restore-renv-cache.outputs.cache-hit || 'false' }}" >> "$GITHUB_OUTPUT"
         fi
+      shell: bash
 
     - name: "Debug output"
       run: |
