@@ -1,5 +1,5 @@
-name: Build dependency image
-description: Prepare and build/push the lesson dependency image to GHCR
+name: Prune dependency images
+description: Prune old untagged dependency image digests from GHCR
 inputs:
   github-token:
     description: Token used to clone the lesson repository during docker build
