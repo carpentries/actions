@@ -24,6 +24,7 @@ runs:
           "swcarpentry"
           "datacarpentry"
           "librarycarpentry"
+          "hpc-carpentry"
           "carpentries-incubator"
           "carpentries-lab"
           "fishtree-attempt"
