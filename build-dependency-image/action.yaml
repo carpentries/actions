@@ -19,10 +19,6 @@ inputs:
   latest-image:
     description: Fully qualified latest dependency image tag
     required: true
-  build-context:
-    description: Docker build context path
-    required: false
-    default: .
 
 runs:
   using: composite

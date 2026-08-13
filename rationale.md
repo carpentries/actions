@@ -141,7 +141,7 @@ jobs:
       github.event.workflow_run.conclusion == 'success'
     steps:
       - name: 'Download artifact'
-        uses: carpentries/actions/download-workflow-artifact@main
+        uses: carpentries/actions/download-workflow-artifact@v1
         with:
           run: ${{ github.event.workflow_run.id }}
           name: pr
@@ -154,7 +154,7 @@ jobs:
       
       - name: "Check PR"
         id: check-pr
-        uses: carpentries/actions/check-valid-pr@main
+        uses: carpentries/actions/check-valid-pr@v1
         with:
           pr: ${{ steps.get-pr.outputs.NUM }}
           sha: ${{ github.events.workflow_run.head_commit.sha }}
@@ -162,14 +162,14 @@ jobs:
       - name: "Run if valid"
         id: success-comment
         if: ${{ steps.check-pr.outputs.VALID == 'true'}}
-        uses: carpentries/actions/comment-diff@main
+        uses: carpentries/actions/comment-diff@v1
         with:
           pr: ${{ steps.get-pr.outputs.NUM }}
           body: ":tada: Success! :tada:"
 
       - name: "Run if invalid"
         if: ${{ steps.check-pr.outputs.VALID != 'true' && steps.check-pr.outputs.payload }}
-        uses: carpentries/actions/comment-diff@main
+        uses: carpentries/actions/comment-diff@v1
         with:
           pr: ${{ steps.get-pr.outputs.NUM }}
           body: ":see_no_evil: This PR is not valid!"

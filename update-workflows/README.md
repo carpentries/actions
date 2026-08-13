@@ -36,7 +36,7 @@ jobs:
 
       - name: Update Workflows
         id: update
-        uses: carpentries/actions/update-workflows@main
+        uses: carpentries/actions/update-workflows@v1
 
       - name: Create Pull Request
         id: cpr

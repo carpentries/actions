@@ -19,10 +19,10 @@ Inputs available:
 steps:
 - uses: actions/checkout@v6
 - uses: r-lib/actions/setup-r@v2
-- uses: carpentries/actions/setup-sandpaper@main
+- uses: carpentries/actions/setup-sandpaper@v1
   with:
     cache-version: ${{ secrets.CACHE_VERSION }}
-- uses: carpentries/actions/setup-lesson-deps@main
+- uses: carpentries/actions/setup-lesson-deps@v1
   with:
     cache-version: ${{ secrets.CACHE_VERSION }}
 ```

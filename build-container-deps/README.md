@@ -1,5 +1,8 @@
 # Manage dependencies required for lesson builds
 
+> [!NOTE]
+> This workflow is no longer used, and is replaced by the build-dependency-image action
+
 This composite workflow performs all the prerequisite checks and validation steps to carry out a full lesson build and deployment.
 
 It comprises five steps:

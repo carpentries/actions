@@ -10,9 +10,7 @@ This is a set of actions that facilitate constructing GitHub workflows that can:
 - update renv lockfiles to manage dependency specifications and versions
 - update Workbench workflows, i.e. {sandpaper} version management
 
-By providing these actions, repositories that use the Workbench framework can
-benefit from reproducible and consistent workflows to manage these aspects of lesson
-development by the Carpentries community and beyond.
+By providing these actions, repositories that use the Workbench framework can benefit from reproducible and consistent workflows to manage these aspects of lesson development by the Carpentries community and beyond.
 
 ## Why do we need these actions?
 

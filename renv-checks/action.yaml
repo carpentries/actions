@@ -68,7 +68,7 @@ runs:
     - name: Get Container Version Used
       id: wb-vers
       if: ${{ steps.check-for-renv.outputs.renv-exists == 'true' }}
-      uses: carpentries/actions/container-version@main
+      uses: carpentries/actions/container-version@v1
       with:
         WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
         renv-needed: ${{ steps.check-for-renv.outputs.renv-exists }}
