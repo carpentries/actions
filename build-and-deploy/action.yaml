@@ -26,8 +26,7 @@ runs:
         # ℹ️ Checking config.yaml for Workbench package overrides #
         library("remotes")
 
-        cfg_file <- '${{ github.workspace }}/config.yaml'
-        conf <- yaml::read_yaml(cfg_file)
+        conf <- yaml::read_yaml("config.yaml")
         get_version <- function(x, key = "varnish") {
           res <- conf[[key]]
           if (!is.null(res)) {
