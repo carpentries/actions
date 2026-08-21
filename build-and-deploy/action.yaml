@@ -24,14 +24,14 @@ runs:
     - name: Override any Workbench packages
       run: |
         # ℹ️ Checking config.yaml for Workbench package overrides #
-        cfg_file <- '${{ runner.temp }}/config.yaml'
-
         library("remotes")
-        cfg <- if (file.exists(cfg_file)) readLines(cfg_file) else character(0)
+
+        cfg_file <- '${{ github.workspace }}/config.yaml'
+        conf <- yaml::read_yaml(cfg_file)
         get_version <- function(x, key = "varnish") {
-          res <- x[grepl(paste0("^", key, "\\s?:"), x)]
-          if (length(res)) {
-            res <- trimws(strsplit(res, ":")[[1]][2])
+          res <- conf[[key]]
+          if (!is.null(res)) {
+            res <- trimws(as.character(res))
             # trim quotes
             res <- gsub("[\"']", "", res)
             if (grepl("^[0-9]", res)) {
@@ -43,9 +43,9 @@ runs:
           res
         }
 
-        varnish_version <- get_version(cfg, key = "varnish")
-        sandpaper_version <- get_version(cfg, key = "sandpaper")
-        pegboard_version <- get_version(cfg, key = "pegboard")
+        varnish_version <- get_version(conf, key = "varnish")
+        sandpaper_version <- get_version(conf, key = "sandpaper")
+        pegboard_version <- get_version(conf, key = "pegboard")
         if (varnish_version != "latest") {
           # ❗ Overriding varnish package version from config #
           cat("::group::Installing", varnish_version, "\n")
