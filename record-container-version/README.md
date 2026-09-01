@@ -4,7 +4,7 @@ This composite workflow writes the `github/workbench-docker-version.txt` file to
 
 This file is populated with the version number of the [workbench-docker](https://hub.docker.com/r/carpentries/workbench-docker/tags) version tag used in the last successful build.
 
-It comprises six steps:
+It comprises the following steps:
 
 - Validate Current Org and Workflow
 
@@ -14,7 +14,9 @@ It comprises six steps:
 
   If the repo and workflow are part of the official Carpentries organisation, gets the access token to use in subsequent steps from AWS Secrets Manager.
 
-  If the repo/org is not part of the Carpentries, the default GITHUB_TOKEN will be used.
+  If the repo/org is not part of the Carpentries (e.g. a personal fork of a lesson repository), the action stops.
+  The container version is not recorded and no pull request is created or merged.
+  This avoids auto-merged commits diverging a fork's history from its upstream (see [#155](https://github.com/carpentries/actions/issues/155)).
 
 - Validate token
 
@@ -24,15 +26,13 @@ It comprises six steps:
 
   Writes the Workbench Docker version used in the build to the `.github/workbench-docker-version.txt` file, and adds it for commit.
 
+  Only runs if the repo and workflow are part of the official Carpentries organisation.
+
 - Create Workbench Version PR / Auto-merge Workbench Version PR
 
   As the `workbench-docker-version.txt` file is in the `.github` folder, we need to raise a PR. If successful, this will be auto-merged.
- 
-- Trigger checks
 
-  If the repo/org is not part of the Carpentries, and the default GITHUB_TOKEN is used, the PR needs to be checked for validity by triggering the {sandpaper} pr-comment.yaml workflow.
-
-  In either case, the PR comment step will be run automatically.
+  These steps also only run if the repo and workflow are part of the official Carpentries organisation.
 
 
 ## Inputs

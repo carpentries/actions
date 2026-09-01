@@ -38,6 +38,18 @@ runs:
         repo: ${{ github.repository }}
         workflow: ${{ github.workflow }}
 
+    - name: "Skip recording on non-Carpentries repositories"
+      if: steps.validate-org-workflow.outputs.is_valid != 'true'
+      run: |
+        # ℹ️ NOTICE: Not an approved Carpentries organisation or workflow #
+        echo "::notice::This repository is not part of an approved Carpentries organisation, or the calling workflow is not an approved workflow."
+        echo "::notice::Skipping recording of the Workbench container version: no pull request will be created or merged."
+
+        echo "## ℹ️ NOTICE: Not an approved Carpentries organisation or workflow" >> $GITHUB_STEP_SUMMARY
+        echo "This repository is not part of an approved Carpentries organisation, or the calling workflow is not an approved workflow." >> $GITHUB_STEP_SUMMARY
+        echo "Skipping recording of the Workbench container version: no pull request will be created or merged." >> $GITHUB_STEP_SUMMARY
+      shell: bash
+
     - name: "Warn on AWS creds if valid org"
       if: |
         steps.validate-org-workflow.outputs.is_valid == 'true' &&
@@ -91,6 +103,7 @@ runs:
 
     - name: Record Container Version Used
       id: record-wb-vers
+      if: steps.validate-org-workflow.outputs.is_valid == 'true'
       run: |
         # 🔧 Recording container version to .github/workbench-docker-version.txt #
         echo "${{ inputs.CONTAINER_VER }}" > .github/workbench-docker-version.txt
@@ -106,6 +119,7 @@ runs:
       uses: peter-evans/create-pull-request@v8
       id: cpr
       if: |
+        steps.validate-org-workflow.outputs.is_valid == 'true' &&
         steps.record-wb-vers.outputs.create-pr == 'true'
       with:
         token: ${{ steps.set-pat.outputs.pat || inputs.token }}
@@ -160,6 +174,7 @@ runs:
 
     - name: "Auto-merge Workbench Version PR"
       if: |
+        steps.validate-org-workflow.outputs.is_valid == 'true' &&
         steps.record-wb-vers.outputs.create-pr == 'true' &&
         steps.cpr.outcome == 'success' &&
         inputs.AUTO_MERGE == 'true'
