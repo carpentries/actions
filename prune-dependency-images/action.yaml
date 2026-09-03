@@ -34,6 +34,9 @@ runs:
       run: |
         set -euo pipefail
 
+        # GHCR packages must be lowercase
+        PACKAGE_NAME="${PACKAGE_NAME,,}"
+
         if [[ "${OWNER_TYPE}" == "Organization" ]]; then
           api_base="/orgs/${OWNER}/packages/container/${PACKAGE_NAME}/versions"
         else
