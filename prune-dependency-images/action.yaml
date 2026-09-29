@@ -1,0 +1,85 @@
+name: Prune dependency images
+description: Prune old untagged dependency image digests from GHCR
+inputs:
+  github-token:
+    description: Token used to clone the lesson repository during docker build
+    required: true
+  owner:
+    description: Owner of the repository
+    required: true
+  repository:
+    description: Name of the repository
+    required: true
+  owner-type:
+    description: Type of the repository owner (User or Organization)
+    required: true
+  package-name:
+    description: Name of the dependency image package
+    required: true
+  keep-count:
+    description: Number of untagged dependency image digests to keep
+    required: false
+    default: "1"
+
+runs:
+  using: composite
+  steps:
+    - name: "Prune old untagged dependency image digests"
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        OWNER: ${{ inputs.owner }}
+        OWNER_TYPE: ${{ inputs.owner-type }}
+        PACKAGE_NAME: ${{ inputs.package-name }}
+        KEEP_COUNT: ${{ inputs.keep-count }}
+      run: |
+        set -euo pipefail
+
+        if [[ "${OWNER_TYPE}" == "Organization" ]]; then
+          api_base="/orgs/${OWNER}/packages/container/${PACKAGE_NAME}/versions"
+        else
+          api_base="/users/${OWNER}/packages/container/${PACKAGE_NAME}/versions"
+        fi
+
+        # Pull all versions and flatten version id, creation time, and every tag.
+        raw_json="$(gh api --paginate "${api_base}?per_page=100")"
+        rows="$(echo "${raw_json}" | jq -r '
+          .[]
+          | select(.metadata.container.tags == [])
+          | [
+            .id,
+            .created_at
+          ]
+          | @tsv
+        ')"
+
+        if [[ -z "${rows}" ]]; then
+          echo "No package versions found for ${PACKAGE_NAME}."
+          exit 0
+        fi
+
+        delete_ids="$({
+          echo "${rows}" \
+          | sort -t $'\t' -k2,2r \
+          | awk -F '\t' -v keep="${KEEP_COUNT}" '
+            {
+              count++
+              if (count > keep) {
+                print $1
+              }
+            }
+          '
+        })"
+
+        if [[ -z "${delete_ids}" ]]; then
+          echo "No untagged digests to delete. Nothing to do."
+          exit 0
+        fi
+
+        while IFS= read -r version_id; do
+          [[ -z "${version_id}" ]] && continue
+          echo "Deleting package version id ${version_id} from ${PACKAGE_NAME}"
+          gh api -X DELETE "${api_base}/${version_id}"
+        done <<< "${delete_ids}"
+
+        echo "Deleted $(echo "${delete_ids}" | wc -l) untagged digests from https://github.com/${OWNER}/${repository}/pkgs/container/${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
+      shell: bash

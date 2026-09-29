@@ -17,13 +17,19 @@ outputs:
   renv-cache-hashsum:
     description: 'renv cache hashsum'
     value: ${{ steps.renv-check.outputs.renv-cache-hashsum }}
+  dependency-image-ref:
+    description: 'Dependency image reference selected for this repository and lockfile state'
+    value: ${{ steps.renv-check.outputs.dependency-image-ref }}
+  dependency-image-available:
+    description: 'Whether a repository-scoped dependency image exists in GHCR'
+    value: ${{ steps.renv-check.outputs.dependency-image-available }}
 
 runs:
   using: "composite"
   steps:
     - name: "Is renv required?"
       id: renv-check
-      uses: carpentries/actions/renv-checks@main
+      uses: carpentries/actions/renv-checks@v1
       with:
         CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
         skip-cache-check: true
@@ -33,7 +39,7 @@ runs:
       if: |
         github.event_name == 'workflow_run' &&
         steps.renv-check.outputs.renv-needed
-      uses: carpentries/actions/download-workflow-artifact@main
+      uses: carpentries/actions/download-workflow-artifact@v1
       with:
         run: ${{ github.event.workflow_run.id }}
         name: 'apply-cache-result'

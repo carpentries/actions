@@ -48,7 +48,7 @@ jobs:
       github.event.workflow_run.conclusion == 'success'
     steps:
       - name: 'Download artifact'
-        uses: carpentries/actions/download-workflow-artifact@main
+        uses: carpentries/actions/download-workflow-artifact@v1
         with:
           run: ${{ github.event.workflow_run.id }}
           name: pr
@@ -58,7 +58,7 @@ jobs:
           unzip pr.zip
           echo "::set-output name=NUM::$(<./NUM)"
       - name: 'Remove branch'
-        uses: carpentries/actions/remove-branch@main
+        uses: carpentries/actions/remove-branch@v1
         with:
           pr: ${{ steps.get-pr.outputs.NUM }}
 ```

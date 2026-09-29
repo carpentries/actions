@@ -1,5 +1,8 @@
 # Manage dependencies required for lesson builds
 
+> [!NOTE]
+> This workflow is no longer used, and is replaced by the build-dependency-image action
+
 This composite workflow performs all the prerequisite checks and validation steps to carry out a full lesson build and deployment.
 
 It comprises five steps:
@@ -10,15 +13,15 @@ It comprises five steps:
 
 - Check renv status:
 
-  Checks if renv is used in this lesson, and if so, if a package cache is available to reuse.
+  Checks if renv is used in this lesson, and resolves whether a repository-scoped dependency image exists in GHCR.
 
-- Fail/Warn on renv cache availability:
+- Warn on dependency image availability:
 
-  If renv is required but no cache exists, the build will fail, prompting the user to run the Check for Updated Packages and Apply Package Cache workflows.
+  If renv is required but no dependency image exists yet, the build continues with runtime dependency restoration (slower), and advises running Apply Package Cache.
 
 - Restore renv Dependencies:
 
-  Processes the renv lockfile and installs any required packages that were not available in the package cache.
+  Processes the renv lockfile and installs any required packages.
 
 - Override any Workbench packages:
 
@@ -26,7 +29,7 @@ It comprises five steps:
 
 ### Access tokens
 
-This action requires the use of caching, either via GitHub or AWS.
+This action can use legacy cache checks via AWS/GitHub, but is primarily designed for dependency-image workflows.
 
 #### AWS
 

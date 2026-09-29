@@ -21,6 +21,50 @@ runs:
   using: "composite"
 
   steps:
+    - name: Override any Workbench packages
+      run: |
+        # ℹ️ Checking config.yaml for Workbench package overrides #
+        library("remotes")
+
+        conf <- yaml::read_yaml("config.yaml")
+        get_version <- function(x, key = "varnish") {
+          res <- conf[[key]]
+          if (!is.null(res)) {
+            res <- trimws(as.character(res))
+            # trim quotes
+            res <- gsub("[\"']", "", res)
+            if (grepl("^[0-9]", res)) {
+              res <- paste0("carpentries/", key, "@", res)
+            }
+          } else {
+            res <- "latest"
+          }
+          res
+        }
+
+        varnish_version <- get_version(conf, key = "varnish")
+        sandpaper_version <- get_version(conf, key = "sandpaper")
+        pegboard_version <- get_version(conf, key = "pegboard")
+        if (varnish_version != "latest") {
+          # ❗ Overriding varnish package version from config #
+          cat("::group::Installing", varnish_version, "\n")
+          remotes::install_github(varnish_version)
+          cat("::endgroup::\n")
+        }
+        if (sandpaper_version != "latest") {
+          # ❗ Overriding sandpaper package version from config #
+          cat("::group::Installing", sandpaper_version, "\n")
+          remotes::install_github(sandpaper_version)
+          cat("::endgroup::\n")
+        }
+        if (pegboard_version != "latest") {
+          # ❗ Overriding pegboard package version from config #
+          cat("::group::Installing", pegboard_version, "\n")
+          remotes::install_github(pegboard_version)
+          cat("::endgroup::\n")
+        }
+      shell: Rscript {0}
+
     - name: Checkout l10n_main branch
       if: ${{ inputs.lang-code != '' }}
       uses: actions/checkout@v5

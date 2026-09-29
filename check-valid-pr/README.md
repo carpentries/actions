@@ -58,7 +58,7 @@ jobs:
       - name: "Comment on PR"
         id: comment-diff
         if: ${{ always() }}
-        uses: carpentries/actions/comment-diff@main
+        uses: carpentries/actions/comment-diff@v1
         with:
           pr: ${{ github.event.number }} 
           body: ${{ steps.check-pr.outputs.MSG }}

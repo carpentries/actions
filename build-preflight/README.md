@@ -43,3 +43,15 @@ Is renv needed?
 If renv is needed, return the renv lockfile hashsum, either calculated by calling `hashFiles()` on the lesson lockfile, or returning the user-supplied CACHE_VERSION string.
 
 - value: the renv lockfile hashsum
+
+### dependency-image-ref:
+
+The resolved dependency image reference for this lesson.
+
+- value: image reference string
+
+### dependency-image-available:
+
+Whether a repository-scoped dependency image was found in GHCR.
+
+- value: `true` or `false`

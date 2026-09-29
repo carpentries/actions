@@ -28,7 +28,7 @@ jobs:
     steps:
       - name: "Validate Token"
         id: check
-        uses: carpentries/actions/check-valid-credentials@main
+        uses: carpentries/actions/check-valid-credentials@v1
         with:
           token: ${{ secrets.SANDPAPER_WORKFLOW }}
   
@@ -52,7 +52,7 @@ jobs:
 
       - name: Update Workflows
         id: update
-        uses: carpentries/actions/update-workflows@main
+        uses: carpentries/actions/update-workflows@v1
 
       - name: Create Pull Request
         id: cpr
