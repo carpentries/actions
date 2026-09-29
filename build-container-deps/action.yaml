@@ -66,7 +66,7 @@ runs:
     - name: Install any system dependencies and renv restore
       if: steps.check-renv.outputs.renv-needed == 'true'
       run: |
-        # 🔧 Restoring renv dependencies #
+        # 🔧 Installing package system dependencies #
         lsn_path <- fs::path("${{ inputs.LESSON_PATH }}")
 
         site_libs <- strsplit(Sys.getenv("R_LIBS_SITE"), ":")[[1]]
@@ -100,7 +100,8 @@ runs:
                 paste0("https://packagemanager.posit.co/all/__linux__/", release, "/latest"))
             }
           }
-          repos <- list(
+
+          base_repos <- c(
             RSPM        = Sys.getenv("RSPM"),
             carpentries = "https://carpentries.r-universe.dev/",
             CRAN        = "https://cran.rstudio.com"
@@ -161,6 +162,7 @@ runs:
           }
         }
 
+        # Load the renv environment and restore
         renv::load(project = lsn_path, profile = "lesson-requirements")
         renv::restore(project = lsn_path, library = renv_lib, lockfile = renv_lock, prompt = FALSE)
       shell: Rscript {0}
