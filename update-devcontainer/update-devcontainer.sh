@@ -117,7 +117,7 @@ if [[ -n "${REPO}" && "${REPO}" == */* ]]; then
   echo "::endgroup::"
 
   if [[ -f .devcontainer/Dockerfile ]]; then
-    if [[ "${REPO_IMAGE_EXISTS}" == "true" ]]; then
+    if [[ "${REPO_IMAGE_EXISTS}" == "true" && "${CURRENT}" != "${REPO_PACKAGE_REF}" ]]; then
       if grep -Eq '^ARG DEVC_IMG=' .devcontainer/Dockerfile; then
         sed -i -E "s#^ARG DEVC_IMG=.*#ARG DEVC_IMG=${REPO_PACKAGE_REF}:latest#" .devcontainer/Dockerfile
         echo "Updated .devcontainer/Dockerfile to use ${REPO_PACKAGE_REF}:latest"
