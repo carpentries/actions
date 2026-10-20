@@ -37,6 +37,7 @@ BODY=""
 
 # Set variables needed
 REPO="${1:-}"
+CLEAN="${2:-true}"
 
 # Get the current version of the workflow files if it exists
 CURRENT=""
@@ -76,9 +77,15 @@ TMP=$(mktemp -d)
 
 # Show the version information
 echo "::group::Version Information"
-echo "Current version:   ${CURRENT}"
-echo "Requested version: ${UPSTREAM}"
+echo "Dependency image:   ${CURRENT}"
+echo "Devcontainer version: ${UPSTREAM}"
 echo "::endgroup::"
+
+if [[ "${CLEAN}" == "true" ]]; then
+  echo "::group::Cleaning existing devcontainer files"
+  rm -rfv .devcontainer/
+  echo "::endgroup::"
+fi
 
 # Copy the contents if there is no .devcontainer directory
 if [[ ! -d ".devcontainer" || "${CURRENT}" == "" ]]; then
