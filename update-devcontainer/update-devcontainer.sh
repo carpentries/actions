@@ -41,7 +41,8 @@ REPO="${1:-}"
 # Get the current version of the workflow files if it exists
 CURRENT=""
 if [[ -r .devcontainer/Dockerfile ]]; then
-  CURRENT=$(grep -E '^ARG DEVC_IMG=' .devcontainer/Dockerfile | cut -d'=' -f2)
+  # set CURRENT to the current FROM line in the Dockerfile
+  CURRENT=$(grep -E '^FROM ' .devcontainer/Dockerfile | cut -d' ' -f2)
 fi
 
 GHTOKEN_HEADER=""
@@ -102,8 +103,6 @@ if [[ -n "${REPO}" && "${REPO}" == */* ]]; then
   REPO_PACKAGE="${REPO_NAME%-deps}-deps"
   REPO_PACKAGE_REF="ghcr.io/${REPO_OWNER}/${REPO_PACKAGE}"
 
-  echo "Checking https://api.github.com/orgs/${REPO_OWNER}/packages/container/${REPO_PACKAGE}"
-
   echo "::group::Repository dependency image check"
   if curl -fsSL -H "Accept: application/vnd.github+json" -H "${GHTOKEN_HEADER}" "https://api.github.com/orgs/${REPO_OWNER}/packages/container/${REPO_PACKAGE}" >/dev/null 2>&1; then
     REPO_IMAGE_EXISTS=true
@@ -118,8 +117,8 @@ if [[ -n "${REPO}" && "${REPO}" == */* ]]; then
 
   if [[ -f .devcontainer/Dockerfile ]]; then
     if [[ "${REPO_IMAGE_EXISTS}" == "true" && "${CURRENT}" != "${REPO_PACKAGE_REF}" ]]; then
-      if grep -Eq '^ARG DEVC_IMG=' .devcontainer/Dockerfile; then
-        sed -i -E "s#^ARG DEVC_IMG=.*#ARG DEVC_IMG=${REPO_PACKAGE_REF}:latest#" .devcontainer/Dockerfile
+      if grep -Eq '^FROM ' .devcontainer/Dockerfile; then
+        sed -i -E "s#^FROM .*#FROM ${REPO_PACKAGE_REF}:latest#" .devcontainer/Dockerfile
         echo "Updated .devcontainer/Dockerfile to use ${REPO_PACKAGE_REF}:latest"
         echo "repo-package-ref=${REPO_PACKAGE_REF}:latest" >> $GITHUB_OUTPUT
         echo "date=$(date --utc -Iminutes)" >> $GITHUB_OUTPUT
