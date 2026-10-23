@@ -5,10 +5,15 @@ inputs:
   CONTAINER_VER:
     description: 'Docker container version used'
     required: true
+  OMIT_PR:
+    description: 'Whether to omit creating a PR for the version update'
+    required: false
+    default: false
+    type: boolean
   AUTO_MERGE:
     description: 'Automatically merge the PR to update the container version'
     required: false
-    default: true
+    default: false
     type: boolean
   token:
     description: "Token to validate"
@@ -28,6 +33,16 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: "Skip PR Creation"
+      if: inputs.OMIT_PR == 'true'
+      run: |
+        echo "## ⚠️ : PR creation skipped" >> $GITHUB_STEP_SUMMARY
+        echo "Skipping PR creation as OMIT_PR is set to true." >> $GITHUB_STEP_SUMMARY
+        echo "Note that any Workbench docker image updates will need to be self-managed!" >> $GITHUB_STEP_SUMMARY
+        echo "Skipping PR creation as OMIT_PR is set to true."
+        exit 0
+      shell: bash
+
     - name: "Checkout Lesson"
       uses: actions/checkout@v6
 
@@ -162,6 +177,7 @@ runs:
       if: |
         steps.record-wb-vers.outputs.create-pr == 'true' &&
         steps.cpr.outcome == 'success' &&
+        inputs.OMIT_PR == 'false' &&
         inputs.AUTO_MERGE == 'true'
       run: |
         # 🔧 Auto-merging PR #

@@ -1,0 +1,35 @@
+name: "Update Devcontainer Image"
+description: "Update the devcontainer image for Workbench lesson repositories"
+inputs:
+  repo:
+    description: "Name of the current repository, e.g. datacarpentry/R-ecology-lesson"
+    required: true
+  clean:
+    description: "Whether to clean existing devcontainer files before updating"
+    required: false
+    default: true
+    type: boolean
+  token:
+    description: "GitHub PAT, usually passed as 'secrets.GITHUB_TOKEN' from the caller workflow."
+    required: false
+    default: ""
+outputs:
+  repo-package-ref:
+    description: "repository package reference of the devcontainer image"
+    value: "${{ steps.update.outputs.repo-package-ref }}"
+  date:
+    description: "date of the most recent update attempt"
+    value: "${{ steps.update.outputs.date }}"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Update Devcontainer Image"
+      id: update
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+      run: |
+        ${{ github.action_path }}/update-devcontainer.sh \
+          ${{ inputs.repo }} \
+          ${{ inputs.clean }}
+      shell: bash
