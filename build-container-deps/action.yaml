@@ -47,7 +47,7 @@ runs:
 
     - name: Check renv status
       id: check-renv
-      uses: carpentries/actions/renv-checks@frog-ghcr-dep-layer-1
+      uses: carpentries/actions/renv-checks@v1
       with:
         WORKBENCH_TAG: ${{ inputs.WORKBENCH_TAG || 'latest' }}
         CACHE_VERSION: ${{ inputs.CACHE_VERSION || '' }}
