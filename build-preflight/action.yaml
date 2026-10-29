@@ -79,8 +79,15 @@ runs:
                 echo "PR not merged or in an invalid state. No build will run." >> $GITHUB_STEP_SUMMARY
                 echo "push_or_pr=false" >> $GITHUB_OUTPUT
               else
-                echo "✅ PR merged successfully. Build will run."
-                echo "push_or_pr=true" >> $GITHUB_OUTPUT
+                if [[ "${{ steps.renv-check.outputs.renv-needed }}" == 'false' ]]; then
+                  echo "ℹ️ This repository does not require renv. No build will run."
+                  echo "## ℹ️ Build Skipped" >> $GITHUB_STEP_SUMMARY
+                  echo "This repository does not require renv. No build will run." >> $GITHUB_STEP_SUMMARY
+                  echo "push_or_pr=false" >> $GITHUB_OUTPUT
+                else
+                  echo "✅ PR merged successfully. Build will run."
+                  echo "push_or_pr=true" >> $GITHUB_OUTPUT
+                fi
               fi
             else
               if [[ "${{ steps.renv-check.outputs.renv-needed }}" == 'true' &&
