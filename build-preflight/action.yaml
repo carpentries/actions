@@ -82,7 +82,7 @@ runs:
                 if [[ "${{ steps.renv-check.outputs.renv-needed }}" == 'false' ]]; then
                   echo "ℹ️ This repository does not require renv. No build will run."
                   echo "## ℹ️ Build Skipped" >> $GITHUB_STEP_SUMMARY
-                  echo "This repository does not require renv. No build will run." >> $GITHUB_STEP_SUMMARY
+                  echo "This build was triggered by a renv package check workflow run. As this repository does not require renv, no build will run." >> $GITHUB_STEP_SUMMARY
                   echo "push_or_pr=false" >> $GITHUB_OUTPUT
                 else
                   echo "✅ PR merged successfully. Build will run."
@@ -106,7 +106,7 @@ runs:
                 if [[ "${{ steps.renv-check.outputs.renv-needed }}" == 'false' ]]; then
                   echo "ℹ️ This repository does not require renv. No build will run."
                   echo "## ℹ️ Build Skipped" >> $GITHUB_STEP_SUMMARY
-                  echo "This repository does not require renv. No build will run." >> $GITHUB_STEP_SUMMARY
+                  echo "This build was triggered by a renv package check workflow run. As this repository does not require renv, no build will run." >> $GITHUB_STEP_SUMMARY
                   echo "push_or_pr=false" >> $GITHUB_OUTPUT
                 else
                   echo "✅ PR merged successfully. Build will run."
@@ -131,7 +131,7 @@ runs:
               if [[ "${{ steps.renv-check.outputs.renv-needed }}" == 'false' ]]; then
                 echo "ℹ️ This repository does not require renv. No build will run."
                 echo "## ℹ️ Build Skipped" >> $GITHUB_STEP_SUMMARY
-                echo "This repository does not require renv. No build will run." >> $GITHUB_STEP_SUMMARY
+                echo "This build was triggered by a renv package check workflow run. As this repository does not require renv, no build will run." >> $GITHUB_STEP_SUMMARY
                 echo "push_or_pr=false" >> $GITHUB_OUTPUT
               else
                 echo "✅ Triggered from workflow run. Build will run."
