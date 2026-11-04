@@ -36,7 +36,11 @@ async function run() {
       // or check that the file is, but is not a workflow file, e.g. a issue/PR template
       (
         l.startsWith('.github/') &&
-        !l.endsWith('.yaml') && !l.endsWith('.yml')
+        (
+          (!l.endsWith('.yaml') && !l.endsWith('.yml')) ||
+          l != '.github/workflows/README.md' ||
+          l != '.github/workflows/workflows-version.txt'
+        )
       )
     );
   }
