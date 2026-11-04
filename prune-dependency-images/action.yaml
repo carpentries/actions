@@ -84,5 +84,5 @@ runs:
           gh api -X DELETE "${api_base}/${version_id}"
         done <<< "${delete_ids}"
 
-        echo "Deleted $(echo "${delete_ids}" | wc -l) untagged digests from https://github.com/${OWNER}/${repository}/pkgs/container/${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
+        echo "Deleted $(echo "${delete_ids}" | wc -l) untagged digests from https://github.com/${OWNER}/${{ inputs.repository }}/pkgs/container/${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
       shell: bash
