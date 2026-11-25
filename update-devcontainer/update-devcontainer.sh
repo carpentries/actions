@@ -118,7 +118,9 @@ if [[ -n "${REPO}" && "${REPO}" == */* ]]; then
     REPO_IMAGE_EXISTS=true
     echo "Repository-scoped dependency image found: ${REPO_PACKAGE_REF}"
   else
-    echo "No repository-scoped dependency image found for ${REPO_PACKAGE_REF}"
+    echo "No repository-scoped dependency image found for ${REPO_PACKAGE_REF}. Using default image."
+    echo "repo-package-ref=${REPO_PACKAGE_REF}:latest" >> $GITHUB_OUTPUT
+    echo "date=$(date --utc -Iminutes)" >> $GITHUB_OUTPUT
   fi
   echo "::endgroup::"
 
